@@ -1,0 +1,34 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "src/content/data/tuning/time.json"
+      ],
+      "url": "./src/content/schemas/tuning.time.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/tuning/economy.json"
+      ],
+      "url": "./src/content/schemas/tuning.economy.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/cities.json"
+      ],
+      "url": "./src/content/schemas/cities.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/mayors.json"
+      ],
+      "url": "./src/content/schemas/mayors.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/strings/letter.json"
+      ],
+      "url": "./src/content/schemas/strings.letter.schema.json"
+    }
+  ]
+}

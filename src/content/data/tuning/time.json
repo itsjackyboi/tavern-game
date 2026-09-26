@@ -1,0 +1,11 @@
+{
+  "ticksPerSecond": 20,
+  "startYear": 448,
+  "endYear": 463,
+  "seasonOrder": ["stormtide", "goldsun", "veilfrost"],
+  "seasonTicks": { "stormtide": 1300, "goldsun": 1300, "veilfrost": 1300 },
+  "dayFraction": 0.6,
+  "lastCallTicks": 100,
+  "holidayKegTicks": 160,
+  "maxFrameMs": 250
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "placeholder": {
+      "type": "boolean"
+    },
+    "sealLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60
+    },
+    "salutation": {
+      "type": "string"
+    },
+    "paragraphs": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "signature": {
+      "type": "string"
+    },
+    "closeLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 30
+    }
+  },
+  "required": [
+    "placeholder",
+    "sealLabel",
+    "salutation",
+    "paragraphs",
+    "signature",
+    "closeLabel"
+  ],
+  "additionalProperties": false
+}

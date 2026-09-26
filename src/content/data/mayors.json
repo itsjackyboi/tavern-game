@@ -1,0 +1,6 @@
+[
+  { "id": "cromwell", "name": "Cromwell", "from": 412, "to": 425, "live": false },
+  { "id": "chestnut", "name": "Bronco Chestnut", "from": 425, "to": 427, "live": false },
+  { "id": "galleyway", "name": "Glendolph Galleyway", "from": 427, "to": 451, "live": true },
+  { "id": "thatcher-sr", "name": "Thomas Thatcher Sr.", "from": 452, "to": 463, "live": true }
+]

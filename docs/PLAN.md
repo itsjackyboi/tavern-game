@@ -19,8 +19,8 @@ This plan does three things. It restates the scope, records the decisions the us
 | Topic | Decision |
 |---|---|
 | **Time scale** | **1 shift = 1 season. Late-era start.** The run starts at **Year 448, Stormtide** and runs to the **end of Year 463**: 16 years, 48 season-shifts plus 16 short Holiday Kegs, about 54 min of sim time. All tunable. |
-| **Goal and score** | **The goal is to become the biggest tavern company in the Isles in the shortest time.** Size is measured by one number, **Company Value (CV)** (§2.6). CV is computed the same way for the player and every rival company, and is always visible as a rank. The score is **date-independent**: the leaderboard ranks by **run-clock time to "Top Tap"**, the moment you became the biggest company. The in-game year is display only. |
-| **Win / lose** | **The verdict comes at the end of Year 463.** If you are established in all four cities and hold the **#1 CV**, Mayor Thomas Thatcher Sr. picks your company to sponsor the reinstated Drunken Trials and the finale plays. Otherwise another company is chosen and the run is lost. Bankruptcy also ends the run. **A leaderboard entry needs both** a Top Tap time and being chosen at 463. Reaching the top and then losing the lead does not count. |
+| **Goal and score** | **The goal is to become the biggest tavern company in the Isles.** Size is measured by one number, **Company Value (CV)** (§2.6). CV is computed the same way for the player and every rival company, and is always visible as a rank. **Two leaderboards** (§2.6): **Highest Company Value**, the score, which usually comes from runs played to Year 463, and **Fastest Monopoly**, the date-independent real-time clock to monopoly status. The in-game year is display only. |
+| **Win / lose** | **There are two ways to win.** (1) **Monopoly:** the moment your CV is **≥ 2× the next-biggest company's**, you win instantly by default and the run ends. This is where times matter. (2) **Sponsorship:** at the end of Year 463, if you are established in all four cities and hold the **#1 CV**, Mayor Thomas Thatcher Sr. picks your company to sponsor the reinstated Drunken Trials. Otherwise another company is chosen and the run is lost. Bankruptcy also ends the run. **Only winning runs go on the leaderboards.** |
 | **Freeplay** | After the Year-463 verdict, the player may continue in **Freeplay** ("One More Keg", like Civ's "one more turn"). If they were *not* chosen, show a clear note: *they did not achieve the sponsorship, and the run is not on the leaderboard.* |
 | **Pause** | **The clock stops and the board is hidden.** Manual pause, a hidden tab and window blur all freeze the sim and the ranked clock, and veil the play area. Resuming after closing the tab restores the save paused. Pause and session counts are recorded for transparency but not penalised. |
 | **Rival race** | Every rival company has a CV. The strongest (the "arch-rival network") expands into all four cities and competes for #1 CV. |
@@ -28,14 +28,13 @@ This plan does three things. It restates the scope, records the decisions the us
 | **Background sim** | Unfocused taverns keep running as a simplified aggregate sim. This follows the user's lean. |
 
 **Defaults I chose for the remaining open questions** (the user can override):
-- **Leaderboard columns:**
-  - rank by **Top Tap time** (run clock, mm:ss)
-  - Mario-style **splits**: first sister, third sister, first time #1 in CV, Top Tap
-  - **final CV** at 463, used as the tiebreak
-  - **peak CV**
-  - home city
-  - Categories: overall, per home city, Assisted (extended timers), NG+.
-- **After Top Tap is stamped:** the time is locked in. The player may speed the sim up to 2× or 4× to reach the 463 verdict faster, but still has to hold the lead. Speed-up is never available before the stamp.
+- **Leaderboards:**
+  - **Fastest Monopoly:** ranked by run-clock time (mm:ss) to monopoly. Only monopoly wins appear here.
+  - **Highest Company Value:** ranked by final CV. Every winning run appears here, monopoly or sponsorship, but runs to 463 will usually top it.
+  - Mario-style **splits** shown on both: first sister, third sister, first time #1 in CV, monopoly (if reached).
+  - Columns also show peak CV and home city.
+  - Categories on both boards: overall, per home city, Assisted (extended timers), NG+.
+- **The strategic choice this creates:** push for an early monopoly (fast time, smaller CV), or grow steadily to 463 (big CV). A player who crosses 2× wins at that moment; there is no option to decline and keep growing. Freeplay afterwards is unranked.
 - **Currency:** "Duckets" (from the Economy Pitch). Shanty Town also has Favor (barrels).
 - **Finale:** Thatcher Sr. proclaims the Trials' return and names the player's network sponsor. No winner of any Trials is ever shown. There is no reference to the six-way tie beyond "the Trials will be held".
 - **Freeplay past 463:** the calendar keeps counting generically. No new mayors, eras or post-464 content.
@@ -64,7 +63,7 @@ This plan does three things. It restates the scope, records the decisions the us
   - **460: Thatcher Sr. announces the Trials will return and that a tavern network will sponsor them.** Act III starts: the public sponsorship race, with rivals at maximum escalation.
   - **End of 463:** the verdict, then the finale or the loss screen, with Freeplay offered.
   - The mayor years are **not canon**. They live in `content/data/mayors.json`.
-- **Skilled-player target:** Top Tap around the 30–42 min mark. Experts reach it around 25 min. The rest of the run is spent defending the lead, optionally sped up.
+- **Skilled-player targets:** a skilled sponsorship run reaches #1 CV around the 30–42 min mark and then defends it. Monopoly is hard: expert players reach it in roughly 30–45 min, and most runs never do. All tunable in `tuning/targets.json`.
 
 ### 2.2 The four home cities
 Each city has a starting buff and nerf and its own rules hook, `CityRules`.
@@ -161,7 +160,7 @@ Each city has a starting buff and nerf and its own rules hook, `CityRules`.
 - **Delegation is a real trade-off.** Staff and managers run at `delegationEff` ≈ 0.90–0.95 of skilled play. The player also gets an "Owner's Touch" bonus on personally served orders.
 - A **manager** is the same system at whole-tavern scale. Managers execute policy and answer inbox items using their own default choices; quality scales with competence.
 
-### 2.6 Sister locations, Company Value and Top Tap
+### 2.6 Sister locations, Company Value and monopoly
 - **Founding happens on the world map.** It needs Duckets, network reputation, and a free **lot/licence**. Each city has a limited number of lots, and rivals race for them.
 - A new sister then chooses its layout and appoints a manager.
 - **Lifecycle:** building → establishing → established, or struggling → closed.
@@ -174,13 +173,11 @@ Each city has a starting buff and nerf and its own rules hook, `CityRules`.
   - brand value: Σ tavern rep × city market size
   - minus debt
 - **HUD:** CV and your **CV rank among all companies**, plus a small race bar against the top rival. Rival CVs are shown with intel-dependent noise.
-- **Milestone ladder** (each step is timestamped on the run clock and becomes a leaderboard split): Taproom → Alehouse Chain (first sister) → Two-City Concern → Four-City Company (third sister) → **#1 in CV** → **Top Tap**.
-- **Top Tap criteria** (draft; tunable):
-  - The flagship and 3 sisters are all *established*.
-  - Every sister has rep ≥ 50 and non-negative profit over the trailing year.
-  - The flagship has rep ≥ 75.
-  - Your CV is ≥ 1.10× the next-biggest company.
-  - All of this **holds for 3 consecutive seasons**. The clock is stamped when the hold completes.
+- **Milestone ladder** (each step is timestamped on the run clock and becomes a leaderboard split): Taproom → Alehouse Chain (first sister) → Two-City Concern → Four-City Company (third sister) → **#1 in CV** → **Monopoly (≥ 2× the next-biggest)**.
+- **Monopoly rule:** checked every tick. Win when `playerCV ≥ monopolyRatio × max(rival company CV)`, with `monopolyRatio = 2.0` in `tuning/economy.json`.
+  - CV smooths its earnings term over the trailing year, so a single lucky night can't trigger it.
+  - A rival company's CV includes all of its taverns; a merged rival counts as one company.
+  - The win is instant: the monopoly time is stamped, and the monopoly finale plays (Thatcher Sr. names the company that owns the Isles' taps as sponsor by default).
 - **Sponsorship at 463** goes to the company that is established in all four cities and has the highest CV. There is no separate standing formula, so "biggest company" and "chosen sponsor" can never disagree. The arch-rival network races on CV too.
 
 ### 2.7 Rival AI (adaptive, archetyped)
@@ -437,13 +434,13 @@ dev.html (sprite/audio gallery for user check-ins)   CREDITS.md   assets/{sprite
 - **`gas/Code.gs`:**
   - `@OnlyCurrentDoc`, and `LockService.tryLock`.
   - A build allowlist held in Script Properties, so the client can't pick the era.
-  - Bounds and plausibility checks: splits are monotonic; `topTapMs ≤ simMs`; `realMs ≥ topTapMs`; `topTapMs` ≥ 0.8 × the expert-bot best; the run reached the 463 verdict with `chosen = true`.
+  - Bounds and plausibility checks: splits are monotonic; `monopolyMs ≤ simMs`; `realMs ≥ simMs`; `monopolyMs` ≥ 0.8 × the expert-bot best; `winType` is `monopoly` or `sponsor`; `finalCV` is within the tuned bounds for the run length.
   - Duplicate `runId`s are rejected.
   - Formula-injection escaping: prefix `'` on any cell starting with `= + - @`, tab or CR.
   - CacheService rate limits: 1 per 60 s per client, 30 per minute globally.
   - An append-only `runs` tab, plus an incrementally maintained top-100 per category and an admin `hidden` column.
-- **Payload:** `runId, clientId, name (≤16, allow-listed chars), homeCity, category, topTapMs, splits{firstSisterMs, thirdSisterMs, firstNo1Ms}, finalCV, peakCV, simMs, realMs, pauses, sessions, chosen, seed, build, contentHash, cmdDigest`.
-- The board sorts by `topTapMs`, then `finalCV` descending. Both the sort key and the tiebreak are constants in `Code.gs`, so ranking can be changed later.
+- **Payload:** `runId, clientId, name (≤16, allow-listed chars), homeCity, category, winType (monopoly|sponsor), monopolyMs (monopoly only), finalCV, peakCV, splits{firstSisterMs, thirdSisterMs, firstNo1Ms}, simMs, realMs, pauses, sessions, seed, build, contentHash, cmdDigest`.
+- Two boards: `?board=monopoly&cat=…` sorts `monopolyMs` ascending (tiebreak `finalCV` descending); `?board=cv&cat=…` sorts `finalCV` descending (tiebreak `simMs` ascending). The sort keys are constants in `Code.gs`.
 - **`tests/gas`** runs `Code.gs` under a `node:vm` shim of SpreadsheetApp, LockService and CacheService.
 - **`gas/README.md`** gives the user's deploy steps, including "Manage deployments → New version" so the URL is kept. Honest mode only; `tools/verify-run.ts` replays disputed top runs.
 
@@ -471,15 +468,15 @@ Each milestone ends with a green CI, tests, a `?debug` scenario plus a Playwrigh
 | **M2 ★** | **Core-loop depth and feel (the fun gate).** Staff hiring, stations, drag and hotkeys, competence/morale/fatigue; tactical prompt engine; VIPs; named regulars; combos; Holiday Keg bell; first SFX set with variants; particles and shake; full Aleforge interior art; character composer. | Throughput rises with competence. `floor(skilled) ≥ 1.1× floor(staffOnly)`. **Check-in #1: core loop feel. Iterate here most.** |
 | **M3** | **Economy and aggregate sim.** zod schemas and JSON Schema; drinks, ingredients, recipes; menu and pricing; logit demand; ledger accounts; suppliers with finite stock; bookkeeping (rent, wages, fees); loans; `aggregateSim`, materialize/collapse, `calibrate`. | Calibration invariant chain and conservation suites green. A debug second tavern focuses and unfocuses without drift (±5% revenue). |
 | **M4** | **World map and trade.** Overworld with nodes, routes, Cumstead; `Tab`/wheel switching with transition; price boards; Roto volatility; shipments with Stormtide and pirate risk; Voyage Wager; edge alerts; rumour ticker v0. | Price processes stay bounded; shipment determinism. E2E: switching views keeps sim ticks continuous. |
-| **M5 ★** | **Sisters, managers, win and loss.** Lots and licences; the founding lifecycle; managers and autonomy; strategic inbox; policy editor; **Company Value** and the league table; milestone ladder and splits; Top Tap hold and stamp; post-stamp speed-up; Year-463 verdict; loss screen; **Freeplay with the not-on-leaderboard note**; ranked clock; autosave and Continue. | CV unit tests (same formula for player and rivals; depreciation; debt). The bot reaches Top Tap and wins a no-rival debug run. Save → reload → continue gives the same hash as an uninterrupted run. **Check-in #2: delegation arc and world-map readability.** |
+| **M5 ★** | **Sisters, managers, win and loss.** Lots and licences; the founding lifecycle; managers and autonomy; strategic inbox; policy editor; **Company Value** and the league table; milestone ladder and splits; **monopoly check and instant win**; Year-463 verdict; loss screen; **Freeplay with the not-on-leaderboard note**; ranked clock; autosave and Continue. | CV unit tests (same formula for player and rivals; depreciation; debt). A debug scenario that gives the player 2× CV wins by monopoly and stamps the time. The bot wins a no-rival debug run. Save → reload → continue gives the same hash as an uninterrupted run. **Check-in #2: delegation arc and world-map readability.** |
 | **M6 ★** | **City identities.** `CityRules` for all four cities (§2.2), per-city interiors and building composers, per-city palettes, Galleyway→Thatcher election, 460 announcement. | One rules test file per city. Each `?city=` start is playable. **Check-in #3: per-city art direction.** |
 | **M7 ★** | **Rivals.** Director, archetypes, tracking, tiers, moods and merges, intel telegraphs, arch-rival network race, rival agents on the floor. | The undercutter contests a dominated ale bucket within 2 years. Telegraph fidelity falls monotonically with secrecy. Merges conserve assets. **Check-in #4: difficulty and readability.** |
 | **M8** | **Undercurrents and crises.** Undercurrent variables, winds, crisis roller plus 14-crisis pool with chains, vow-trades, holidays, recipe discovery v0, debug crisis console. | Roller Monte Carlo passes. Every crisis option resolves without throwing. Threshold-crossing tests pass. |
-| **M9** | **Balance and performance.** Bot profiles (novice/average/skilled/expert/staffOnly/idle); `tools/balance.ts` with workers plus surrogate mode; `targets.json`. | Skilled bots reach Top Tap at ~30–42 min; experts at ~25 min; average bots win ≤ 40%; idle and novice lose; all-delegate never beats skilled; no degenerate strategy dominates. Sim p95 ≤ 2 ms per frame. 20-run CI smoke check. |
+| **M9** | **Balance and performance.** Bot profiles (novice/average/skilled/expert/staffOnly/idle); `tools/balance.ts` with workers plus surrogate mode; `targets.json`. | Skilled bots reach #1 CV at ~30–42 min; expert bots sometimes reach monopoly (30–45 min), skilled bots rarely; average bots win ≤ 40%; idle and novice lose; all-delegate never beats skilled; no degenerate strategy dominates. Sim p95 ≤ 2 ms per frame. 20-run CI smoke check. |
 | **M10 ★** | **Audio.** Buses and ducking; full SFX map; ambience per view; per-city music including Providence day/night; world and title themes. | Audio gallery in `dev.html`. **Check-in #5: sound.** |
 | **M11** | **Presentation and settings.** Final letter flow; guided opening year; settings including Assisted timers; achievements and tips; animation polish. | E2E runs through settings. Lore-lint over `dist` is clean. |
-| **M12** | **Leaderboard.** Adapters (mock and Apps Script); shared validation; `Code.gs` plus shim tests; outbox; leaderboard UI with categories. | Mock end-to-end in Playwright passes. **User action:** deploy the Apps Script and paste the URL into `src/leaderboard/config.ts`. |
-| **M13 ★** | **Finale and NG+.** Time-skip to the 463 verdict, the Thatcher Sr. proclamation scene (placeholder copy), sponsor reveal, results and submit, NG+ modifiers. | Full-run e2e via debug fast-forward (unranked). **Final check-in: lore review of every name in `content/data`.** |
+| **M12** | **Leaderboard.** Adapters (mock and Apps Script); shared validation; `Code.gs` plus shim tests; outbox; leaderboard UI with **both boards** (Fastest Monopoly, Highest Company Value) and categories. | Mock end-to-end in Playwright passes. **User action:** deploy the Apps Script and paste the URL into `src/leaderboard/config.ts`. |
+| **M13 ★** | **Finale and NG+.** Two finale variants: monopoly (instant) and sponsorship (the 463 verdict). Time-skip to 463, the Thatcher Sr. proclamation scene (placeholder copy), sponsor reveal, results and submit, NG+ modifiers. | Full-run e2e via debug fast-forward (unranked). **Final check-in: lore review of every name in `content/data`.** |
 
 **If scope must be cut, cut in this order:** recipe metagame, merges, NG+, Veilwalker boons (keep the penalties), ambience layers. Never cut M1/M2 iteration time.
 

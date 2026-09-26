@@ -1,0 +1,12 @@
+{
+  "placeholder": true,
+  "sealLabel": "Read your letter before you begin",
+  "salutation": "[PLACEHOLDER — salutation]",
+  "paragraphs": [
+    "[PLACEHOLDER — letter paragraph 1. The owner will supply the real letter text. Edit src/content/data/strings/letter.json and set \"placeholder\" to false.]",
+    "[PLACEHOLDER — letter paragraph 2.]",
+    "[PLACEHOLDER — letter paragraph 3.]"
+  ],
+  "signature": "[PLACEHOLDER — signature]",
+  "closeLabel": "Fold the letter"
+}

@@ -1,0 +1,78 @@
+{
+  "mirror": "series-ai/jam-ready-assets",
+  "packs": [
+    {
+      "id": "kenney-tiny-town",
+      "root": "kenney-tiny-town/2D/top-down-rpg",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "usedFor": "town and world-map tiles, buildings, props",
+      "files": [["Tilemap/tilemap_packed.png", "sprites/tiny-town.png"]]
+    },
+    {
+      "id": "kenney-tiny-dungeon",
+      "root": "kenney-tiny-dungeon/2D/dungeon",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "usedFor": "characters (patrons, staff, avatar), interior floors and walls, items",
+      "files": [["Tilemap/tilemap_packed.png", "sprites/tiny-dungeon.png"]]
+    },
+    {
+      "id": "kenney-ui-pack-pixel-adventure",
+      "root": "kenney-ui-pack-pixel-adventure/ui",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "usedFor": "parchment, wood and steel frames and buttons",
+      "files": [
+        ["Tilesheets/Small tiles/Thick outline/tilemap_packed.png", "ui/ui-pixel-adventure.png"],
+        ["Tilesheets/Small tiles/Tilesheet.txt", "ui/ui-pixel-adventure.txt"]
+      ]
+    },
+    {
+      "id": "kenney-fonts",
+      "root": "kenney-fonts/fonts",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "usedFor": "Kenney Pixel and Kenney Mini UI fonts",
+      "files": [
+        ["Kenney Pixel.ttf", "fonts/kenney-pixel.ttf"],
+        ["Kenney Mini.ttf", "fonts/kenney-mini.ttf"]
+      ]
+    },
+    {
+      "id": "kenney-interface-sounds",
+      "root": "kenney-interface-sounds/audio",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "usedFor": "UI clicks, confirm, error, glass clink",
+      "files": [
+        ["Audio/click_001.ogg", "audio/ui-click.ogg"],
+        ["Audio/confirmation_002.ogg", "audio/ui-confirm.ogg"],
+        ["Audio/error_004.ogg", "audio/ui-error.ogg"],
+        ["Audio/glass_002.ogg", "audio/glass-clink.ogg"]
+      ]
+    },
+    {
+      "id": "kenney-rpg-audio",
+      "root": "kenney-rpg-audio/audio",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "usedFor": "coin and sale sounds",
+      "files": [
+        ["Audio/handleCoins.ogg", "audio/coin-1.ogg"],
+        ["Audio/handleCoins2.ogg", "audio/coin-2.ogg"]
+      ]
+    },
+    {
+      "id": "kenney-impact-sounds",
+      "root": "kenney-impact-sounds/audio",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "usedFor": "brawl thuds, dropped kegs",
+      "files": [
+        ["Audio/impactWood_heavy_000.ogg", "audio/thud-1.ogg"],
+        ["Audio/impactPunch_heavy_000.ogg", "audio/punch-1.ogg"]
+      ]
+    }
+  ]
+}

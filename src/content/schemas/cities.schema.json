@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "minItems": 4,
+  "maxItems": 4,
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "enum": [
+          "aleforge",
+          "shanty",
+          "providence",
+          "roto"
+        ]
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 32
+      },
+      "rivalTaverns": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8
+      },
+      "map": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      },
+      "palette": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "id",
+      "name",
+      "rivalTaverns",
+      "map",
+      "palette"
+    ],
+    "additionalProperties": false
+  }
+}

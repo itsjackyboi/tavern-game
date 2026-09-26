@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Last Call — sprite gallery</title>
+    <style>
+      body { background: #1a1410; color: #f3e6c8; font: 14px ui-monospace, monospace; margin: 16px; }
+      h1 { font-size: 18px; }
+      #grid { display: flex; flex-wrap: wrap; gap: 10px; }
+      figure { margin: 0; width: 96px; text-align: center; }
+      canvas { image-rendering: pixelated; background: #2a211a; width: 64px; height: 64px; }
+      figcaption { word-break: break-all; margin-top: 4px; }
+    </style>
+  </head>
+  <body>
+    <h1>Named sprites (src/art/atlas.ts)</h1>
+    <div id="grid"></div>
+    <script type="module" src="/src/dev/gallery.ts"></script>
+  </body>
+</html>

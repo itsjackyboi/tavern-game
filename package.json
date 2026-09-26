@@ -1,0 +1,38 @@
+{
+  "name": "last-call",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Last Call \u2014 a Long Thirst tavern RTS set in the Pintland Isles.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "playwright test",
+    "validate-content": "tsx tools/validate-content.ts",
+    "gen-schema": "tsx tools/gen-json-schema.ts",
+    "lore-lint": "tsx tools/lore-lint.ts",
+    "fetch-assets": "node tools/fetch-assets.mjs",
+    "check": "npm run typecheck && npm test && npm run validate-content && npm run build && npm run lore-lint"
+  },
+  "dependencies": {
+    "@preact/signals": "2.11.2",
+    "phaser": "3.90.0",
+    "preact": "10.29.8",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "22.20.4",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vite": "8.3.1",
+    "vitest": "5.0.2"
+  }
+}
