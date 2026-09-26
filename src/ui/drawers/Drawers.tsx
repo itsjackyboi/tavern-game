@@ -12,6 +12,7 @@ import { FOUND_MIN_REP, canFound, foundingCost, lotsFree, networkRep } from '../
 import { INSURANCE_RATE, lossChance, travelTicks } from '../../sim/shipping.ts';
 import { hireCost, trainCost } from '../../sim/staff.ts';
 import type { Tavern } from '../../sim/types.ts';
+import { audio } from '../../audio/engine.ts';
 import { drawer, selectedCity, sound, uiFrame } from '../bus.ts';
 import { RESULT_TEXT, describeDrink, describeUpgrade, money, recipeText } from '../describe.ts';
 
@@ -412,6 +413,25 @@ function Spark({ values }: { values: number[] }) {
 
 // ---------------------------------------------------------------- help
 
+function SoundSettings() {
+  const [, bump] = useState(0);
+  const v = audio.vol;
+  const set = (k: 'master' | 'sfx' | 'music' | 'amb', x: number) => { v[k] = x; audio.applyVolumes(); bump((n) => n + 1); };
+  const rows: Array<['master' | 'sfx' | 'music' | 'amb', string]> = [['master', 'Master'], ['music', 'Music'], ['sfx', 'Effects'], ['amb', 'Ambience']];
+  return (
+    <section class="panel-block">
+      <h3>Sound</h3>
+      <label class="check"><input type="checkbox" checked={v.muted} onChange={(e) => { v.muted = (e.target as HTMLInputElement).checked; audio.applyVolumes(); bump((n) => n + 1); }} /> Mute everything</label>
+      {rows.map(([k, label]) => (
+        <label class="slider" key={k}>
+          <span>{label}</span>
+          <input type="range" min={0} max={1} step={0.05} value={v[k]} onInput={(e) => set(k, Number((e.target as HTMLInputElement).value))} />
+        </label>
+      ))}
+    </section>
+  );
+}
+
 function HelpDrawer() {
   return (
     <Shell title="How to play">
@@ -433,6 +453,7 @@ function HelpDrawer() {
         <h3>Keys</h3>
         <p class="small"><kbd>Tab</kbd> floor/map · <kbd>P</kbd> pause · <kbd>1</kbd>–<kbd>3</kbd> answer the top card · <kbd>Q</kbd> serve the most urgent order · <kbd>W</kbd> seat the longest wait · <kbd>E</kbd> restock the emptiest tap · <kbd>C</kbd> clear a table · <kbd>B</kbd> bell · <kbd>S</kbd> staff · <kbd>M</kbd> menu · <kbd>U</kbd> build · <kbd>K</kbd> brew · <kbd>F</kbd> ledger · <kbd>Ctrl</kbd>+<kbd>1</kbd>–<kbd>4</kbd> switch tavern</p>
       </section>
+      <SoundSettings />
     </Shell>
   );
 }

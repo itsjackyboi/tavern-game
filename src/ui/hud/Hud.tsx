@@ -1,5 +1,7 @@
 import type { GameController } from '../../app/controller.ts';
 import type { Phase } from '../../sim/time.ts';
+import { useState } from 'preact/hooks';
+import { audio } from '../../audio/engine.ts';
 import { money } from '../describe.ts';
 import { vm } from '../vm.ts';
 
@@ -8,6 +10,7 @@ const PHASE_LABEL: Record<Phase, string> = { day: 'Day', night: 'Night (after th
 
 // Top strip: icons and numbers only, no sentences during live play.
 export function Hud({ ctrl }: { ctrl: GameController }) {
+  const [muted, setMuted] = useState(audio.vol.muted);
   const v = vm.value;
   if (!v) return null;
   const monoPct = Math.round(v.monopolyProgress * 100);
@@ -35,7 +38,15 @@ export function Hud({ ctrl }: { ctrl: GameController }) {
         ))}
       </span>
       {ctrl.debug && <span class="hud-item hud-debug" title="Debug run: unranked">DEBUG ×{ctrl.speed}</span>}
-      <button class="hud-item btn btn-small hud-pause" onClick={() => ctrl.pause('manual')} aria-label="Pause" title="Pause (P)">
+      <button
+        class="hud-item btn btn-small hud-mute hud-pause"
+        onClick={() => { audio.vol.muted = !audio.vol.muted; audio.applyVolumes(); setMuted(audio.vol.muted); }}
+        aria-label={muted ? 'Unmute' : 'Mute'}
+        title="Mute or unmute (volumes are in Help)"
+      >
+        {muted ? '🔇' : '♪'}
+      </button>
+      <button class="hud-item btn btn-small" onClick={() => ctrl.pause('manual')} aria-label="Pause" title="Pause (P)">
         ❚❚
       </button>
     </header>

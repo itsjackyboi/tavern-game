@@ -10,6 +10,11 @@ export interface TestHooks {
   paused(): string | null;
   pause(): void;
   resume(): void;
+  /** Debug only: adds Duckets to the player (e.g. to force a monopoly). */
+  grant(duckets: number): void;
+  status(): string;
+  view(): 'floor' | 'world';
+  prompts(): number;
 }
 
 declare global {
@@ -26,5 +31,12 @@ export function installTestHooks(ctrl: GameController): void {
     paused: () => ctrl.paused,
     pause: () => ctrl.pause('manual'),
     resume: () => ctrl.resume(),
+    grant: (n) => {
+      const me = ctrl.world.companies[ctrl.world.playerId];
+      if (me) me.cash += n;
+    },
+    status: () => ctrl.world.run.status,
+    view: () => ctrl.world.focus.view,
+    prompts: () => ctrl.world.prompts.active.length,
   };
 }

@@ -37,6 +37,12 @@ original Kenney zips; their licence files are copied into `public/assets/license
 | [Preact](https://preactjs.com) and @preact/signals | MIT |
 | [zod](https://zod.dev) | MIT |
 
+## Music
+
+The per-city tunes are original, data-driven chiptune patterns (`src/audio/songs.ts`),
+synthesised at runtime, so there are no music files to credit. Sound effects without a
+matching sample are synthesised the same way.
+
 ## Adding a pack
 
 Only CC0 packs are configured so far. CC-BY packs are allowed, but each needs an attribution

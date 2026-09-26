@@ -8,6 +8,10 @@ import type { SpriteName } from './atlas.ts';
 export interface InteriorTheme {
   floor: [SpriteName, SpriteName];
   floorTint: number;
+  /** Draw plank seams over the floor tiles (wooden interiors). */
+  planks?: boolean;
+  /** Draw flagstone seams over the floor tiles (stone halls). */
+  flags?: boolean;
   wall: SpriteName;
   wallTint: number;
   furnitureTint: number;
@@ -19,21 +23,21 @@ export interface InteriorTheme {
 
 export const THEMES: Record<CityId, InteriorTheme> = {
   aleforge: {
-    floor: ['floorSand', 'floorSandWorn'], floorTint: 0xe2a86b,
+    floor: ['floorSand', 'floorSandWorn'], floorTint: 0xc48d5c, planks: true,
     wall: 'wallWood', wallTint: 0xffffff, furnitureTint: 0xffe0b8,
     backdrop: ['kettle', 'tank', 'shelf', 'kettle', 'cabinet'],
     accents: [0x2a9d8f, 0x7b4fa0, 0xe76f51, 0xe07aa0, 0xf4c542, 0x4a7fd1],
     night: 0x1a0f30, bg: '#2a1a10',
   },
   shanty: {
-    floor: ['floorSand', 'floorSandWorn'], floorTint: 0xa77b52,
+    floor: ['floorSand', 'floorSandWorn'], floorTint: 0x9a7048, planks: true,
     wall: 'wallWoodDark', wallTint: 0xc8a080, furnitureTint: 0xd8b890,
     backdrop: ['crate', 'keg', 'shelf', 'crate', 'chest'],
     accents: [0xe63946, 0xffd23f, 0x1fb5ac, 0xd6336c, 0x3a86ff],
     night: 0x06142a, bg: '#1a120b',
   },
   providence: {
-    floor: ['floorStone', 'floorStoneWorn'], floorTint: 0xc8ccd6,
+    floor: ['floorStone', 'floorStone'], floorTint: 0xc8ccd6, flags: true,
     wall: 'wallStone', wallTint: 0xdfe3ec, furnitureTint: 0xb9a58a,
     backdrop: ['shelf', 'cabinet', 'valve', 'cabinet', 'shelf'],
     accents: [0xd4a72c, 0xb3202a, 0xe8e4d8],

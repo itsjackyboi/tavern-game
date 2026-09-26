@@ -48,11 +48,6 @@ export class FloorScene extends Phaser.Scene {
     this.ctrl = data.ctrl;
   }
 
-  preload(): void {
-    for (const s of Object.values(SHEETS)) {
-      this.load.spritesheet(s.key, s.url, { frameWidth: TILE, frameHeight: TILE, spacing: s.spacing });
-    }
-  }
 
   create(): void {
     this.staticLayer = this.add.container(0, 0);
@@ -96,6 +91,28 @@ export class FloorScene extends Phaser.Scene {
         else this.tile((c * 7 + r * 3) % 11 === 0 ? th.floor[1] : th.floor[0], c, r, th.floorTint);
       }
     }
+    if (th.planks) {
+      const g = this.add.graphics();
+      g.lineStyle(1, 0x000000, 0.14);
+      for (let y = px(2), row = 0; y < VIEW_H; y += 8, row++) {
+        g.lineBetween(0, y, VIEW_W, y);
+        for (let x = (row % 3) * 16 + 6; x < VIEW_W; x += 48) g.lineBetween(x, y, x, y + 8);
+      }
+      this.staticLayer.add(g);
+    }
+    if (th.flags) {
+      const g = this.add.graphics();
+      g.lineStyle(1, 0x2a2f3a, 0.35);
+      for (let y = px(2), row = 0; y < VIEW_H; y += 12, row++) {
+        g.lineBetween(0, y, VIEW_W, y);
+        for (let x = (row % 2) * 10; x < VIEW_W; x += 20) g.lineBetween(x, y, x, y + 12);
+      }
+      this.staticLayer.add(g);
+    }
+    // A rug under each cluster of tables for some warmth.
+    const rugs = this.add.graphics();
+    for (const tb of f.tables) rugs.fillStyle(th.accents[(tb.x + tb.y) % th.accents.length]!, 0.18).fillRect(px(tb.x - 1) - 2, px(tb.y) - 2, px(3) + 4, px(1) + 4);
+    this.staticLayer.add(rugs);
     // Backdrop furniture along the back wall.
     for (let i = 0; i < th.backdrop.length; i++) this.tile(th.backdrop[i]!, 1 + i * 2, 1);
     for (let i = 0; i < 3; i++) this.tile(th.backdrop[(i + 2) % th.backdrop.length]!, 20 + i * 2, 1);

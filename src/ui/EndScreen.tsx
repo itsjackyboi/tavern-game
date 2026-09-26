@@ -5,6 +5,9 @@ import { money } from './describe.ts';
 import { LeaderboardSubmit } from './leaderboard/LeaderboardPanel.tsx';
 import { vm } from './vm.ts';
 
+// ?lbmock lets tests exercise submission on a (debug) run against the mock board.
+const lbMock = () => new URLSearchParams(location.search).has('lbmock');
+
 const TITLES: Record<string, string> = {
   monopoly: 'Monopoly!',
   sponsor: 'Sponsor of the Drunken Trials',
@@ -41,8 +44,8 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
             <tr><td>Pauses / sessions</td><td>{ctrl.clock.pauses} / {ctrl.clock.sessions + 1}</td></tr>
           </tbody>
         </table>
-        {won && !ctrl.debug && <LeaderboardSubmit ctrl={ctrl} />}
-        {won && ctrl.debug && <p class="small muted">Debug runs are unranked.</p>}
+        {won && (!ctrl.debug || lbMock()) && <LeaderboardSubmit ctrl={ctrl} />}
+        {won && ctrl.debug && !lbMock() && <p class="small muted">Debug runs are unranked.</p>}
         {!won && r.status === 'lost' && <p class="freeplay-note" data-testid="freeplay-note">{ctrl.content.finale.freeplayNote}</p>}
         <div class="end-actions">
           {r.status !== 'bankrupt' && (

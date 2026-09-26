@@ -35,6 +35,8 @@ export function LeaderboardSubmit({ ctrl }: { ctrl: GameController }) {
   );
 }
 
+const CITY_NAME: Record<string, string> = { aleforge: 'Aleforge', shanty: 'Shanty Town', providence: 'Providence', roto: 'Roto Kaiishi' };
+
 const CATS: Array<[BoardCategory, string]> = [
   ['overall', 'Overall'], ['aleforge', 'Aleforge'], ['shanty', 'Shanty Town'], ['providence', 'Providence'], ['roto', 'Roto Kaiishi'], ['assisted', 'Assisted'], ['ngplus', 'NG+'],
 ];
@@ -77,7 +79,7 @@ export function LeaderboardView({ onClose }: { onClose: () => void }) {
                 <tr key={`${r.rank}-${r.name}`}>
                   <td>{r.rank}</td><td>{r.name}</td>
                   <td>{board === 'monopoly' ? formatClock(r.value) : money(r.value)}</td>
-                  <td>{r.homeCity}</td><td class="muted">{r.date}</td>
+                  <td>{CITY_NAME[r.homeCity] ?? r.homeCity}</td><td class="muted">{r.date}</td>
                 </tr>
               ))}
             </tbody>

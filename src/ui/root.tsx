@@ -78,8 +78,14 @@ function GameScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: () => 
     const unbindKeys = installHotkeys(ctrl);
     const unbindAudio = bindAudio(ctrl);
     if (ctrl.debug || import.meta.env.DEV) installTestHooks(ctrl);
+    let winRecorded = ctrl.world.run.status === 'won';
     const unsub = ctrl.subscribe(() => {
       views.current?.setView(ctrl.world.focus.view);
+      if (!winRecorded && ctrl.world.run.status === 'won') {
+        winRecorded = true;
+        // Any win unlocks NG+ on the title screen.
+        try { localStorage.setItem('last-call:wins', String(Number(localStorage.getItem('last-call:wins') ?? 0) + 1)); } catch { /* ignore */ }
+      }
       for (const f of ctrl.takeFeedback()) {
         if (f.result === 'ok' || f.result === 'found') {
           if (f.cmd.type === 'found') toast('Construction begins. It opens next season.', 'good');

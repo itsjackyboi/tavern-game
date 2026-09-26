@@ -11,7 +11,7 @@ export function BottomBar({ ctrl }: { ctrl: GameController }) {
   const w = ctrl.world;
   const cal = calendarAt(w.tick, ctrl.content.time);
   const lastCall = cal.phase === 'lastCall' && !!w.floor && !w.floor.lastCallRung;
-  const recent = w.log.slice(-4).reverse();
+  const recent = w.log.slice(-3).reverse();
   return (
     <footer class="bottom-bar">
       <button
@@ -35,7 +35,7 @@ export function BottomBar({ ctrl }: { ctrl: GameController }) {
           <div class="hover-line">{hover.value}</div>
         ) : (
           recent.map((l, i) => (
-            <div key={`${l.tick}-${i}`} class={`tick-line kind-${l.kind}`} style={{ opacity: 1 - i * 0.22 }}>
+            <div key={`${l.tick}-${i}`} class={`tick-line kind-${l.kind}`} style={{ opacity: 1 - i * 0.28 }}>
               {l.text}
             </div>
           ))

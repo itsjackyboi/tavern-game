@@ -131,7 +131,8 @@ function doPost(e) {
     cache.put('run:' + rec.runId, '1', 21600);
     cache.put('client:' + rec.clientId, '1', 60);
     cache.put(minute, String(count + 1), 120);
-    cache.removeAll(['board:monopoly', 'board:cv']);
+    // Invalidate every cached board: the version only ever grows, even after eviction.
+    cache.put('boardver', String(Math.max(Number(cache.get('boardver') || 0) + 1, Date.now())), 21600);
     return json_({ ok: true });
   } finally {
     lock.releaseLock();
@@ -167,7 +168,7 @@ function doGet(e) {
   var cat = ['overall', 'aleforge', 'shanty', 'providence', 'roto', 'assisted', 'ngplus'].indexOf(p.cat) >= 0 ? p.cat : 'overall';
   var n = Math.max(1, Math.min(100, Number(p.n) || 25));
   var cache = CacheService.getScriptCache();
-  var key = 'board:' + board + ':' + cat + ':' + n;
+  var key = 'board:' + (cache.get('boardver') || '0') + ':' + board + ':' + cat + ':' + n;
   var hit = cache.get(key);
   if (hit) return ContentService.createTextOutput(hit).setMimeType(ContentService.MimeType.JSON);
   var rows = readRows_().filter(function (r) { return inCategory_(r, cat) && (board === 'cv' || r.winType === 'monopoly'); });

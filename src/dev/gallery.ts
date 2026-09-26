@@ -1,7 +1,6 @@
-import { SHEETS, SPRITES, TILE } from '../art/atlas.ts';
+import { frameXY, SHEETS, SPRITES, TILE } from '../art/atlas.ts';
 
 // dev.html: draws every named sprite so art can be reviewed at check-ins.
-const COLS = 12;
 const grid = document.getElementById('grid')!;
 
 const images = Object.fromEntries(
@@ -20,9 +19,8 @@ for (const [name, ref] of Object.entries(SPRITES)) {
   canvas.width = TILE;
   canvas.height = TILE;
   const ctx = canvas.getContext('2d')!;
-  const sx = (ref.frame % COLS) * TILE;
-  const sy = Math.floor(ref.frame / COLS) * TILE;
-  ctx.drawImage(images[ref.sheet], sx, sy, TILE, TILE, 0, 0, TILE, TILE);
+  const { x, y } = frameXY(ref);
+  ctx.drawImage(images[ref.sheet], x, y, TILE, TILE, 0, 0, TILE, TILE);
   const cap = document.createElement('figcaption');
   cap.textContent = `${name} (${ref.sheet}#${ref.frame})`;
   fig.append(canvas, cap);

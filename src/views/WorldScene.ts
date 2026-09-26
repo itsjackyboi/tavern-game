@@ -53,9 +53,6 @@ export class WorldScene extends Phaser.Scene {
     this.ctrl = data.ctrl;
   }
 
-  preload(): void {
-    for (const s of Object.values(SHEETS)) this.load.spritesheet(s.key, s.url, { frameWidth: TILE, frameHeight: TILE, spacing: s.spacing });
-  }
 
   private landAt(nx: number, ny: number): 'deep' | 'shallow' | 'land' | 'sand' | 'lake' | 'mount' | 'forest' | 'field' {
     const jitter = (noise(Math.floor(nx * GW), Math.floor(ny * GH)) - 0.5) * 0.035;

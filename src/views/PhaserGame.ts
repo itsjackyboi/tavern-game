@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { GameController } from '../app/controller.ts';
+import { SHEETS, TILE } from '../art/atlas.ts';
 import { FloorScene, VIEW_H, VIEW_W } from './FloorScene.ts';
 import { WorldScene } from './WorldScene.ts';
 
@@ -27,8 +28,18 @@ export function createPhaserGame(parent: HTMLElement, ctrl: GameController): Gam
     audio: { noAudio: true },
     fps: { target: 60 },
   });
-  game.scene.add('floor', FloorScene, true, { ctrl });
-  game.scene.add('world', WorldScene, true, { ctrl });
+  // Load the sheets once, then start both views.
+  class BootScene extends Phaser.Scene {
+    preload(): void {
+      for (const s of Object.values(SHEETS)) this.load.spritesheet(s.key, s.url, { frameWidth: TILE, frameHeight: TILE, spacing: s.spacing });
+    }
+    create(): void {
+      game.scene.add('floor', FloorScene, true, { ctrl });
+      game.scene.add('world', WorldScene, true, { ctrl });
+      this.scene.remove();
+    }
+  }
+  game.scene.add('boot', BootScene, true);
 
   let current: 'floor' | 'world' | null = null;
   const apply = (view: 'floor' | 'world') => {
