@@ -103,6 +103,11 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
     const unbindKeys = installHotkeys(ctrl);
     const unbindAudio = bindAudio(ctrl);
     const unbindMoney = bindMoneyFeed(ctrl);
+    // Reading How to play pauses the game; closing it picks up where you left off.
+    const unbindHelp = drawer.subscribe((d) => {
+      if (d === 'help' && !ctrl.paused) ctrl.pause('help');
+      else if (d !== 'help' && ctrl.paused === 'help') ctrl.resume();
+    });
     if (ctrl.debug || import.meta.env.DEV) installTestHooks(ctrl);
     let winRecorded = ctrl.world.run.status === 'won';
     const ended = (s: string) => s === 'won' || s === 'lost' || s === 'bankrupt';
@@ -178,6 +183,7 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
       unbindKeys();
       unbindAudio();
       unbindMoney();
+      unbindHelp();
       unsub();
       views.current?.destroy();
       drawer.value = null;

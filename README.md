@@ -28,6 +28,13 @@ The whole game is playable end to end:
 
 The letter and finale text are still clearly marked placeholders.
 
+### v1.6
+- **How to play pauses the game** while it's open (no veil, so you can read it). Close it with H, Esc or ✕ and play carries on.
+- **New How to play sections:**
+  - **Reputation:** what raises and lowers it.
+  - **Sister taverns:** the rep 40 bar, founding, getting established, struggling and closing.
+  - **The four towns and their taverns:** costs, lots, rivals and informants in each.
+
 ### v1.5
 - **Shared leaderboard, like the Mario board:**
   - Every finished run is logged to the Google Sheet's `runs` tab.

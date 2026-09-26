@@ -51,6 +51,11 @@ export function installHotkeys(ctrl: GameController, onViewChange?: () => void):
       else ctrl.pause('manual');
       return;
     }
+    // While reading How to play, H closes it (and the game carries on).
+    if (ctrl.paused === 'help' && k === 'h') {
+      drawer.value = null;
+      return;
+    }
     if (ctrl.paused) return;
     if (e.key === 'Tab') {
       e.preventDefault();

@@ -951,3 +951,4 @@ body[data-tut='drawers'] .bottom-bar .btn:not(.view-toggle):not(.bell) { animati
 .run-status.state-queued { color: #a8421a; }
 @media (max-width: 760px) { .lb-boards { grid-template-columns: 1fr; } }
 .pause-who { display: block; color: var(--parchment); margin-top: 4px; }
+.help-paused { background: #2c4a6b; color: #dfefff; padding: 6px 10px; border-radius: 4px; font-size: 17px; }

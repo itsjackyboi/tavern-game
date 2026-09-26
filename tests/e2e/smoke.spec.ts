@@ -95,6 +95,22 @@ test('pause stops the clock and hides the board', async ({ page }) => {
   await page.waitForFunction((t) => window.__game!.tick() > t, t0);
 });
 
+test('How to play pauses the game while it is open', async ({ page }) => {
+  await startRun(page, 'debug&seed=helppause');
+  await page.keyboard.press('h');
+  await expect(page.getByTestId('drawer')).toContainText('Sister taverns');
+  await expect(page.getByTestId('help-paused')).toBeVisible();
+  await expect(page.getByTestId('pause-veil')).toBeHidden();
+  const t0 = await page.evaluate(() => window.__game!.tick());
+  await page.waitForTimeout(500);
+  expect(await page.evaluate(() => window.__game!.tick())).toBe(t0);
+  await page.screenshot({ path: `${SHOTS}/help-paused.png`, animations: 'disabled' });
+
+  await page.keyboard.press('h');
+  await expect(page.getByTestId('drawer')).toBeHidden();
+  await page.waitForFunction((t) => window.__game!.tick() > t, t0);
+});
+
 test('map view, drawers and the sim keep running across views', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -228,9 +244,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.5');
+  await expect(page.getByTestId('version')).toHaveText('v1.6');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.5');
+  await expect(page.getByTestId('version')).toHaveText('v1.6');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {

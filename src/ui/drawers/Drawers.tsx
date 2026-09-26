@@ -540,9 +540,41 @@ export function SoundSettings() {
 function HelpDrawer() {
   return (
     <Shell title="How to play">
+      <p class="help-paused" data-testid="help-paused">⏸ The game is paused while you read. Close this to carry on.</p>
       <section class="panel-block">
         <h3>Goal</h3>
         <p>Become the biggest tavern company in the Isles. <b>Monopoly</b>: reach twice the Company Value of the next-biggest company and you win on the spot. Otherwise, at the end of Year 463 the Trials' sponsor is the biggest company established in all four cities.</p>
+      </section>
+      <section class="panel-block">
+        <h3>Reputation</h3>
+        <ul class="small">
+          <li>Each tavern has a reputation from 0 to 100 (the number on its tab, top-left). Every patron who leaves nudges it toward how happy they were.</li>
+          <li><b>Happier patrons:</b> quick seating and service, drinks they like at a good quality, a fair price, decor, a fiddler. Greeting a ★ VIP counts triple.</li>
+          <li><b>Unhappy ones:</b> long waits, walkouts, brawls (−2 each), dry taps, steep prices. Some decisions add or take reputation too.</li>
+          <li>Aleforge judges drink quality heavily (60%); the other towns mostly judge how the visit felt.</li>
+          <li>Higher reputation brings more patrons and raises your Company Value.</li>
+        </ul>
+      </section>
+      <section class="panel-block">
+        <h3>Sister taverns</h3>
+        <ul class="small">
+          <li><b>To found one:</b> your <b>network reputation</b> (the average of your open taverns) must be at least 40; you need the founding cost in Duckets; the town needs a free lot; and you can have one tavern per town.</li>
+          <li><b>How:</b> press Tab for the Isles map, click a town, then <b>Found</b>. It is built over one season and opens with a manager, a tapster and a runner.</li>
+          <li><b>Established:</b> after a season open with reputation 45 or more. Established taverns fill the ◆ pips at the top; the sponsorship needs one established in all four towns.</li>
+          <li><b>Struggling</b> below 22 reputation (recovers at 30). A struggling tavern that falls under 6 while you're elsewhere closes.</li>
+          <li>Taverns you're not watching slow down over time; a better manager slows that. Visit with the tavern tabs or Ctrl+1–4.</li>
+        </ul>
+      </section>
+      <section class="panel-block">
+        <h3>The four towns and their taverns</h3>
+        <ul class="small">
+          <li><b>Aleforge:</b> the biggest market, highest rent (30◉ a season), founding 700◉, 6 lots, 4 rival taverns. Quality counts most.</li>
+          <li><b>Shanty Town:</b> founding 420◉, 5 lots, 3 rivals. Pirates tip well and pay in Favor, but brawl and the Windsunk Council demands tribute.</li>
+          <li><b>Providence:</b> founding 560◉, 4 lots, 2 rivals. Big-spending Apostles; a church tithe and Friar inspections.</li>
+          <li><b>Roto Kaiishi:</b> founding 480◉, 5 lots, 3 rivals. No sales tax, a flat fee each year, thieves and jumpy prices.</li>
+          <li>Every rival tavern belongs to a rival company, and <b>The Gulf Tapworks</b> is the one to watch: it starts in Aleforge and Roto and expands. Lots are limited, and rivals take them too.</li>
+          <li>From 452 rivals play dirty (thugs, bribes, poaching); from 460 they open new houses. An informant on your staff hears it first.</li>
+        </ul>
       </section>
       <section class="panel-block">
         <h3>The screen</h3>
