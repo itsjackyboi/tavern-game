@@ -91,6 +91,16 @@ export function establishedSisters(w: World): number {
   return [...establishedIn(w, w.playerId)].filter((c) => c !== home).length;
 }
 
+/** Reputation trend: a sample every 5 s, the last minute kept. */
+export const REP_SAMPLE_TICKS = 100;
+export const REP_TRAIL_LEN = 13;
+
+/** Change in reputation over the kept trail (about the last minute). */
+export function repTrend(t: Tavern): number {
+  const trail = t.repTrail ?? [];
+  return trail.length ? t.rep - trail[0]! : 0;
+}
+
 /** 1 Hz lifecycle: building → establishing → established; struggling and closure. Attention decays for player sisters. */
 export function stepLifecycle(w: World, c: Content): void {
   const len = seasonTicks(c);
@@ -114,6 +124,7 @@ export function stepLifecycle(w: World, c: Content): void {
       t.status = 'established';
     }
     if (co.isPlayer) {
+      if (w.tick % REP_SAMPLE_TICKS === 1) t.repTrail = [...(t.repTrail ?? []), Math.round(t.rep * 10) / 10].slice(-REP_TRAIL_LEN);
       const isFocus = w.focus.tavernId === t.id;
       if (isFocus) t.attention = 1;
       else {

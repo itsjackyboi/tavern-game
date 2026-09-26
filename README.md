@@ -24,9 +24,16 @@ The whole game is playable end to end:
 - **Win or lose:** monopoly (instant), sponsorship at the end of 463, a loss, or bankruptcy. Freeplay ("One More Keg") is offered afterwards.
 - **Autosave** and Continue.
 - **Audio:** Kenney samples, procedural fallbacks, per-city chiptune, and ducking.
-- **Leaderboards:** top tens for Fastest Monopoly and Sponsored the Trials, in pre-release (v1.x) and official (v2.0+) eras. They are local until the shared board is connected (see [`gas/README.md`](gas/README.md)).
+- **Leaderboards:** top tens for Fastest Monopoly and Sponsored the Trials, in pre-release (v1.x) and official (v2.0+) eras. They are shared through a Google Sheet (setup: [`gas/README.md`](gas/README.md)).
 
 The letter and finale text are still clearly marked placeholders.
+
+### v1.7
+- **Reputation box** on the left, between Rivals here and Word around the Isles. It shows the current tavern's reputation (0–100) with a marker at 40 (the sister-tavern bar), and whether it has been **rising, falling or steady** over the last minute, with a small trend line. With several taverns it also shows your network average. It replaces the small number on the tavern tab.
+- **Home page:**
+  - The example names are now "Jack_Anqoak" and "The Gilded Tankard".
+  - The Timers dropdown (whose text was cut off) is now three buttons: Standard, Assisted ×1.5 and Assisted ×2. A note under them says what the chosen option changes.
+- **Shared leaderboard connected:** finished runs now go to the Google Sheet, and the in-game Leaderboards show the shared top tens.
 
 ### v1.6
 - **How to play pauses the game** while it's open (no veil, so you can read it). Close it with H, Esc or ✕ and play carries on.

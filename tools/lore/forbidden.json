@@ -1,5 +1,9 @@
 {
   "$comment": "Post-464 (or uncertain-era) names that must never appear in the game. See docs/PLAN.md §3. Patterns are regex source; spaces match any whitespace; case-insensitive unless caseSensitive is true. This file and tests/fixtures/lore are the only places these names may appear outside docs/.",
+  "allow": [
+    { "text": "e.g. Jack_Anqoak", "reason": "Owner-chosen example innkeeper name (home page placeholder), not in-world text." },
+    { "text": "e.g. The Gilded Tankard", "reason": "Owner-chosen example tavern name (home page placeholder), not in-world text." }
+  ],
   "patterns": [
     { "pattern": "Seamus", "reason": "Liquor King (post-464)" },
     { "pattern": "Bonehardy", "reason": "Liquor King (post-464)" },

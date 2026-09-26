@@ -6,7 +6,7 @@ import { league } from '../../src/sim/company.ts';
 import { crisisHazard } from '../../src/sim/events.ts';
 import { hashValue } from '../../src/sim/hash.ts';
 import { player, playerTaverns } from '../../src/sim/lookup.ts';
-import { foundTavern } from '../../src/sim/network.ts';
+import { REP_TRAIL_LEN, foundTavern, repTrend } from '../../src/sim/network.ts';
 import { hashSeed, sfc32 } from '../../src/sim/rng.ts';
 import { CLOSING_HOLD_MAX, stepWorld } from '../../src/sim/step.ts';
 import { calNow, calTick, calendarAt, endTick, ticksPerYear } from '../../src/sim/time.ts';
@@ -278,6 +278,20 @@ describe('win and loss', () => {
     expect(sister.status).toBe('building');
     run(w, 1320);
     expect(sister.status).not.toBe('building');
+  });
+});
+
+describe('reputation trend', () => {
+  it('keeps about a minute of samples and reports which way reputation is heading', () => {
+    const w = fresh('trend');
+    const t = playerTaverns(w)[0]!;
+    run(w, 3000);
+    expect(t.repTrail!.length).toBe(REP_TRAIL_LEN);
+    t.repTrail = Array(REP_TRAIL_LEN).fill(30);
+    t.rep = 34;
+    expect(repTrend(t)).toBeCloseTo(4);
+    t.rep = 27;
+    expect(repTrend(t)).toBeCloseTo(-3);
   });
 });
 

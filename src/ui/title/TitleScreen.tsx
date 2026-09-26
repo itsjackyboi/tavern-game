@@ -30,9 +30,12 @@ const PREFS_KEY = 'last-call:title-prefs';
 
 interface Prefs { city: CityId; name: string; assist: number }
 function loadPrefs(): Prefs {
-  const def: Prefs = { city: 'aleforge', name: 'The Last Call', assist: 1 };
+  const def: Prefs = { city: 'aleforge', name: '', assist: 1 };
   try {
-    return { ...def, ...(JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}') as Partial<Prefs>) };
+    const p = { ...def, ...(JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}') as Partial<Prefs>) };
+    // The old default was saved as if typed; clear it so the example shows.
+    if (p.name === 'The Last Call') p.name = '';
+    return p;
   } catch {
     return def;
   }
@@ -40,6 +43,13 @@ function loadPrefs(): Prefs {
 function savePrefs(p: Prefs): void {
   try { localStorage.setItem(PREFS_KEY, JSON.stringify(p)); } catch { /* ignore */ }
 }
+
+/** The Timers choice on the home page, with what it changes. */
+const TIMER_OPTS = [
+  { value: 1, label: 'Standard', note: 'Standard timers: patrons wait, thieves and brawls play out, and decisions expire at the normal pace.' },
+  { value: 1.5, label: 'Assisted ×1.5', note: 'Assisted ×1.5: patrons wait 50% longer for a seat and a drink, and you get 50% longer to catch thieves, break up brawls and answer most decisions. Runs are tagged Assisted on the leaderboards.' },
+  { value: 2, label: 'Assisted ×2', note: 'Assisted ×2: patrons wait twice as long for a seat and a drink, and you get twice as long to catch thieves, break up brawls and answer most decisions. Runs are tagged Assisted on the leaderboards.' },
+];
 
 export function TitleScreen({ content, onPlay, loadSave }: { content: Content; onPlay: (c: TitleChoice) => void; loadSave: () => Promise<SaveFile | null> }) {
   const [letter, setLetter] = useState<LetterState>('sealed');
@@ -93,15 +103,15 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
         <label class="big-field">
           <span>Your name <small>(innkeeper · shown on the leaderboards)</small></span>
           <input
-            type="text" maxLength={16} value={innkeeper} placeholder="e.g. Jack Casimir"
+            type="text" maxLength={16} value={innkeeper} placeholder="e.g. Jack_Anqoak"
             onInput={(e) => setInnkeeper(cleanName((e.target as HTMLInputElement).value))}
             data-testid="innkeeper-name"
           />
         </label>
         <label class="big-field">
-          <span>Tavern name <small>(your company goes by it)</small></span>
+          <span>Tavern name <small>(your company goes by it · blank = The Last Call)</small></span>
           <input
-            type="text" maxLength={28} value={name} placeholder="The Last Call"
+            type="text" maxLength={28} value={name} placeholder="e.g. The Gilded Tankard"
             onInput={(e) => setName(cleanTavern((e.target as HTMLInputElement).value))}
             data-testid="tavern-name"
           />
@@ -127,20 +137,29 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
       <p class="small city-blurb">{cityOf(content, city).name}: {CITY_BLURB[city]}</p>
 
       <div class="title-options">
-        <label title="Longer reaction windows. Runs go on the Assisted leaderboard.">
-          Timers
-          <select value={assist} onChange={(e) => setAssist(Number((e.target as HTMLSelectElement).value))}>
-            <option value={1}>Standard</option>
-            <option value={1.5}>Assisted ×1.5</option>
-            <option value={2}>Assisted ×2</option>
-          </select>
-        </label>
+        <div class="timer-pick" role="radiogroup" aria-label="Timers">
+          <span class="timer-label">Timers</span>
+          {TIMER_OPTS.map((o) => (
+            <button
+              key={o.value}
+              class={`timer-chip ${assist === o.value ? 'on' : ''}`}
+              role="radio"
+              aria-checked={assist === o.value}
+              onClick={() => setAssist(o.value)}
+              data-testid={`timers-${o.value}`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
         {wins > 0 && (
           <label class="check" title="Rivals start sharper and richer, and hide their plans better">
             <input type="checkbox" checked={ngPlus} onChange={(e) => setNgPlus((e.target as HTMLInputElement).checked)} /> NG+
           </label>
         )}
       </div>
+
+      <p class="small timer-note" data-testid="timer-note">{(TIMER_OPTS.find((o) => o.value === assist) ?? TIMER_OPTS[0]!).note}</p>
 
       <div class="title-actions">
         <button

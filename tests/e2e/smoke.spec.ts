@@ -111,6 +111,33 @@ test('How to play pauses the game while it is open', async ({ page }) => {
   await page.waitForFunction((t) => window.__game!.tick() > t, t0);
 });
 
+test('reputation sits between the rivals and the word around the Isles, with its trend', async ({ page }) => {
+  await startRun(page, 'debug&seed=rep');
+  const rivals = page.locator('.left-panel h3', { hasText: 'Rivals here' });
+  const rep = page.getByTestId('rep-block');
+  const feed = page.getByTestId('ticker');
+  await expect(rep).toContainText('Reputation');
+  const [ry, py, fy] = await Promise.all([rivals, rep, feed].map(async (l) => (await l.boundingBox())!.y));
+  expect(ry).toBeLessThan(py!);
+  expect(py).toBeLessThan(fy!);
+  await page.evaluate(() => window.__game!.step(1400));
+  await expect(page.getByTestId('rep-trend')).toHaveText(/rising|falling|steady/);
+  await page.screenshot({ path: `${SHOTS}/rep-block.png`, animations: 'disabled' });
+});
+
+test('home page: example names and a Timers picker that says what it changes', async ({ page }) => {
+  await page.goto('/?debug&seed=timers');
+  await expect(page.getByTestId('innkeeper-name')).toHaveAttribute('placeholder', /Jack_Anqoak/);
+  await expect(page.getByTestId('tavern-name')).toHaveAttribute('placeholder', /The Gilded Tankard/);
+  await expect(page.getByTestId('timer-note')).toContainText('Standard timers');
+  await page.getByTestId('timers-2').click();
+  await expect(page.getByTestId('timer-note')).toContainText('twice as long');
+  await page.screenshot({ path: `${SHOTS}/title-timers.png`, animations: 'disabled' });
+  await page.getByTestId('play').click();
+  await page.waitForFunction(() => (window.__game?.tick() ?? 0) > 5);
+  expect(await page.evaluate(() => window.__game!.timerScale())).toBe(2);
+});
+
 test('map view, drawers and the sim keep running across views', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -244,9 +271,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.6');
+  await expect(page.getByTestId('version')).toHaveText('v1.7');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.6');
+  await expect(page.getByTestId('version')).toHaveText('v1.7');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {

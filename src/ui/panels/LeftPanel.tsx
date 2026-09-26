@@ -2,6 +2,7 @@ import type { GameController } from '../../app/controller.ts';
 import { drinkCss } from '../../art/themes.ts';
 import { drinkOf, kegCost, player, playerTaverns, staffAt } from '../../sim/lookup.ts';
 import type { Tavern } from '../../sim/types.ts';
+import { FOUND_MIN_REP, networkRep, repTrend } from '../../sim/network.ts';
 import { intelLevel } from '../../sim/rivals.ts';
 import { hover, uiFrame } from '../bus.ts';
 import { money } from '../describe.ts';
@@ -22,7 +23,6 @@ function TavernTabs({ ctrl }: { ctrl: GameController }) {
           title={`${t.name} (Ctrl+${i + 1})`}
         >
           <span class="tt-city">{ctrl.content.cities.find((c) => c.id === t.city)?.name}</span>
-          <span class="tt-rep" style={{ '--rep': `${t.rep}%` }}>{Math.round(t.rep)}</span>
           {STATUS[t.status] && <span class="tt-status">{STATUS[t.status]}</span>}
           {t.id !== w.focus.tavernId && t.status !== 'building' && t.attention < 0.5 && <span class="tt-alert" title="Needs attention">!</span>}
         </button>
@@ -118,6 +118,50 @@ function Rivals({ ctrl, t }: { ctrl: GameController; t: Tavern }) {
   );
 }
 
+/** Sparkline of the last minute of reputation (0–100 scale). */
+function RepSpark({ points }: { points: number[] }) {
+  if (points.length < 2) return null;
+  const lo = Math.max(0, Math.min(...points) - 3);
+  const hi = Math.min(100, Math.max(...points) + 3);
+  const span = Math.max(1, hi - lo);
+  const d = points.map((v, i) => `${(i / (points.length - 1)) * 100},${30 - ((v - lo) / span) * 30}`).join(' ');
+  return (
+    <svg class="rep-spark" viewBox="0 -2 100 34" preserveAspectRatio="none" aria-hidden="true">
+      <polyline points={d} />
+    </svg>
+  );
+}
+
+/** Reputation of the tavern you're in, with its recent trend. */
+function Reputation({ ctrl, t }: { ctrl: GameController; t: Tavern }) {
+  const w = ctrl.world;
+  const delta = repTrend(t);
+  const dir = delta >= 0.3 ? 'up' : delta <= -0.3 ? 'down' : 'flat';
+  const trendText = dir === 'up' ? `▲ +${delta.toFixed(1)} rising` : dir === 'down' ? `▼ ${delta.toFixed(1)} falling` : '▬ steady';
+  const net = networkRep(w);
+  const many = playerTaverns(w).filter((x) => x.status !== 'building').length > 1;
+  return (
+    <section class="panel-block rep-block" data-testid="rep-block">
+      <h3>
+        <span>Reputation{STATUS[t.status] ? <span class="muted"> · {STATUS[t.status]}</span> : null}</span>
+        <span class="muted rep-note">{net >= FOUND_MIN_REP ? 'sister taverns open' : `sisters need ${FOUND_MIN_REP}${many ? ' avg' : ''}`}</span>
+      </h3>
+      <div class="rep-main" title={`0–100. Happy patrons raise it; waits, walkouts, brawls, dry taps and steep prices lower it.${many ? ` Network average ${Math.round(net)}.` : ''}`}>
+        <span class="rep-num">{Math.round(t.rep)}</span>
+        <span class="bar rep-bar">
+          <span class="fill" style={{ width: `${t.rep}%` }} />
+          <span class="rep-mark" style={{ left: `${FOUND_MIN_REP}%` }} title={`${FOUND_MIN_REP}: sister taverns`} />
+        </span>
+      </div>
+      <div class={`rep-trend ${dir}`} title="Change over about the last minute">
+        <span data-testid="rep-trend">{trendText}</span>
+        <RepSpark points={[...(t.repTrail ?? []), t.rep]} />
+        {many && <span class="muted rep-net">avg {Math.round(net)}</span>}
+      </div>
+    </section>
+  );
+}
+
 function Shipments({ ctrl }: { ctrl: GameController }) {
   const w = ctrl.world;
   if (!w.shipments.length) return null;
@@ -192,6 +236,7 @@ export function LeftPanel({ ctrl }: { ctrl: GameController }) {
         {t && <Rivals ctrl={ctrl} t={t} />}
         <Shipments ctrl={ctrl} />
       </div>
+      {t && <Reputation ctrl={ctrl} t={t} />}
       <EventFeed ctrl={ctrl} />
     </aside>
   );

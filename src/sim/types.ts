@@ -50,6 +50,8 @@ export interface Tavern {
   autoRestock: boolean;
   restockTarget: number;
   rep: number;
+  /** Player taverns: reputation sampled every 5 s, oldest first (last minute). */
+  repTrail?: number[];
   managerId: Id | null;
   attention: number;
   closedUntil: number;

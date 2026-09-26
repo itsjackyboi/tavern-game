@@ -14,6 +14,7 @@ export interface TestHooks {
   /** Debug only: adds Duckets to the player (e.g. to force a monopoly). */
   grant(duckets: number): void;
   status(): string;
+  timerScale(): number;
   view(): 'floor' | 'world';
   prompts(): number;
   /** Debug only: empties the player's purse (to see the money warnings). */
@@ -46,6 +47,7 @@ export function installTestHooks(ctrl: GameController): void {
       if (me) me.cash += n;
     },
     status: () => ctrl.world.run.status,
+    timerScale: () => ctrl.world.meta.timerScale,
     view: () => ctrl.world.focus.view,
     prompts: () => ctrl.world.prompts.active.length,
     drain: () => {

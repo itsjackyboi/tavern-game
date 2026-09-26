@@ -548,7 +548,7 @@ function HelpDrawer() {
       <section class="panel-block">
         <h3>Reputation</h3>
         <ul class="small">
-          <li>Each tavern has a reputation from 0 to 100 (the number on its tab, top-left). Every patron who leaves nudges it toward how happy they were.</li>
+          <li>Each tavern has a reputation from 0 to 100 (the <b>Reputation</b> box on the left, between Rivals here and Word around the Isles, with an arrow showing whether it's rising or falling). Every patron who leaves nudges it toward how happy they were.</li>
           <li><b>Happier patrons:</b> quick seating and service, drinks they like at a good quality, a fair price, decor, a fiddler. Greeting a ★ VIP counts triple.</li>
           <li><b>Unhappy ones:</b> long waits, walkouts, brawls (−2 each), dry taps, steep prices. Some decisions add or take reputation too.</li>
           <li>Aleforge judges drink quality heavily (60%); the other towns mostly judge how the visit felt.</li>
