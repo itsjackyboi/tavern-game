@@ -2,7 +2,8 @@ import type { GameController } from '../../app/controller.ts';
 import { CATEGORY_CSS } from '../../art/themes.ts';
 import { drinkOf, kegCost, player, playerTaverns, staffAt } from '../../sim/lookup.ts';
 import type { Tavern } from '../../sim/types.ts';
-import { uiFrame } from '../bus.ts';
+import { hover, uiFrame } from '../bus.ts';
+import { Card, visibleCards } from './Cards.tsx';
 import { money } from '../describe.ts';
 
 const ROLE_ICON: Record<string, string> = { bar: '🍺', floor: '🏃', door: '✊', cellar: '🛢', stage: '♪', intel: '👁', manage: '✎' };
@@ -136,18 +137,55 @@ function Shipments({ ctrl }: { ctrl: GameController }) {
   );
 }
 
+/** The Isles' news, newest first. Hovering something on the floor shows its details here instead. */
+function EventFeed({ ctrl }: { ctrl: GameController }) {
+  const recent = ctrl.world.log.slice(-6).reverse();
+  return (
+    <section class="panel-block feed" data-testid="ticker">
+      <h3>Word around the Isles</h3>
+      {hover.value ? (
+        <div class="hover-line">{hover.value}</div>
+      ) : (
+        recent.map((l, i) => (
+          <div key={`${l.tick}-${i}`} class={`tick-line kind-${l.kind}`} style={{ opacity: 1 - i * 0.12 }}>
+            {l.text}
+          </div>
+        ))
+      )}
+    </section>
+  );
+}
+
+/** Decision cards, pinned to the bottom-left so nothing else jumps around. */
+function Decisions({ ctrl }: { ctrl: GameController }) {
+  const all = visibleCards(ctrl);
+  const cards = all.slice(0, 2);
+  const extra = all.length - cards.length;
+  return (
+    <section class="decisions" data-testid="cards">
+      {cards.length > 0 && <h3>Decisions</h3>}
+      {cards.map((p, i) => <Card key={p.uid} ctrl={ctrl} p={p} hotkeys={i === 0} />)}
+      {extra > 0 && <div class="more-cards">+{extra} more waiting</div>}
+    </section>
+  );
+}
+
 export function LeftPanel({ ctrl }: { ctrl: GameController }) {
   void uiFrame.value;
   const w = ctrl.world;
   const t = w.taverns[w.focus.tavernId];
   return (
     <aside class="left-panel">
-      <TavernTabs ctrl={ctrl} />
-      {t && <h2 class="tavern-title" title={t.name}>{t.name}</h2>}
-      {t && <Stock ctrl={ctrl} t={t} />}
-      {t && w.focus.view === 'floor' && <StaffChips ctrl={ctrl} t={t} />}
-      {t && <Rivals ctrl={ctrl} t={t} />}
-      <Shipments ctrl={ctrl} />
+      <div class="left-scroll">
+        <TavernTabs ctrl={ctrl} />
+        {t && <h2 class="tavern-title" title={t.name}>{t.name}</h2>}
+        {t && <Stock ctrl={ctrl} t={t} />}
+        {t && w.focus.view === 'floor' && <StaffChips ctrl={ctrl} t={t} />}
+        {t && <Rivals ctrl={ctrl} t={t} />}
+        <Shipments ctrl={ctrl} />
+      </div>
+      <EventFeed ctrl={ctrl} />
+      <Decisions ctrl={ctrl} />
     </aside>
   );
 }

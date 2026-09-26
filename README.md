@@ -28,6 +28,24 @@ The whole game is playable end to end:
 
 The letter and finale text are still clearly marked placeholders.
 
+### v1.1
+- **Layout:**
+  - Decision cards sit at the bottom-left, under the news feed. They no longer push the Company Value list around.
+  - The Company Value list shows every company, yours highlighted.
+- **Warnings:**
+  - Big toasts across the top of the board. Repeats merge; click one to dismiss it.
+  - Standing banners for being out of Duckets, low on Duckets, in debt, facing bankruptcy, or a dry tap.
+- **Last Call:** ringing the bell closes the doors. Patrons inside get their last orders, even past the end of the shift, and a notice says so.
+- **Tutorial:** a guided first shift from the title screen. It covers the controls only and gives no strategy advice. Tutorial runs are unranked and never overwrite your saved run.
+- **Pause menu:** How to play, fullscreen, sound, and Save & return to title.
+- **Smaller improvements:**
+  - A version tag in the bottom-right corner.
+  - Tables glow green or red while you're seating someone.
+  - A floor-trouble badge on the map button.
+  - A season profit toast.
+  - Confirmations before firing staff or abandoning a saved run.
+  - The title screen remembers your city, name and timers.
+
 ## Running it
 
 ```sh
@@ -96,6 +114,8 @@ Content rules, enforced by `npm run validate-content` and the tests:
 re-run it to add or refresh packs.
 
 ## Deploying
+
+Bump `APP_VERSION` in `src/version.ts` (v1.1 → v1.2 …) on each publish.
 
 The `Deploy to GitHub Pages` workflow publishes `main`. It needs a one-time setting: repo
 **Settings → Pages → Source: GitHub Actions**.

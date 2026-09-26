@@ -9,7 +9,7 @@ import {
 import { drinkOf } from '../sim/lookup.ts';
 import { calendarAt } from '../sim/time.ts';
 import type { FloorState, Patron, Worker } from '../sim/types.ts';
-import { hover, sound } from '../ui/bus.ts';
+import { hover, sound, tutorialTarget } from '../ui/bus.ts';
 
 // The zoomed-in tavern floor. Reads the sim every frame; all input becomes
 // Commands dispatched to the controller.
@@ -282,6 +282,24 @@ export class FloorScene extends Phaser.Scene {
       });
     }
 
+    // While placing a patron, show which tables can take them.
+    if (this.dragging !== null || this.selected !== null) {
+      for (const tb of f.tables) {
+        const ok = !tb.dirty && (!tb.seats[0] || !tb.seats[1]);
+        g.lineStyle(2, ok ? 0x6fe36f : 0xe0524a, ok ? 0.9 : 0.45).strokeRect(px(tb.x - 1) - 1, px(tb.y) - 2, px(3) + 2, px(1) + 4);
+      }
+    }
+
+    // Tutorial pointer: a bouncing arrow over whatever the current step is about.
+    const target = tutorialTarget.value;
+    if (target && w.focus.view === 'floor') {
+      const bob = Math.sin(time / 160) * 3;
+      const ax = px(target.x) + 8;
+      const ay = px(target.y) - 16 + bob;
+      g.fillStyle(0x1a0f08, 1).fillTriangle(ax - 7, ay - 9, ax + 7, ay - 9, ax, ay + 1);
+      g.fillStyle(0xffe066, 1).fillTriangle(ax - 5, ay - 8, ax + 5, ay - 8, ax, ay - 1);
+    }
+
     // Selection ring.
     if (this.selected !== null) {
       const p = f.patrons.find((x) => x.id === this.selected);
@@ -298,7 +316,7 @@ export class FloorScene extends Phaser.Scene {
     this.tint.setFillStyle(cal.phase === 'holiday' ? 0x5a2a00 : th.night, alpha);
     let banner = '';
     if (w.tick < t.closedUntil) banner = 'DOORS SHUT';
-    else if (cal.phase === 'lastCall') banner = f.lastCallRung ? 'LAST CALL RUNG' : 'LAST CALL - RING THE BELL (B)';
+    else if (cal.phase === 'lastCall') banner = f.lastCallRung ? 'DOORS CLOSED - LAST ORDERS' : 'LAST CALL - RING THE BELL (B)';
     else if (cal.segment === 'holidayKeg') banner = 'HOLIDAY KEG';
     else if (w.focus.view !== 'floor') banner = '';
     this.banner.setText(banner);

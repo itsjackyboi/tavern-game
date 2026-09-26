@@ -1,65 +1,11 @@
 import type { GameController } from '../../app/controller.ts';
 import type { InstitutionId } from '../../content/schema.ts';
-import { league } from '../../sim/company.ts';
-import { idx, player } from '../../sim/lookup.ts';
+import { useEffect, useRef } from 'preact/hooks';
+import { companyTaverns, league } from '../../sim/company.ts';
 import { establishedSisters } from '../../sim/network.ts';
-import { promptTitle } from '../../sim/prompts.ts';
-import type { ActivePrompt } from '../../sim/types.ts';
-import { sound, uiFrame } from '../bus.ts';
+import { uiFrame } from '../bus.ts';
 import { money } from '../describe.ts';
-
-export function visibleCards(ctrl: GameController): ActivePrompt[] {
-  const c = ctrl.content;
-  return ctrl.world.prompts.active
-    .filter((p) => idx(c).prompt.get(p.defId)?.tier !== 'strategic')
-    .sort((a, b) => a.expiresTick - b.expiresTick);
-}
-
-export function inboxItems(ctrl: GameController): ActivePrompt[] {
-  const c = ctrl.content;
-  return ctrl.world.prompts.active.filter((p) => idx(c).prompt.get(p.defId)?.tier === 'strategic').sort((a, b) => a.expiresTick - b.expiresTick);
-}
-
-function Card({ ctrl, p, hotkeys }: { ctrl: GameController; p: ActivePrompt; hotkeys: boolean }) {
-  const c = ctrl.content;
-  const def = idx(c).prompt.get(p.defId)!;
-  const w = ctrl.world;
-  const total = p.expiresTick - p.createdTick;
-  const left = Math.max(0, p.expiresTick - w.tick);
-  const frac = total > 0 ? left / total : 0;
-  const me = player(w);
-  const tavern = p.tavernId ? w.taverns[p.tavernId] : null;
-  return (
-    <div class={`card tier-${def.tier} tension-${def.tension}`} data-testid="prompt-card">
-      <div class="card-head">
-        <span class="card-icon">{def.icon}</span>
-        <span class="card-title">{promptTitle(c, p)}</span>
-        {tavern && tavern.id !== w.focus.tavernId && <span class="card-where">{tavern.name}</span>}
-      </div>
-      {def.line && <div class="card-line">{def.line.replace(/\{(\w+)\}/g, (_, k: string) => p.vars[k] ?? k)}</div>}
-      <div class="countdown"><span style={{ width: `${frac * 100}%` }} class={frac < 0.3 ? 'hot' : ''} /></div>
-      <div class="card-options">
-        {def.options.map((o, i) => {
-          const isDefault = (p.defaultOverride ?? def.defaultOption) === i;
-          const short = o.cost !== undefined && me.cash < o.cost && !(o.favorCost && me.favor >= o.favorCost);
-          return (
-            <button
-              key={i}
-              class={`btn btn-option ${isDefault ? 'is-default' : ''}`}
-              disabled={short}
-              title={isDefault ? 'Happens if you do nothing' : undefined}
-              onClick={() => { ctrl.dispatch({ type: 'answer', uid: p.uid, option: i }); sound('confirm'); }}
-            >
-              {hotkeys && <kbd>{i + 1}</kbd>}
-              {o.label}
-              {o.cost !== undefined && <span class="cost">{o.cost}◉{o.favorCost ? `/${o.favorCost}⚓` : ''}</span>}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+import { Card, inboxItems } from './Cards.tsx';
 
 function Inbox({ ctrl }: { ctrl: GameController }) {
   const items = inboxItems(ctrl);
@@ -76,15 +22,21 @@ const INST: Record<InstitutionId, string> = {
   church: 'Church of Patmos', windsunk: 'Windsunk Council', rotoMarket: 'Roto market', cumstead: 'The Cumstead', cityhall: 'Aleforge City Hall',
 };
 
+/** Every company still trading, the player's always included. */
 function League({ ctrl }: { ctrl: GameController }) {
+  void uiFrame.value; // has its own hooks, so it must subscribe itself to redraw live
   const w = ctrl.world;
-  const lg = league(w).slice(0, 7);
+  const lg = league(w).filter((co) => co.isPlayer || companyTaverns(w, co).some((t) => t.status !== 'closed'));
   const top = Math.max(1, lg[0]?.cv ?? 1);
+  const myRank = lg.findIndex((co) => co.isPlayer);
+  const meRow = useRef<HTMLDivElement>(null);
+  // Keep your own row in view when your rank changes.
+  useEffect(() => { meRow.current?.scrollIntoView({ block: 'nearest' }); }, [myRank]);
   return (
-    <section class="panel-block">
-      <h3>Company Value</h3>
+    <section class="panel-block league" data-testid="league">
+      <h3>Company Value <span class="muted">{lg.length} companies</span></h3>
       {lg.map((co, i) => (
-        <div class={`league-row ${co.isPlayer ? 'me' : ''} ${co.rival?.isArch ? 'arch' : ''}`} key={co.id}>
+        <div class={`league-row ${co.isPlayer ? 'me' : ''} ${co.rival?.isArch ? 'arch' : ''}`} key={co.id} ref={co.isPlayer ? meRow : undefined}>
           <span class="lg-rank">{i + 1}</span>
           <span class="lg-name" title={co.name}>{co.isPlayer ? 'You' : co.name}</span>
           <span class="bar"><span class="fill" style={{ width: `${(Math.max(0, co.cv) / top) * 100}%` }} /></span>
@@ -137,20 +89,13 @@ function Institutions({ ctrl }: { ctrl: GameController }) {
 
 export function RightPanel({ ctrl }: { ctrl: GameController }) {
   void uiFrame.value;
-  const cards = visibleCards(ctrl).slice(0, 2);
-  const extra = visibleCards(ctrl).length - cards.length;
   const world = ctrl.world.focus.view === 'world';
   return (
     <aside class="right-panel">
-      <section class="cards" data-testid="cards">
-        {cards.map((p, i) => <Card key={p.uid} ctrl={ctrl} p={p} hotkeys={i === 0} />)}
-        {extra > 0 && <div class="more-cards">+{extra} more waiting</div>}
-      </section>
       <Inbox ctrl={ctrl} />
-      {world && <League ctrl={ctrl} />}
+      <League ctrl={ctrl} />
       {world && <Ladder ctrl={ctrl} />}
       {world && <Institutions ctrl={ctrl} />}
-      {!world && <League ctrl={ctrl} />}
     </aside>
   );
 }

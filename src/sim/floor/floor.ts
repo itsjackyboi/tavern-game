@@ -1,3 +1,4 @@
+import { log } from '../log.ts';
 import type { Content } from '../../content/schema.ts';
 import { applyVisitRep, recordSale, servingSatisfaction, spend } from '../economy/ledger.ts';
 import {
@@ -226,7 +227,8 @@ function freeSeat(f: FloorState, p: Patron): void {
   p.seat = -1;
 }
 
-function leave(w: World, c: Content, f: FloorState, t: Tavern, p: Patron, angry: boolean): void {
+/** `quiet`: turned away at the door at closing time, which costs no reputation. */
+function leave(w: World, c: Content, f: FloorState, t: Tavern, p: Patron, angry: boolean, quiet = false): void {
   if (p.state === 'leaving' || p.state === 'gone') return;
   const mods = modsFor(w, c, t);
   const wasSeated = p.tableId >= 0;
@@ -242,6 +244,7 @@ function leave(w: World, c: Content, f: FloorState, t: Tavern, p: Patron, angry:
     t.kpi.walkouts += 1;
     fx(w, 'walkout', p.x, p.y);
   }
+  if (quiet) return;
   applyVisitRep(w, c, t, sat, angry ? 20 : q, mods, p.vip ? 3 : 1);
   if (!angry && sat > 0.75 && !p.regular && t.regulars.length < 6 && chance(w, 'floor', 0.08)) {
     t.regulars.push(`${pick(w, 'floor', c.staff.firstNames)} ${pick(w, 'floor', c.staff.epithets)}`);
@@ -844,12 +847,15 @@ export function applyFloorCommand(w: World, c: Content, cmd: FloorCommand): void
     case 'ringBell': {
       const cal = calendarAt(w.tick, c.time);
       if (cal.phase !== 'lastCall' || f.lastCallRung) return;
+      // Doors close: nobody new comes in, the queue goes home without hard feelings,
+      // and everyone inside gets one last round, which carries on past the end of the shift.
       f.lastCallRung = true;
       for (const p of f.patrons) {
-        if (p.state === 'waiting' || p.state === 'arriving') leave(w, c, f, t, p, false);
+        if (p.state === 'waiting' || p.state === 'arriving') leave(w, c, f, t, p, false, true);
         else p.drinksLeft = Math.min(p.drinksLeft, 1);
       }
       fx(w, 'bell', 8, 3);
+      log(w, 'event', `Last Call at ${t.name}: doors closed, serving the last orders.`, t.city);
       return;
     }
   }
@@ -876,10 +882,14 @@ export function stepFloor(w: World, c: Content): void {
   f.patrons = f.patrons.filter((p) => p.state !== 'gone');
 }
 
-/** End of a shift: patrons still inside are stragglers unless the bell was rung. */
+/**
+ * End of a shift. If the bell was rung, patrons inside finish their last round
+ * into the next shift; otherwise they're stragglers: fined and turned out.
+ */
 function settleShift(w: World, c: Content, f: FloorState, t: Tavern): void {
   const inside = f.patrons.filter((p) => p.state !== 'gone' && p.state !== 'leaving');
-  if (!f.lastCallRung && inside.length > 3) {
+  const rung = f.lastCallRung;
+  if (!rung && inside.length > 3) {
     const co = w.companies[t.companyId]!;
     const mult = t.city === 'providence' ? 2 : 1;
     const fine = Math.round(c.floor.lastCallStragglerFine * mult * (inside.length - 3));
@@ -888,12 +898,24 @@ function settleShift(w: World, c: Content, f: FloorState, t: Tavern): void {
     fx(w, 'thud', DOOR.x, DOOR.y - 1, fine);
   }
   for (const inc of [...f.incidents]) failBrawl(w, c, f, t, inc);
-  for (const p of inside) {
-    if (p.state === 'sneaking') steal(w, c, f, t, p);
-    else leave(w, c, f, t, p, false);
+  if (rung) {
+    for (const p of inside) {
+      if (p.state === 'sneaking') steal(w, c, f, t, p);
+      else if (p.state === 'waiting' || p.state === 'arriving') leave(w, c, f, t, p, false, true);
+      else {
+        p.drinksLeft = Math.min(p.drinksLeft, 1);
+        p.claimedBy = 0;
+      }
+    }
+    f.patrons = f.patrons.filter((p) => p.state !== 'gone');
+  } else {
+    for (const p of inside) {
+      if (p.state === 'sneaking') steal(w, c, f, t, p);
+      else leave(w, c, f, t, p, false);
+    }
+    for (const p of f.patrons) p.state = 'gone';
+    f.patrons = [];
   }
-  for (const p of f.patrons) p.state = 'gone';
-  f.patrons = [];
   f.incidents = [];
   f.lastCallRung = false;
   for (const wk of f.workers) {

@@ -4,11 +4,14 @@ import { PALETTES } from '../../art/palettes.ts';
 import type { CityId, Content } from '../../content/schema.ts';
 import { cityOf } from '../../sim/lookup.ts';
 import { LeaderboardView } from '../leaderboard/LeaderboardPanel.tsx';
+import { APP_VERSION } from '../../version.ts';
+import { TUTORIAL_DONE_KEY } from '../tutorial/Tutorial.tsx';
 import { SealedLetter, type LetterState } from './SealedLetter.tsx';
 
 export type TitleChoice =
   | { kind: 'new'; city: CityId; tavernName: string; timerScale: number; ngPlus: number }
-  | { kind: 'continue'; save: SaveFile };
+  | { kind: 'continue'; save: SaveFile }
+  | { kind: 'tutorial'; tavernName: string };
 
 const CITY_BLURB: Record<CityId, string> = {
   aleforge: '+ cheap, high-quality ale · − high rent, crowded',
@@ -18,18 +21,47 @@ const CITY_BLURB: Record<CityId, string> = {
 };
 
 const WINS_KEY = 'last-call:wins';
+const PREFS_KEY = 'last-call:title-prefs';
+
+interface Prefs { city: CityId; name: string; assist: number }
+function loadPrefs(): Prefs {
+  const def: Prefs = { city: 'aleforge', name: 'The Last Call', assist: 1 };
+  try {
+    return { ...def, ...(JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}') as Partial<Prefs>) };
+  } catch {
+    return def;
+  }
+}
+function savePrefs(p: Prefs): void {
+  try { localStorage.setItem(PREFS_KEY, JSON.stringify(p)); } catch { /* ignore */ }
+}
 
 export function TitleScreen({ content, onPlay, loadSave }: { content: Content; onPlay: (c: TitleChoice) => void; loadSave: () => Promise<SaveFile | null> }) {
   const [letter, setLetter] = useState<LetterState>('sealed');
-  const [city, setCity] = useState<CityId>('aleforge');
-  const [name, setName] = useState('The Last Call');
-  const [assist, setAssist] = useState(1);
+  const prefs = loadPrefs();
+  const [city, setCity] = useState<CityId>(prefs.city);
+  const [name, setName] = useState(prefs.name);
+  const [assist, setAssist] = useState(prefs.assist);
+  const [confirmNew, setConfirmNew] = useState(false);
   const [ngPlus, setNgPlus] = useState(false);
   const [save, setSave] = useState<SaveFile | null>(null);
   const [boards, setBoards] = useState(false);
   const read = letter === 'read';
   let wins = 0;
-  try { wins = Number(localStorage.getItem(WINS_KEY) ?? 0); } catch { /* ignore */ }
+  let tutorialDone = false;
+  try {
+    wins = Number(localStorage.getItem(WINS_KEY) ?? 0);
+    tutorialDone = !!localStorage.getItem(TUTORIAL_DONE_KEY);
+  } catch { /* ignore */ }
+  const play = () => {
+    // Starting over abandons a saved run: ask once more first.
+    if (save && !confirmNew) {
+      setConfirmNew(true);
+      return;
+    }
+    savePrefs({ city, name, assist });
+    onPlay({ kind: 'new', city, tavernName: name, timerScale: assist, ngPlus: ngPlus ? 1 : 0 });
+  };
 
   useEffect(() => { void loadSave().then(setSave); }, []);
 
@@ -86,15 +118,24 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
 
       <div class="title-actions">
         <button
-          class={`btn play-button ${read ? 'play-prominent' : 'play-muted'}`}
-          onClick={() => onPlay({ kind: 'new', city, tavernName: name, timerScale: assist, ngPlus: ngPlus ? 1 : 0 })}
+          class={`btn play-button ${read ? 'play-prominent' : 'play-muted'} ${confirmNew ? 'confirm' : ''}`}
+          onClick={play}
           data-testid="play"
         >
-          {save ? 'New run' : 'Play'}
+          {confirmNew ? 'Abandon saved run?' : save ? 'New run' : 'Play'}
+        </button>
+        <button
+          class={`btn ${tutorialDone ? '' : 'tutorial-new'}`}
+          onClick={() => onPlay({ kind: 'tutorial', tavernName: name })}
+          data-testid="tutorial-start"
+          title="A guided first shift: the controls, step by step (not ranked, doesn't touch your saved run)"
+        >
+          Tutorial
         </button>
         <button class="btn" onClick={() => setBoards(true)} data-testid="open-leaderboard">Leaderboards</button>
       </div>
       {boards && <LeaderboardView onClose={() => setBoards(false)} />}
+      <span class="version-tag title-version" data-testid="version">{APP_VERSION}</span>
     </main>
   );
 }

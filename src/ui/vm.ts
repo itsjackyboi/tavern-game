@@ -1,7 +1,7 @@
 import { signal } from '@preact/signals';
 import type { GameController, PauseReason } from '../app/controller.ts';
 import { league } from '../sim/company.ts';
-import { player, playerTaverns } from '../sim/lookup.ts';
+import { cityOf, drinkOf, kegCost, player, playerTaverns, seasonTicks, staffAt } from '../sim/lookup.ts';
 import { establishedSisters } from '../sim/network.ts';
 import { SEGMENT_LABEL, formatClock, type Phase } from '../sim/time.ts';
 import { uiFrame } from './bus.ts';
@@ -29,6 +29,14 @@ export interface ViewModel {
   hasShanty: boolean;
   debt: number;
   lowCash: boolean;
+  /** 'debt' < 'out' (can't afford a keg) < 'low' (can't cover a season's rent and wages). */
+  money: 'debt' | 'out' | 'low' | null;
+  /** Drinks on the focused tavern's taps with nothing left anywhere. */
+  dryTaps: string[];
+  /** Brawls, thieves and nearly-lost orders on the focused floor. */
+  floorAlerts: number;
+  /** Seconds until bankruptcy while creditors are circling, else null. */
+  bankruptIn: number | null;
 }
 
 export const vm = signal<ViewModel | null>(null);
@@ -41,6 +49,20 @@ export function computeVm(ctrl: GameController): ViewModel {
   const rank = lg.findIndex((co) => co.id === me.id) + 1;
   const next = lg.find((co) => co.id !== me.id);
   const ratio = ctrl.content.economy.monopolyRatio;
+  const c = ctrl.content;
+  const t = w.taverns[w.focus.tavernId];
+  const mine = playerTaverns(w).filter((x) => x.status !== 'closed');
+  const onTap = t ? t.menu.slice(0, t.taps) : [];
+  const cheapest = t && onTap.length ? Math.min(...onTap.map((m) => kegCost(w, c, m.drinkId, t.city, me, t))) : 0;
+  const upkeep = mine.reduce((sum, x) => sum + cityOf(c, x.city).rentPerSeason + staffAt(w, x.id).reduce((a, st) => a + st.wage, 0), 0);
+  const money: ViewModel['money'] = me.cash < 0 ? 'debt' : me.cash < cheapest ? 'out' : me.cash < upkeep ? 'low' : null;
+  const dryTaps = t
+    ? onTap.filter((m) => (t.tapLevels[m.drinkId] ?? 0) <= 0 && (t.cellar[m.drinkId] ?? 0) <= 0 && !t.orders.some((o) => o.drinkId === m.drinkId)).map((m) => drinkOf(c, m.drinkId).name)
+    : [];
+  const f = w.floor;
+  const floorAlerts = f
+    ? f.incidents.length + f.patrons.filter((p) => p.state === 'sneaking' || (p.state === 'ordered' && p.patience < p.patienceMax * 0.3)).length
+    : 0;
   return {
     year: cal.year,
     segment: SEGMENT_LABEL[cal.segment],
@@ -61,6 +83,10 @@ export function computeVm(ctrl: GameController): ViewModel {
     hasShanty: playerTaverns(w).some((t) => t.city === 'shanty'),
     debt: Math.round(me.debt),
     lowCash: w.run.lowCashSince !== null,
+    money,
+    dryTaps,
+    floorAlerts,
+    bankruptIn: w.run.lowCashSince === null ? null : Math.max(0, Math.ceil((w.run.lowCashSince + seasonTicks(c) - w.tick) / 20)),
   };
 }
 

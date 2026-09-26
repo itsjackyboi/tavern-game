@@ -8,17 +8,19 @@ import type { Content } from '../content/schema.ts';
 import { installHotkeys } from '../input/hotkeys.ts';
 import { startOutbox } from '../leaderboard/outbox.ts';
 import type { GameViews } from '../views/PhaserGame.ts';
-import { drawer, toast, uiFrame } from './bus.ts';
+import { drawer, emitCommand, toast, uiFrame } from './bus.ts';
 import { RESULT_TEXT } from './describe.ts';
 import { Drawers } from './drawers/Drawers.tsx';
 import { EndScreen } from './EndScreen.tsx';
 import { Hud } from './hud/Hud.tsx';
+import { Alerts } from './Alerts.tsx';
 import { BottomBar } from './panels/BottomBar.tsx';
 import { LeftPanel } from './panels/LeftPanel.tsx';
 import { RightPanel } from './panels/RightPanel.tsx';
 import { PauseVeil } from './PauseVeil.tsx';
 import { TitleScreen, type TitleChoice } from './title/TitleScreen.tsx';
 import { Toasts } from './Toasts.tsx';
+import { Tutorial } from './tutorial/Tutorial.tsx';
 import { bindViewModel, vm } from './vm.ts';
 
 export function urlFlags() {
@@ -50,6 +52,11 @@ export function App({ content }: { content: Content }) {
       setCtrl(new GameController(content, { save: choice.save, debug: flags.debug }));
       return;
     }
+    if (choice.kind === 'tutorial') {
+      // A fixed, gentle start. The tutorial never touches the saved run.
+      setCtrl(new GameController(content, { seed: 'tutorial', homeCity: 'aleforge', tavernName: choice.tavernName, tutorial: true, debug: flags.debug }));
+      return;
+    }
     clearSave();
     const cfg: NewRunConfig = {
       seed: flags.seed ?? newSeed(),
@@ -65,10 +72,23 @@ export function App({ content }: { content: Content }) {
   };
 
   if (!ctrl) return <TitleScreen content={content} onPlay={begin} loadSave={readSave} />;
-  return <GameScreen key={ctrl.world.meta.seed} ctrl={ctrl} onNewRun={() => { clearSave(); setCtrl(null); }} />;
+  const exit = async () => {
+    // Save & return to title: Continue on the title screen picks the run back up.
+    const s = ctrl.world.run.status;
+    if (s === 'playing' || s === 'freeplay') await ctrl.save();
+    setCtrl(null);
+  };
+  return (
+    <GameScreen
+      key={`${ctrl.world.meta.seed}-${ctrl.tutorial}`}
+      ctrl={ctrl}
+      onNewRun={() => { if (!ctrl.tutorial) clearSave(); setCtrl(null); }}
+      onExit={() => void exit()}
+    />
+  );
 }
 
-function GameScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: () => void }) {
+function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun: () => void; onExit: () => void }) {
   const host = useRef<HTMLDivElement>(null);
   const views = useRef<GameViews | null>(null);
 
@@ -79,14 +99,29 @@ function GameScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: () => 
     const unbindAudio = bindAudio(ctrl);
     if (ctrl.debug || import.meta.env.DEV) installTestHooks(ctrl);
     let winRecorded = ctrl.world.run.status === 'won';
+    let bellWas = ctrl.world.floor?.lastCallRung ?? false;
+    let segWas = ctrl.world.events.lastSegment;
     const unsub = ctrl.subscribe(() => {
       views.current?.setView(ctrl.world.focus.view);
+      const bell = ctrl.world.floor?.lastCallRung ?? false;
+      if (bell && !bellWas) toast('Doors closed: no more patrons tonight. Serve the last orders.', 'good');
+      bellWas = bell;
+      // A season closed: say how it went.
+      if (ctrl.world.events.lastSegment !== segWas) {
+        segWas = ctrl.world.events.lastSegment;
+        const me = ctrl.world.companies[ctrl.world.playerId];
+        if (me && ctrl.world.tick > 40) {
+          const p = Math.round(me.seasonProfit);
+          toast(`Season closed: ${p >= 0 ? '+' : '−'}${Math.abs(p).toLocaleString()} Duckets profit`, p >= 0 ? 'good' : 'info');
+        }
+      }
       if (!winRecorded && ctrl.world.run.status === 'won') {
         winRecorded = true;
         // Any win unlocks NG+ on the title screen.
         try { localStorage.setItem('last-call:wins', String(Number(localStorage.getItem('last-call:wins') ?? 0) + 1)); } catch { /* ignore */ }
       }
       for (const f of ctrl.takeFeedback()) {
+        emitCommand(f.cmd.type, f.result);
         if (f.result === 'ok' || f.result === 'found') {
           if (f.cmd.type === 'found') toast('Construction begins. It opens next season.', 'good');
           if (f.cmd.type === 'hire') toast('Hired.', 'good');
@@ -123,13 +158,15 @@ function GameScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: () => 
         <LeftPanel ctrl={ctrl} />
         <div class="board">
           <div class="board-canvas" ref={host} data-testid="board" />
+          <Alerts />
+          <Toasts />
           <Drawers ctrl={ctrl} />
-          <PauseVeil ctrl={ctrl} />
+          {ctrl.tutorial && <Tutorial ctrl={ctrl} onExit={onExit} />}
+          <PauseVeil ctrl={ctrl} onExit={onExit} />
         </div>
         <RightPanel ctrl={ctrl} />
       </div>
       <BottomBar ctrl={ctrl} />
-      <Toasts />
       <EndScreen ctrl={ctrl} onNewRun={onNewRun} />
     </div>
   );

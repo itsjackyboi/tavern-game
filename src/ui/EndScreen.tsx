@@ -48,8 +48,8 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
             <tr><td>Pauses / sessions</td><td>{ctrl.clock.pauses} / {ctrl.clock.sessions + 1}</td></tr>
           </tbody>
         </table>
-        {won && (!ctrl.debug || lbMock()) && <LeaderboardSubmit ctrl={ctrl} />}
-        {won && ctrl.debug && !lbMock() && <p class="small muted">Debug runs are unranked.</p>}
+        {won && ((!ctrl.debug && !ctrl.tutorial) || lbMock()) && <LeaderboardSubmit ctrl={ctrl} />}
+        {won && (ctrl.debug || ctrl.tutorial) && !lbMock() && <p class="small muted">{ctrl.tutorial ? 'Tutorial runs' : 'Debug runs'} are unranked.</p>}
         {!won && r.status === 'lost' && <p class="freeplay-note" data-testid="freeplay-note">{ctrl.content.finale.freeplayNote}</p>}
         <div class="end-actions">
           {r.status !== 'bankrupt' && (

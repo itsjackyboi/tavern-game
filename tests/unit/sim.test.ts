@@ -9,7 +9,7 @@ import { player, playerTaverns } from '../../src/sim/lookup.ts';
 import { foundTavern } from '../../src/sim/network.ts';
 import { hashSeed, sfc32 } from '../../src/sim/rng.ts';
 import { stepWorld } from '../../src/sim/step.ts';
-import { endTick, ticksPerYear } from '../../src/sim/time.ts';
+import { calendarAt, endTick, ticksPerYear } from '../../src/sim/time.ts';
 import type { World } from '../../src/sim/types.ts';
 import { createWorld } from '../../src/sim/world.ts';
 
@@ -75,6 +75,43 @@ describe('the floor', () => {
     run(w, 1300);
     const t = playerTaverns(w)[0]!;
     expect(t.lastKpi?.served ?? t.kpi.served).toBe(0);
+  });
+});
+
+describe('last call', () => {
+  const inside = (w: World) => w.floor!.patrons.filter((p) => ['toSeat', 'seated', 'ordered', 'drinking'].includes(p.state));
+
+  it('the bell closes the doors but lets the last orders be served, past the end of the shift', () => {
+    const w = fresh('bell');
+    const bot = new Bot(PROFILES.skilled!);
+    // Play into the Last Call window of the first shift with a busy floor.
+    while (calendarAt(w.tick, c.time).phase !== 'lastCall') stepWorld(w, c, bot.think(w, c).filter((cmd) => cmd.type !== 'ringBell'));
+    while (inside(w).length === 0 && calendarAt(w.tick, c.time).phase === 'lastCall') stepWorld(w, c, []);
+    stepWorld(w, c, [{ type: 'ringBell' }]);
+    expect(w.floor!.lastCallRung).toBe(true);
+    expect(w.floor!.patrons.some((p) => p.state === 'waiting')).toBe(false);
+    const staying = inside(w).map((p) => p.id);
+    expect(staying.length).toBeGreaterThan(0);
+    // Cross the shift boundary: they are still there.
+    while (calendarAt(w.tick, c.time).phase === 'lastCall') stepWorld(w, c, []);
+    stepWorld(w, c, []);
+    expect(w.floor!.patrons.filter((p) => staying.includes(p.id)).length).toBeGreaterThan(0);
+    // Each has at most one drink left, so they finish and go home.
+    for (const p of w.floor!.patrons.filter((x) => staying.includes(x.id))) expect(p.drinksLeft).toBeLessThanOrEqual(1);
+    run(w, 1200, bot);
+    expect(w.floor!.patrons.some((p) => staying.includes(p.id))).toBe(false);
+  });
+
+  it('without the bell, stragglers are turned out at the end of the shift', () => {
+    const w = fresh('nobell');
+    const bot = new Bot(PROFILES.skilled!);
+    while (calendarAt(w.tick, c.time).phase !== 'lastCall') stepWorld(w, c, bot.think(w, c).filter((cmd) => cmd.type !== 'ringBell'));
+    while (calendarAt(w.tick, c.time).phase === 'lastCall' && inside(w).length === 0) stepWorld(w, c, []);
+    const before = inside(w).map((p) => p.id);
+    expect(before.length).toBeGreaterThan(0);
+    while (calendarAt(w.tick, c.time).phase === 'lastCall') stepWorld(w, c, []);
+    stepWorld(w, c, []);
+    expect(w.floor!.patrons.some((p) => before.includes(p.id))).toBe(false);
   });
 });
 

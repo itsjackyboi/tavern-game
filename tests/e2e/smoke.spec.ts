@@ -10,6 +10,31 @@ async function startRun(page: Page, query: string, city = 'aleforge'): Promise<v
   await page.waitForFunction(() => (window.__game?.tick() ?? 0) > 5);
 }
 
+/** Drags the first waiting patron onto a free table with the real mouse. Returns the patron id. */
+async function dragPatronToTable(page: Page): Promise<number> {
+  let waiting: { id: number; x: number; y: number } | undefined;
+  for (let i = 0; i < 60 && !waiting; i++) {
+    await page.evaluate(() => window.__game!.step(20));
+    waiting = (await page.evaluate(() => window.__game!.floor()))?.patrons.find((p) => p.state === 'waiting');
+  }
+  expect(waiting).toBeTruthy();
+  const snap = (await page.evaluate(() => window.__game!.floor()))!;
+  const table = snap.tables.find((t) => t.free && !t.dirty)!;
+  const box = (await page.locator('[data-testid="board"] canvas').boundingBox())!;
+  const scale = box.width / 480;
+  const at = (x: number, y: number) => ({ x: box.x + (x + 0.5) * 16 * scale, y: box.y + (y + 0.3) * 16 * scale });
+  const p = snap.patrons.find((q) => q.id === waiting!.id)!;
+  const from = at(p.x, p.y);
+  const to = at(table.x, table.y);
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move((from.x + to.x) / 2, (from.y + to.y) / 2, { steps: 4 });
+  await page.mouse.move(to.x, to.y, { steps: 4 });
+  await page.mouse.up();
+  await page.evaluate(() => window.__game!.step(2));
+  return waiting!.id;
+}
+
 test('letter → play → tavern floor', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -166,27 +191,82 @@ test('dev.html sprite gallery renders', async ({ page }) => {
 
 test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
   await startRun(page, 'debug&seed=drag');
-  // Wait for someone to be standing at the door.
-  let waiting: { id: number; x: number; y: number } | undefined;
-  for (let i = 0; i < 40 && !waiting; i++) {
-    await page.evaluate(() => window.__game!.step(20));
-    waiting = (await page.evaluate(() => window.__game!.floor()))?.patrons.find((p) => p.state === 'waiting');
-  }
-  expect(waiting).toBeTruthy();
-  const snap = (await page.evaluate(() => window.__game!.floor()))!;
-  const table = snap.tables.find((t) => t.free && !t.dirty)!;
-  const box = (await page.locator('[data-testid="board"] canvas').boundingBox())!;
-  const scale = box.width / 480;
-  const at = (x: number, y: number) => ({ x: box.x + (x + 0.5) * 16 * scale, y: box.y + (y + 0.3) * 16 * scale });
-  const p = snap.patrons.find((q) => q.id === waiting!.id)!;
-  const from = at(p.x, p.y);
-  const to = at(table.x, table.y);
-  await page.mouse.move(from.x, from.y);
-  await page.mouse.down();
-  await page.mouse.move((from.x + to.x) / 2, (from.y + to.y) / 2, { steps: 4 });
-  await page.mouse.move(to.x, to.y, { steps: 4 });
-  await page.mouse.up();
-  await page.evaluate(() => window.__game!.step(2));
-  const after = (await page.evaluate(() => window.__game!.floor()))!.patrons.find((q) => q.id === waiting!.id);
+  const id = await dragPatronToTable(page);
+  const after = (await page.evaluate(() => window.__game!.floor()))!.patrons.find((q) => q.id === id);
   expect(after?.state).not.toBe('waiting');
+});
+
+test('version tag shows on the title and in game', async ({ page }) => {
+  await page.goto('/?debug&seed=ver');
+  await expect(page.getByTestId('version')).toHaveText('v1.1');
+  await page.getByTestId('play').click();
+  await expect(page.getByTestId('version')).toHaveText('v1.1');
+});
+
+test('decisions sit bottom-left and every company is listed', async ({ page }) => {
+  await startRun(page, 'debug&seed=layout');
+  for (let i = 0; i < 40 && (await page.locator('.left-panel [data-testid="prompt-card"]').count()) === 0; i++) {
+    await page.evaluate(() => window.__game!.step(200));
+  }
+  await expect(page.locator('.left-panel [data-testid="prompt-card"]').first()).toBeVisible();
+  await expect(page.locator('.right-panel [data-testid="prompt-card"]')).toHaveCount(0);
+  const rows = page.locator('[data-testid="league"] .league-row');
+  expect(await rows.count()).toBeGreaterThan(8);
+  await expect(page.locator('[data-testid="league"] .league-row.me')).toHaveCount(1);
+  await page.screenshot({ path: `${SHOTS}/layout.png`, animations: 'disabled' });
+});
+
+test('running out of Duckets puts up a banner that stays', async ({ page }) => {
+  await startRun(page, 'debug&seed=broke');
+  await page.evaluate(() => window.__game!.drain());
+  await expect(page.getByTestId('money-alert')).toBeVisible();
+  await expect(page.getByTestId('money-alert')).toContainText('Out of Duckets');
+  await page.screenshot({ path: `${SHOTS}/out-of-duckets.png`, animations: 'disabled' });
+});
+
+test('the Last Call bell closes the doors', async ({ page }) => {
+  await startRun(page, 'debug&seed=bell');
+  for (let i = 0; i < 80 && (await page.evaluate(() => window.__game!.phase())) !== 'lastCall'; i++) {
+    await page.evaluate(() => window.__game!.step(20));
+  }
+  await page.keyboard.press('b');
+  await expect(page.getByTestId('toasts')).toContainText('Doors closed');
+  await page.screenshot({ path: `${SHOTS}/doors-closed.png`, animations: 'disabled' });
+});
+
+test('pause menu: save & return to title, then continue', async ({ page }) => {
+  await page.goto('/?seed=exit');
+  await page.getByTestId('play').click();
+  await expect(page.locator('[data-testid="board"] canvas')).toBeVisible();
+  await page.waitForTimeout(800);
+  await page.keyboard.press('p');
+  await expect(page.getByTestId('pause-veil')).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/pause-menu.png`, animations: 'disabled' });
+  await page.getByTestId('exit-title').click();
+  await expect(page.getByTestId('continue')).toBeVisible();
+  // Starting a new run now asks first.
+  await page.getByTestId('play').click();
+  await expect(page.getByTestId('play')).toHaveText('Abandon saved run?');
+  await page.getByTestId('continue').click();
+  await expect(page.getByTestId('pause-veil')).toBeVisible();
+});
+
+test('tutorial walks through the first steps', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/?debug');
+  await page.getByTestId('tutorial-start').click();
+  const coach = page.getByTestId('tutorial');
+  await expect(coach).toContainText('Welcome');
+  await page.screenshot({ path: `${SHOTS}/tutorial-welcome.png`, animations: 'disabled' });
+  await page.getByTestId('tutorial-next').click();
+  await expect(coach).toContainText('Seat a patron');
+  await dragPatronToTable(page);
+  await expect(coach).toContainText('Pour and serve');
+  await page.screenshot({ path: `${SHOTS}/tutorial-serve.png`, animations: 'disabled' });
+  await page.getByTestId('tutorial-skip').click();
+  await expect(coach).toContainText('Kegs and taps');
+  await page.getByTestId('tutorial-end').click();
+  await expect(coach).toBeHidden();
+  expect(errors).toEqual([]);
 });

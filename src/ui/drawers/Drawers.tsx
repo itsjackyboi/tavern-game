@@ -39,6 +39,8 @@ function Shell({ title, children }: { title: string; children: preact.ComponentC
 const TIERS: StaffTier[] = ['green', 'seasoned', 'master'];
 
 function StaffDrawer({ ctrl }: { ctrl: GameController }) {
+  void uiFrame.value; // components with local state must subscribe themselves to redraw live
+  const [firing, setFiring] = useState<string | null>(null);
   const t = focusTavern(ctrl);
   if (!t) return null;
   const c = ctrl.content;
@@ -94,7 +96,13 @@ function StaffDrawer({ ctrl }: { ctrl: GameController }) {
             <span class="small">{s.wage}◉</span>
             <button class="btn btn-tiny" onClick={() => ctrl.dispatch({ type: 'train', staffId: s.id })} title="Train: +6 competence">Train {trainCost(s)}</button>
             <button class="btn btn-tiny" onClick={() => ctrl.dispatch({ type: 'raise', staffId: s.id })} title="Raise: +15% wage, +morale">Raise</button>
-            <button class="btn btn-tiny danger" onClick={() => ctrl.dispatch({ type: 'fire', staffId: s.id })}>Fire</button>
+            <button
+              class={`btn btn-tiny danger ${firing === s.id ? 'confirm' : ''}`}
+              onClick={() => { if (firing === s.id) { ctrl.dispatch({ type: 'fire', staffId: s.id }); setFiring(null); } else setFiring(s.id); }}
+              onBlur={() => setFiring(null)}
+            >
+              {firing === s.id ? 'Sure?' : 'Fire'}
+            </button>
           </div>
         ))}
       </section>
@@ -211,6 +219,7 @@ function UpgradesDrawer({ ctrl }: { ctrl: GameController }) {
 const INGS: IngredientId[] = ['barley', 'hops', 'molasses', 'spice', 'redEarth', 'fruit', 'spiritweed', 'imports'];
 
 function ResearchDrawer({ ctrl }: { ctrl: GameController }) {
+  void uiFrame.value; // components with local state must subscribe themselves to redraw live
   const [pick, setPick] = useState<IngredientId[]>([]);
   const c = ctrl.content;
   const w = ctrl.world;
@@ -300,6 +309,7 @@ function FinanceDrawer({ ctrl }: { ctrl: GameController }) {
 // ---------------------------------------------------------------- city (world map)
 
 function CityDrawer({ ctrl }: { ctrl: GameController }) {
+  void uiFrame.value; // components with local state must subscribe themselves to redraw live
   const city = selectedCity.value;
   const [shipFrom, setShipFrom] = useState<string>('');
   const [shipDrink, setShipDrink] = useState<string>('');
@@ -413,7 +423,7 @@ function Spark({ values }: { values: number[] }) {
 
 // ---------------------------------------------------------------- help
 
-function SoundSettings() {
+export function SoundSettings() {
   const [, bump] = useState(0);
   const v = audio.vol;
   const set = (k: 'master' | 'sfx' | 'music' | 'amb', x: number) => { v[k] = x; audio.applyVolumes(); bump((n) => n + 1); };
@@ -438,6 +448,16 @@ function HelpDrawer() {
       <section class="panel-block">
         <h3>Goal</h3>
         <p>Become the biggest tavern company in the Isles. <b>Monopoly</b>: reach twice the Company Value of the next-biggest company and you win on the spot. Otherwise, at the end of Year 463 the Trials' sponsor is the biggest company established in all four cities.</p>
+      </section>
+      <section class="panel-block">
+        <h3>The screen</h3>
+        <ul class="small">
+          <li><b>Top:</b> year and season, day/night, run clock, Duckets, Company Value and rank, the monopoly bar, and your sister taverns.</li>
+          <li><b>Left:</b> your tavern's taps, staff and local rivals; the news of the Isles; and decisions waiting for you at the bottom.</li>
+          <li><b>Right:</b> every company's Company Value, yours highlighted.</li>
+          <li><b>Decisions:</b> the bar is the time left; the dashed option happens if you don't choose.</li>
+          <li><b>Red banners</b> at the bottom of the board stay up until the problem is fixed (money, dry taps).</li>
+        </ul>
       </section>
       <section class="panel-block">
         <h3>The floor</h3>

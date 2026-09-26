@@ -1,6 +1,8 @@
 import type { GameController } from '../../app/controller.ts';
 import { calendarAt } from '../../sim/time.ts';
-import { drawer, hover, sound, uiFrame, type DrawerId } from '../bus.ts';
+import { APP_VERSION } from '../../version.ts';
+import { drawer, sound, uiFrame, type DrawerId } from '../bus.ts';
+import { vm } from '../vm.ts';
 
 const BUTTONS: Array<[Exclude<DrawerId, null | 'city'>, string, string]> = [
   ['staff', 'Staff', 'S'], ['menu', 'Menu', 'M'], ['upgrades', 'Build', 'U'], ['research', 'Brew', 'K'], ['finance', 'Ledger', 'F'], ['help', 'Help', 'H'],
@@ -11,7 +13,7 @@ export function BottomBar({ ctrl }: { ctrl: GameController }) {
   const w = ctrl.world;
   const cal = calendarAt(w.tick, ctrl.content.time);
   const lastCall = cal.phase === 'lastCall' && !!w.floor && !w.floor.lastCallRung;
-  const recent = w.log.slice(-3).reverse();
+  const alerts = vm.value?.floorAlerts ?? 0;
   return (
     <footer class="bottom-bar">
       <button
@@ -21,6 +23,7 @@ export function BottomBar({ ctrl }: { ctrl: GameController }) {
         data-testid="view-toggle"
       >
         <kbd>Tab</kbd> {w.focus.view === 'floor' ? 'Isles map' : 'Tavern floor'}
+        {w.focus.view === 'world' && alerts > 0 && <span class="badge alert-badge" title="Trouble on your floor">{alerts}</span>}
       </button>
       {BUTTONS.map(([id, label, key]) => (
         <button key={id} class={`btn ${drawer.value === id ? 'on' : ''}`} onClick={() => { drawer.value = drawer.value === id ? null : id; sound('ui'); }}>
@@ -28,19 +31,9 @@ export function BottomBar({ ctrl }: { ctrl: GameController }) {
         </button>
       ))}
       <button class={`btn bell ${lastCall ? 'ring' : ''}`} disabled={!lastCall} onClick={() => ctrl.dispatch({ type: 'ringBell' })} title="Ring the Last Call bell (B)">
-        <kbd>B</kbd> 🔔
+        <kbd>B</kbd> 🔔 Last Call
       </button>
-      <div class="ticker" data-testid="ticker">
-        {hover.value ? (
-          <div class="hover-line">{hover.value}</div>
-        ) : (
-          recent.map((l, i) => (
-            <div key={`${l.tick}-${i}`} class={`tick-line kind-${l.kind}`} style={{ opacity: 1 - i * 0.28 }}>
-              {l.text}
-            </div>
-          ))
-        )}
-      </div>
+      <span class="version-tag" data-testid="version">{APP_VERSION}</span>
     </footer>
   );
 }

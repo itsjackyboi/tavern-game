@@ -2,7 +2,7 @@ import type { GameController } from '../app/controller.ts';
 import type { Command } from '../sim/commands.ts';
 import { playerTaverns } from '../sim/lookup.ts';
 import { drawer, sound, type DrawerId } from '../ui/bus.ts';
-import { visibleCards } from '../ui/panels/RightPanel.tsx';
+import { visibleCards } from '../ui/panels/Cards.tsx';
 
 // One global keyboard manager on window, so hotkeys work whichever layer
 // (Phaser canvas or DOM) has focus.

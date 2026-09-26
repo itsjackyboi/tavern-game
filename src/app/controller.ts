@@ -32,6 +32,8 @@ export interface NewRunConfig {
   timerScale?: number;
   ngPlus?: number;
   debug?: boolean;
+  /** Guided tutorial: unranked, and never saved over a real run. */
+  tutorial?: boolean;
 }
 
 type Listener = () => void;
@@ -40,6 +42,8 @@ export class GameController {
   readonly content: Content;
   readonly world: World;
   readonly debug: boolean;
+  /** Tutorial runs are unranked and not saved. */
+  readonly tutorial: boolean;
   /** Sim speed multiplier: only >1 in debug runs (unranked). */
   speed = 1;
   private pending: Command[] = [];
@@ -63,10 +67,13 @@ export class GameController {
       this.pauses = cfg.save.clock.pauses;
       this.sessions = cfg.save.clock.sessions + 1;
       this.debug = !!cfg.debug;
+      this.tutorial = false;
       // A resumed run starts paused, behind the veil.
       this.pauseReason = 'manual';
     } else {
       this.debug = !!cfg.debug;
+      this.tutorial = !!cfg.tutorial;
+      if (this.tutorial) this.autosave = false;
       this.world = createWorld(
         { seed: cfg.seed, homeCity: cfg.homeCity, tavernName: cfg.tavernName, timerScale: cfg.timerScale, ngPlus: cfg.ngPlus },
         content,
@@ -163,7 +170,7 @@ export class GameController {
 
   async save(): Promise<void> {
     const s = this.world.run.status;
-    if (this.debug) return;
+    if (this.debug || this.tutorial) return;
     if (s === 'won' || s === 'lost' || s === 'bankrupt') {
       clearSave();
       return;

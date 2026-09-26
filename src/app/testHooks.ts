@@ -15,6 +15,9 @@ export interface TestHooks {
   status(): string;
   view(): 'floor' | 'world';
   prompts(): number;
+  /** Debug only: empties the player's purse (to see the money warnings). */
+  drain(): void;
+  phase(): string;
   floor(): {
     patrons: Array<{ id: number; state: string; x: number; y: number }>;
     tables: Array<{ id: number; x: number; y: number; dirty: boolean; free: boolean }>;
@@ -42,6 +45,11 @@ export function installTestHooks(ctrl: GameController): void {
     status: () => ctrl.world.run.status,
     view: () => ctrl.world.focus.view,
     prompts: () => ctrl.world.prompts.active.length,
+    drain: () => {
+      const me = ctrl.world.companies[ctrl.world.playerId];
+      if (me) me.cash = 0;
+    },
+    phase: () => ctrl.calendar().phase,
     floor: () => {
       const f = ctrl.world.floor;
       if (!f) return null;
