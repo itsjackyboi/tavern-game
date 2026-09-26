@@ -36,6 +36,16 @@
       "exclusiveMinimum": 0,
       "maximum": 9007199254740991
     },
+    "drawRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "maxTables": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
     "archRival": {
       "type": "object",
       "properties": {
@@ -62,13 +72,25 @@
         },
         "expandCash": {
           "type": "number"
+        },
+        "drawRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "maxTables": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
         }
       },
       "required": [
         "name",
         "startCash",
         "startCities",
-        "expandCash"
+        "expandCash",
+        "drawRate",
+        "maxTables"
       ],
       "additionalProperties": false
     }
@@ -81,6 +103,8 @@
     "pressuredShare",
     "desperateCashSeasons",
     "collapseSeasons",
+    "drawRate",
+    "maxTables",
     "archRival"
   ],
   "additionalProperties": false

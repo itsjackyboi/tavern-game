@@ -726,11 +726,11 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--gold); }
 }
 @media (max-width: 760px) {
   .game-screen { font-size: 16px; }
-  .main { grid-template-columns: 1fr; grid-template-rows: minmax(220px, 1fr) auto auto; overflow-y: auto; }
-  .board { order: 0; min-height: 56vw; }
+  .main { grid-template-columns: 1fr; grid-template-rows: auto auto auto; align-content: start; overflow-y: auto; }
+  .board { order: 0; aspect-ratio: 480 / 272; }
   .right-panel { order: 1; border-left: none; border-top: 3px solid var(--panel-edge); max-height: 40vh; }
   .left-panel { order: 2; border-right: none; border-top: 3px solid var(--panel-edge); max-height: 30vh; }
-  .hud { gap: 10px; font-size: 17px; padding: 3px 8px; }
+  .hud { gap: 4px 10px; font-size: 17px; padding: 3px 8px; flex-wrap: wrap; }
   .mono-bar { width: 50px; }
   .bottom-bar { flex-wrap: wrap; }
   .bottom-bar .btn { font-size: 15px; padding: 1px 6px; }
@@ -746,3 +746,4 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--gold); }
 .drawer-body ul { margin: 4px 0; padding-left: 18px; }
 .drawer-body li { margin: 2px 0; }
 .hud-mute { padding: 0 8px !important; }
+.lost-why { text-align: center; font-size: 18px; color: #5a1a1a; }

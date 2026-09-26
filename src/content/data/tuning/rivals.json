@@ -6,6 +6,8 @@
   "pressuredShare": 0.6,
   "desperateCashSeasons": 1,
   "collapseSeasons": 3,
+  "drawRate": 0.6,
+  "maxTables": 12,
   "archRival": {
     "name": "The Gulf Tapworks",
     "startCash": 900,
@@ -13,6 +15,8 @@
       "aleforge",
       "roto"
     ],
-    "expandCash": 1400
+    "expandCash": 1400,
+    "drawRate": 0.15,
+    "maxTables": 18
   }
 }

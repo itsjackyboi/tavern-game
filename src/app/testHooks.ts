@@ -15,6 +15,10 @@ export interface TestHooks {
   status(): string;
   view(): 'floor' | 'world';
   prompts(): number;
+  floor(): {
+    patrons: Array<{ id: number; state: string; x: number; y: number }>;
+    tables: Array<{ id: number; x: number; y: number; dirty: boolean; free: boolean }>;
+  } | null;
 }
 
 declare global {
@@ -38,5 +42,13 @@ export function installTestHooks(ctrl: GameController): void {
     status: () => ctrl.world.run.status,
     view: () => ctrl.world.focus.view,
     prompts: () => ctrl.world.prompts.active.length,
+    floor: () => {
+      const f = ctrl.world.floor;
+      if (!f) return null;
+      return {
+        patrons: f.patrons.map((p) => ({ id: p.id, state: p.state, x: p.x, y: p.y })),
+        tables: f.tables.map((t) => ({ id: t.id, x: t.x, y: t.y, dirty: t.dirty, free: !t.seats[0] && !t.seats[1] })),
+      };
+    },
   };
 }

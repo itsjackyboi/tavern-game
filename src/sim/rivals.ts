@@ -222,7 +222,8 @@ function maintain(w: World, c: Content, co: Company): void {
       spend(co, 60, 'wages');
       makeStaff(w, c, { archetype: staff.some((s) => s.role === 'floor') ? 'tapster' : 'runner', tier: co.rival?.isArch ? 'seasoned' : 'green', tavernId: t.id, stream: rng });
     }
-    if (co.cash > 900 && t.tables < 12 && t.agg.occupancy > t.tables * 2 * 0.8) {
+    const maxTables = co.rival?.isArch ? c.rivalTuning.archRival.maxTables : c.rivalTuning.maxTables;
+    if (co.cash > 900 && t.tables < maxTables && t.agg.occupancy > t.tables * 2 * 0.8) {
       spend(co, 220, 'other');
       t.tables += 2;
       t.assetValue += 120;
@@ -269,7 +270,8 @@ export function seasonRivals(w: World, c: Content): void {
     // Owner's draw: rival owners take profit out above a working reserve, so
     // their Company Value tracks the size of the business, not a hoard.
     const reserve = 400 + 350 * taverns.length + (co.rival.isArch ? c.rivalTuning.archRival.expandCash : 0);
-    if (co.cash > reserve) co.cash -= (co.cash - reserve) * 0.6;
+    const draw = co.rival.isArch ? c.rivalTuning.archRival.drawRate : c.rivalTuning.drawRate;
+    if (co.cash > reserve) co.cash -= (co.cash - reserve) * draw;
     if (co.cash < -150) {
       if (co.rival.negativeSince === null) co.rival.negativeSince = w.tick;
       else if (w.tick - co.rival.negativeSince >= c.rivalTuning.collapseSeasons * seasonTicks(c)) {

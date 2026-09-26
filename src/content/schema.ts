@@ -134,11 +134,18 @@ export const RivalTuning = z.strictObject({
   pressuredShare: fraction,
   desperateCashSeasons: z.number().positive(),
   collapseSeasons: z.number().int().positive(),
+  /** Share of cash above the working reserve that rival owners take out each season. */
+  drawRate: fraction,
+  /** Most tables an ordinary rival tavern grows to. */
+  maxTables: z.number().int().positive(),
   archRival: z.strictObject({
     name: label,
     startCash: z.number(),
     startCities: z.array(CityId).min(1),
     expandCash: z.number(),
+    /** The arch-rival reinvests: a lower draw and bigger houses. */
+    drawRate: fraction,
+    maxTables: z.number().int().positive(),
   }),
 });
 export type RivalTuning = z.infer<typeof RivalTuning>;

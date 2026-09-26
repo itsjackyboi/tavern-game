@@ -163,3 +163,30 @@ test('dev.html sprite gallery renders', async ({ page }) => {
   await expect(page.locator('figure').first()).toBeVisible();
   expect(await page.locator('figure').count()).toBeGreaterThan(20);
 });
+
+test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
+  await startRun(page, 'debug&seed=drag');
+  // Wait for someone to be standing at the door.
+  let waiting: { id: number; x: number; y: number } | undefined;
+  for (let i = 0; i < 40 && !waiting; i++) {
+    await page.evaluate(() => window.__game!.step(20));
+    waiting = (await page.evaluate(() => window.__game!.floor()))?.patrons.find((p) => p.state === 'waiting');
+  }
+  expect(waiting).toBeTruthy();
+  const snap = (await page.evaluate(() => window.__game!.floor()))!;
+  const table = snap.tables.find((t) => t.free && !t.dirty)!;
+  const box = (await page.locator('[data-testid="board"] canvas').boundingBox())!;
+  const scale = box.width / 480;
+  const at = (x: number, y: number) => ({ x: box.x + (x + 0.5) * 16 * scale, y: box.y + (y + 0.3) * 16 * scale });
+  const p = snap.patrons.find((q) => q.id === waiting!.id)!;
+  const from = at(p.x, p.y);
+  const to = at(table.x, table.y);
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move((from.x + to.x) / 2, (from.y + to.y) / 2, { steps: 4 });
+  await page.mouse.move(to.x, to.y, { steps: 4 });
+  await page.mouse.up();
+  await page.evaluate(() => window.__game!.step(2));
+  const after = (await page.evaluate(() => window.__game!.floor()))!.patrons.find((q) => q.id === waiting!.id);
+  expect(after?.state).not.toBe('waiting');
+});

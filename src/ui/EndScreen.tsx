@@ -1,5 +1,8 @@
 import type { GameController } from '../app/controller.ts';
-import { player } from '../sim/lookup.ts';
+import { CITY_IDS } from '../content/schema.ts';
+import { league } from '../sim/company.ts';
+import { cityOf, player } from '../sim/lookup.ts';
+import { establishedIn } from '../sim/network.ts';
 import { formatClock } from '../sim/time.ts';
 import { money } from './describe.ts';
 import { LeaderboardSubmit } from './leaderboard/LeaderboardPanel.tsx';
@@ -32,6 +35,7 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
         <div class="finale">
           {lines.map((l, i) => <p key={i} style={{ animationDelay: `${0.4 + i * 1.1}s` }}>{l}</p>)}
         </div>
+        {r.status === 'lost' && <p class="lost-why" data-testid="lost-why">{lostReason(ctrl)}</p>}
         <table class="grid-table stats">
           <tbody>
             <tr><td>Run time</td><td>{formatClock(ctrl.clock.simMs)}</td></tr>
@@ -58,4 +62,16 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
       </div>
     </div>
   );
+}
+
+/** Why the sponsorship went elsewhere: the two conditions from the verdict. */
+function lostReason(ctrl: GameController): string {
+  const w = ctrl.world;
+  const est = establishedIn(w, w.playerId);
+  const missing = CITY_IDS.filter((c) => !est.has(c)).map((c) => cityOf(ctrl.content, c).name);
+  const top = league(w)[0];
+  const parts: string[] = [];
+  if (missing.length) parts.push(`You weren't established in ${missing.join(', ')} (a struggling or unbuilt tavern doesn't count).`);
+  if (top && !top.isPlayer) parts.push(`${top.name} had the larger Company Value (${money(top.cv)}).`);
+  return parts.join(' ') || 'The sponsorship went to another company.';
 }
