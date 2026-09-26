@@ -28,6 +28,9 @@ The whole game is playable end to end:
 
 The letter and finale text are still clearly marked placeholders.
 
+### v1.4
+- **New brews:** discovering a recipe at the brewing bench plays a chime and shows a big notice in the drink's own colour. The new recipe is marked NEW at the top of Your recipes. A batch that finds nothing just says so, without an error.
+
 ### v1.3
 - **Letter and win screens:**
   - The real opening letter from Gregor Ashford.

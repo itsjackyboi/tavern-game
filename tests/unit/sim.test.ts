@@ -168,6 +168,19 @@ describe('where the money goes', () => {
   });
 });
 
+describe('brewing bench', () => {
+  it('a known pair discovers its recipe; an unknown pair is crossed off', () => {
+    const w = fresh('brew');
+    const me = player(w);
+    const r = stepWorld(w, c, [{ type: 'research', a: 'hops', b: 'barley' }]);
+    expect(r[0]?.result).toBe('found');
+    expect(me.unlocked).toContain('hall-amber');
+    const r2 = stepWorld(w, c, [{ type: 'research', a: 'hops', b: 'spice' }]);
+    expect(r2[0]?.result).toBe('nothing');
+    expect(w.research.tried).toContain('hops+spice');
+  });
+});
+
 describe('calendar bookkeeping', () => {
   it('each season closes exactly once a year; the end of the Holiday Keg closes the year, not another season', () => {
     const w = fresh('seasons');

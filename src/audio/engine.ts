@@ -135,6 +135,8 @@ class Engine {
       buy: () => { this.sample('coin', 0.4, 0.9) || this.arp([900, 1200], 0.05); },
       hire: () => this.arp([523, 659, 784], 0.07, 'triangle', 0.1),
       brew: () => this.bubbles(),
+      // A new recipe: a rising ta-da that lands on a bell.
+      discover: () => { this.arp([523, 659, 784, 1047], 0.09, 'triangle', 0.11); window.setTimeout(() => this.ctx && this.bell(1568, 0.3), 380); },
       alert: () => this.arp([880, 660], 0.09, 'square', 0.08),
     };
     (map[kind] ?? map.ui!)();

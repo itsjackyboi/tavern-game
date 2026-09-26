@@ -201,9 +201,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.3');
+  await expect(page.getByTestId('version')).toHaveText('v1.4');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.3');
+  await expect(page.getByTestId('version')).toHaveText('v1.4');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {
@@ -292,4 +292,22 @@ test('the ledger shows totals by reason and a year-by-year chart', async ({ page
   await page.keyboard.press('k');
   await expect(page.getByTestId('sales')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/brew-sales.png`, animations: 'disabled' });
+});
+
+test('a new brew chimes and says so; a dud batch is just crossed off', async ({ page }) => {
+  await startRun(page, 'debug&seed=brew');
+  await page.keyboard.press('k');
+  const drawer = page.getByTestId('drawer');
+  await drawer.getByRole('button', { name: 'Barley & Wheat' }).click();
+  await drawer.getByRole('button', { name: 'Hops' }).click();
+  await drawer.getByRole('button', { name: /Brew a test batch/ }).click();
+  await expect(page.getByTestId('toasts')).toContainText('New brew discovered: Hall of Ale Amber');
+  await expect(drawer.getByTestId('recipe-new')).toContainText('Hall of Ale Amber');
+  await expect(drawer.getByTestId('brew-result')).toContainText('A new recipe');
+  await page.screenshot({ path: `${SHOTS}/brew-discovery.png`, animations: 'disabled' });
+  await drawer.getByRole('button', { name: 'Hops' }).click();
+  await drawer.getByRole('button', { name: 'Roto Spice' }).click();
+  await drawer.getByRole('button', { name: /Brew a test batch/ }).click();
+  await expect(drawer.getByTestId('brew-result')).toContainText('Nothing new');
+  await expect(page.locator('.toast-error')).toHaveCount(0);
 });

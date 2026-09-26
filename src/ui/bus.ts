@@ -7,7 +7,7 @@ export type DrawerId = 'staff' | 'menu' | 'upgrades' | 'research' | 'finance' | 
 
 export const drawer = signal<DrawerId>(null);
 export const selectedCity = signal<CityId | null>(null);
-export interface Toast { id: number; text: string; kind: 'info' | 'error' | 'good'; count: number }
+export interface Toast { id: number; text: string; kind: 'info' | 'error' | 'good'; count: number; color?: string }
 export const toasts = signal<Toast[]>([]);
 export const uiFrame = signal(0);
 export const hover = signal<string | null>(null);
@@ -26,7 +26,7 @@ export function dismissToast(id: number): void {
   toasts.value = toasts.value.filter((t) => t.id !== id);
 }
 /** Shows a message over the board. Repeats of the same message merge into one with a ×N count. */
-export function toast(text: string, kind: 'info' | 'error' | 'good' = 'info'): void {
+export function toast(text: string, kind: 'info' | 'error' | 'good' = 'info', color?: string): void {
   const ms = kind === 'error' ? 4000 : 2800;
   if (kind === 'error') sound('error');
   const same = toasts.value.find((t) => t.text === text && t.kind === kind);
@@ -36,7 +36,7 @@ export function toast(text: string, kind: 'info' | 'error' | 'good' = 'info'): v
     return;
   }
   const id = ++toastId;
-  toasts.value = [...toasts.value.slice(-2), { id, text, kind, count: 1 }];
+  toasts.value = [...toasts.value.slice(-2), { id, text, kind, count: 1, color }];
   expire(id, ms);
 }
 

@@ -8,7 +8,9 @@ import type { Content } from '../content/schema.ts';
 import { installHotkeys } from '../input/hotkeys.ts';
 import { startOutbox } from '../leaderboard/outbox.ts';
 import type { GameViews } from '../views/PhaserGame.ts';
-import { drawer, emitCommand, toast, uiFrame } from './bus.ts';
+import { drinkCss } from '../art/themes.ts';
+import { drinkOf, player } from '../sim/lookup.ts';
+import { drawer, emitCommand, sound, toast, uiFrame } from './bus.ts';
 import { RESULT_TEXT } from './describe.ts';
 import { Drawers } from './drawers/Drawers.tsx';
 import { EndScreen } from './EndScreen.tsx';
@@ -131,6 +133,19 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
       }
       for (const f of ctrl.takeFeedback()) {
         emitCommand(f.cmd.type, f.result);
+        if (f.cmd.type === 'research' && f.result === 'found') {
+          const me = player(ctrl.world);
+          const id = me.unlocked[me.unlocked.length - 1];
+          if (id) {
+            toast(`New brew discovered: ${drinkOf(ctrl.content, id).name}! Put it on a tap in Menu (M).`, 'good', drinkCss(ctrl.content, id));
+            sound('discover');
+          }
+          continue;
+        }
+        if (f.cmd.type === 'research' && f.result === 'nothing') {
+          toast('Nothing new came of that batch. The pair is crossed off.', 'info');
+          continue;
+        }
         if (f.result === 'ok' || f.result === 'found') {
           if (f.cmd.type === 'found') toast('Construction begins. It opens next season.', 'good');
           if (f.cmd.type === 'hire') toast('Hired.', 'good');

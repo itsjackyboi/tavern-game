@@ -275,6 +275,13 @@ function ResearchDrawer({ ctrl }: { ctrl: GameController }) {
   const c = ctrl.content;
   const w = ctrl.world;
   const me = player(w);
+  // Remember what we knew when the drawer opened, so a fresh discovery can be marked NEW.
+  const [known] = useState(() => new Set(me.unlocked));
+  const [lastTry, setLastTry] = useState<{ tried: number; found: number } | null>(null);
+  const fresh = me.unlocked.filter((id) => !known.has(id));
+  const outcome = lastTry && w.research.tried.length > lastTry.tried
+    ? me.unlocked.length > lastTry.found ? 'found' : 'nothing'
+    : null;
   const toggle = (i: IngredientId) => setPick((p) => (p.includes(i) ? p.filter((x) => x !== i) : [...p, i].slice(-2)));
   const key = pick.length === 2 ? [...pick].sort().join('+') : '';
   const tried = key && w.research.tried.includes(key);
@@ -290,15 +297,19 @@ function ResearchDrawer({ ctrl }: { ctrl: GameController }) {
           </button>
         ))}
       </div>
-      <button class="btn btn-primary" disabled={pick.length !== 2 || !!tried} onClick={() => { ctrl.dispatch({ type: 'research', a: pick[0]!, b: pick[1]! }); setPick([]); sound('brew'); }}>
+      <button class="btn btn-primary" disabled={pick.length !== 2 || !!tried} onClick={() => { setLastTry({ tried: w.research.tried.length, found: me.unlocked.length }); ctrl.dispatch({ type: 'research', a: pick[0]!, b: pick[1]! }); setPick([]); sound('brew'); }}>
         {tried ? 'Already tried' : `Brew a test batch (${c.economy.researchCost}◉)`}
       </button>
+      {outcome === 'found' && <p class="brew-result found" data-testid="brew-result">A new recipe! It's at the top of Your recipes.</p>}
+      {outcome === 'nothing' && <p class="brew-result" data-testid="brew-result">Nothing new came of it: that pair is crossed off.</p>}
       <section class="panel-block">
         <h3>Your recipes</h3>
-        {me.unlocked.map((id) => {
+        {[...fresh.reverse(), ...me.unlocked.filter((id) => known.has(id))].map((id) => {
           const d = drinkOf(c, id);
+          const isNew = !known.has(id);
           return (
-            <div class="recipe" key={id}>
+            <div class={`recipe ${isNew ? 'recipe-new' : ''}`} key={id} data-testid={isNew ? 'recipe-new' : undefined}>
+              {isNew && <span class="new-tag">NEW</span>}
               <span class="drink-name" style={{ color: drinkCss(c, d.id) }}>{d.name}</span>
               <div class="small">{describeDrink(d)} · {recipeText(c, d)}</div>
             </div>

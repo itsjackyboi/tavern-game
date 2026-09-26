@@ -924,3 +924,10 @@ body[data-tut='drawers'] .bottom-bar .btn:not(.view-toggle):not(.bell) { animati
 .end-stats span { font-size: 16px; color: #7a5e3a; }
 .end-stats b { font-weight: normal; font-size: 34px; color: #6b3a10; }
 .end-actions { align-items: center; }
+
+/* Brewing discoveries */
+.toast-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0.5); flex: none; }
+.brew-result { font-size: 17px; margin: 6px 0; color: var(--muted); }
+.brew-result.found { color: var(--gold); }
+.recipe-new { background: rgba(233, 162, 59, 0.12); border-radius: 3px; padding: 4px 6px; animation: feed-glow 1.4s ease-in-out 3; }
+.new-tag { font-family: var(--font-mini); font-size: 10px; background: var(--gold); color: #1b1108; padding: 0 4px; border-radius: 2px; margin-right: 6px; vertical-align: 2px; }
