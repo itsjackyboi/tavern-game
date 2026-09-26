@@ -1,5 +1,6 @@
 import { signal } from '@preact/signals';
 import type { GameController, PauseReason } from '../app/controller.ts';
+import { player } from '../sim/lookup.ts';
 import { SEGMENT_LABEL, formatClock, type Phase } from '../sim/time.ts';
 
 // The HUD reads a small view model derived from the world at up to 10 Hz,
@@ -30,7 +31,7 @@ export function bindViewModel(ctrl: GameController): () => void {
       segment: SEGMENT_LABEL[cal.segment],
       phase: cal.phase,
       clock: formatClock(ctrl.clock.simMs),
-      duckets: ctrl.world.player.duckets,
+      duckets: Math.round(player(ctrl.world).cash),
       paused: ctrl.paused,
     };
   };

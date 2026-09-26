@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "tiers": {
+      "minItems": 3,
+      "maxItems": 3,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "green",
+              "seasoned",
+              "master"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "competence": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "wage": {
+            "type": "number",
+            "minimum": 0
+          },
+          "hireCost": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "competence",
+          "wage",
+          "hireCost"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "archetypes": {
+      "minItems": 6,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "bar",
+              "floor",
+              "door",
+              "cellar",
+              "stage",
+              "intel"
+            ]
+          },
+          "wageMult": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "skim": {
+            "default": 0,
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "role",
+          "wageMult",
+          "skim"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "managers": {
+      "type": "object",
+      "properties": {
+        "aleforge": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "shanty": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "providence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "roto": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        }
+      },
+      "required": [
+        "aleforge",
+        "shanty",
+        "providence",
+        "roto"
+      ],
+      "additionalProperties": false
+    },
+    "firstNames": {
+      "minItems": 10,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      }
+    },
+    "epithets": {
+      "minItems": 5,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      }
+    },
+    "maxStaffPerTavern": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    }
+  },
+  "required": [
+    "tiers",
+    "archetypes",
+    "managers",
+    "firstNames",
+    "epithets",
+    "maxStaffPerTavern"
+  ],
+  "additionalProperties": false
+}

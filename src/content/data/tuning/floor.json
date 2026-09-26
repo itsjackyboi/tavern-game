@@ -1,0 +1,18 @@
+{
+  "walkTilesPerSecond": 7,
+  "pourTicks": 16,
+  "clearTicks": 12,
+  "restockTicks": 24,
+  "seatPatienceTicks": 260,
+  "orderPatienceTicks": 320,
+  "orderDelayTicks": 16,
+  "brawlWindowTicks": 110,
+  "thiefWindowTicks": 90,
+  "vipWindowTicks": 130,
+  "maxIncidents": 3,
+  "ownerQueueMax": 6,
+  "ownersTouch": 0.15,
+  "delegationEff": 0.92,
+  "tapLowFraction": 0.25,
+  "lastCallStragglerFine": 4
+}

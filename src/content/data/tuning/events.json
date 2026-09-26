@@ -1,0 +1,11 @@
+{
+  "crisisGraceSeasons": 6,
+  "crisisGapSeasons": 9,
+  "crisisBaseHazard": 0.035,
+  "crisisMaxPerRun": 4,
+  "tributeEverySeasons": 4,
+  "vowChance": 0.45,
+  "inspectionChance": 0.35,
+  "rivalPromptChance": 0.2,
+  "managerProposalChance": 0.4
+}

@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "minItems": 8,
+  "maxItems": 8,
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "enum": [
+          "barley",
+          "hops",
+          "molasses",
+          "spice",
+          "redEarth",
+          "fruit",
+          "spiritweed",
+          "imports"
+        ]
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "basePrice": {
+        "type": "number",
+        "minimum": 0
+      },
+      "cityMult": {
+        "type": "object",
+        "properties": {
+          "aleforge": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "shanty": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "providence": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "roto": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "aleforge",
+          "shanty",
+          "providence",
+          "roto"
+        ],
+        "additionalProperties": false
+      },
+      "buyable": {
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "id",
+      "name",
+      "basePrice",
+      "cityMult",
+      "buyable"
+    ],
+    "additionalProperties": false
+  }
+}

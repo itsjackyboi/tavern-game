@@ -6,15 +6,122 @@
       "type": "number",
       "minimum": 1
     },
+    "monopolyGraceSeasons": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
     "startingDuckets": {
       "type": "integer",
       "minimum": 0,
       "maximum": 9007199254740991
+    },
+    "kegServings": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "brewFee": {
+      "type": "number",
+      "minimum": 0
+    },
+    "kegDeliveryTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "cvEarningsMultiple": {
+      "type": "number",
+      "minimum": 0
+    },
+    "cvBrandFactor": {
+      "type": "number",
+      "minimum": 0
+    },
+    "assetDepreciation": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "loanRatePerSeason": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "loanCapFraction": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "bankruptcyFloor": {
+      "type": "number"
+    },
+    "favorToDuckets": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "researchCost": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "spoilagePerSeason": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "ingredientVolatility": {
+      "type": "object",
+      "properties": {
+        "aleforge": {
+          "type": "number",
+          "minimum": 0
+        },
+        "shanty": {
+          "type": "number",
+          "minimum": 0
+        },
+        "providence": {
+          "type": "number",
+          "minimum": 0
+        },
+        "roto": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "aleforge",
+        "shanty",
+        "providence",
+        "roto"
+      ],
+      "additionalProperties": false
+    },
+    "priceReversion": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
     }
   },
   "required": [
     "monopolyRatio",
-    "startingDuckets"
+    "monopolyGraceSeasons",
+    "startingDuckets",
+    "kegServings",
+    "brewFee",
+    "kegDeliveryTicks",
+    "cvEarningsMultiple",
+    "cvBrandFactor",
+    "assetDepreciation",
+    "loanRatePerSeason",
+    "loanCapFraction",
+    "bankruptcyFloor",
+    "favorToDuckets",
+    "researchCost",
+    "spoilagePerSeason",
+    "ingredientVolatility",
+    "priceReversion"
   ],
   "additionalProperties": false
 }

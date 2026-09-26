@@ -1,6 +1,119 @@
 [
-  { "id": "aleforge", "name": "Aleforge", "rivalTaverns": 4, "map": { "x": 0.78, "y": 0.6 }, "palette": "aleforge" },
-  { "id": "shanty", "name": "Shanty Town", "rivalTaverns": 3, "map": { "x": 0.6, "y": 0.45 }, "palette": "shanty" },
-  { "id": "providence", "name": "Providence", "rivalTaverns": 2, "map": { "x": 0.5, "y": 0.18 }, "palette": "providence" },
-  { "id": "roto", "name": "Roto Kaiishi", "rivalTaverns": 3, "map": { "x": 0.72, "y": 0.12 }, "palette": "roto" }
+  {
+    "id": "aleforge",
+    "name": "Aleforge",
+    "rivalTaverns": 4,
+    "map": {
+      "x": 0.8,
+      "y": 0.62
+    },
+    "palette": "aleforge",
+    "marketSize": 2.0,
+    "rentPerSeason": 30,
+    "salesTax": 0.08,
+    "foundCost": 950,
+    "lots": 6,
+    "brawlMult": 1.0,
+    "theftMult": 1.0,
+    "damageMult": 1.0,
+    "annualFee": 0,
+    "qualityBonus": {
+      "ale": 15,
+      "stout": 8
+    },
+    "kegCostMult": {
+      "ale": 0.75,
+      "stout": 0.85
+    },
+    "contraband": [
+      "clockheart-tonic",
+      "hangover-bell"
+    ],
+    "tabooAtNightOnly": false,
+    "favor": false,
+    "craftWeight": 0.6,
+    "nightThirst": 1.1
+  },
+  {
+    "id": "shanty",
+    "name": "Shanty Town",
+    "rivalTaverns": 3,
+    "map": {
+      "x": 0.6,
+      "y": 0.44
+    },
+    "palette": "shanty",
+    "marketSize": 1.5,
+    "rentPerSeason": 12,
+    "salesTax": 0,
+    "foundCost": 550,
+    "lots": 5,
+    "brawlMult": 1.8,
+    "theftMult": 1.1,
+    "damageMult": 1.5,
+    "annualFee": 0,
+    "kegCostMult": {
+      "grog": 0.75
+    },
+    "contraband": [],
+    "tabooAtNightOnly": false,
+    "favor": true,
+    "craftWeight": 0.2,
+    "nightThirst": 1.15
+  },
+  {
+    "id": "providence",
+    "name": "Providence",
+    "rivalTaverns": 2,
+    "map": {
+      "x": 0.46,
+      "y": 0.2
+    },
+    "palette": "providence",
+    "marketSize": 1.4,
+    "rentPerSeason": 20,
+    "salesTax": 0,
+    "foundCost": 750,
+    "lots": 4,
+    "brawlMult": 0.5,
+    "theftMult": 0.4,
+    "damageMult": 1.0,
+    "annualFee": 0,
+    "kegCostMult": {
+      "tonic": 0.7
+    },
+    "contraband": [],
+    "tabooAtNightOnly": false,
+    "favor": false,
+    "craftWeight": 0.2,
+    "nightThirst": 1.6
+  },
+  {
+    "id": "roto",
+    "name": "Roto Kaiishi",
+    "rivalTaverns": 3,
+    "map": {
+      "x": 0.76,
+      "y": 0.13
+    },
+    "palette": "roto",
+    "marketSize": 1.6,
+    "rentPerSeason": 6,
+    "salesTax": 0,
+    "foundCost": 650,
+    "lots": 5,
+    "brawlMult": 1.1,
+    "theftMult": 1.8,
+    "damageMult": 1.0,
+    "annualFee": 70,
+    "kegCostMult": {
+      "spirits": 0.85,
+      "wine": 0.8
+    },
+    "contraband": [],
+    "tabooAtNightOnly": true,
+    "favor": false,
+    "craftWeight": 0.2,
+    "nightThirst": 1.2
+  }
 ]

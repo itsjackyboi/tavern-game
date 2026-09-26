@@ -23,6 +23,11 @@ All packs below are by **Kenney** ([kenney.nl](https://kenney.nl)), released und
 | Interface Sounds (`kenney-interface-sounds`) | UI clicks, confirm, error, glass clink | `public/assets/audio/ui-*.ogg`, `glass-clink.ogg` |
 | RPG Audio (`kenney-rpg-audio`) | coin and sale sounds | `public/assets/audio/coin-*.ogg` |
 | Impact Sounds (`kenney-impact-sounds`) | brawl thuds, dropped kegs | `public/assets/audio/thud-*.ogg`, `punch-*.ogg` |
+| Tiny Factory (`kenney-tiny-factory`) | brewing kettles, tanks, crates and pipes for interiors | `public/assets/sprites/tiny-factory.png` |
+| Roguelike Characters (`kenney-roguelike-characters`) | layered patron and staff characters (bodies, clothes, hair, hats) | `public/assets/sprites/roguelike-characters.png` |
+
+Tiny Factory and Roguelike Characters were supplied directly by the project owner as the
+original Kenney zips; their licence files are copied into `public/assets/licenses/`.
 
 ## Code libraries
 

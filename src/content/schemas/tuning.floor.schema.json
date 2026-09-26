@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "walkTilesPerSecond": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "pourTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "clearTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "restockTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "seatPatienceTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "orderPatienceTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "orderDelayTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "brawlWindowTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "thiefWindowTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "vipWindowTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "maxIncidents": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "ownerQueueMax": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "ownersTouch": {
+      "type": "number",
+      "minimum": 0
+    },
+    "delegationEff": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "tapLowFraction": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "lastCallStragglerFine": {
+      "type": "number",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "walkTilesPerSecond",
+    "pourTicks",
+    "clearTicks",
+    "restockTicks",
+    "seatPatienceTicks",
+    "orderPatienceTicks",
+    "orderDelayTicks",
+    "brawlWindowTicks",
+    "thiefWindowTicks",
+    "vipWindowTicks",
+    "maxIncidents",
+    "ownerQueueMax",
+    "ownersTouch",
+    "delegationEff",
+    "tapLowFraction",
+    "lastCallStragglerFine"
+  ],
+  "additionalProperties": false
+}

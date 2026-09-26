@@ -14,6 +14,30 @@
     },
     {
       "fileMatch": [
+        "src/content/data/tuning/demand.json"
+      ],
+      "url": "./src/content/schemas/tuning.demand.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/tuning/floor.json"
+      ],
+      "url": "./src/content/schemas/tuning.floor.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/tuning/rivals.json"
+      ],
+      "url": "./src/content/schemas/tuning.rivals.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/tuning/events.json"
+      ],
+      "url": "./src/content/schemas/tuning.events.schema.json"
+    },
+    {
+      "fileMatch": [
         "src/content/data/cities.json"
       ],
       "url": "./src/content/schemas/cities.schema.json"
@@ -26,9 +50,93 @@
     },
     {
       "fileMatch": [
+        "src/content/data/ingredients.json"
+      ],
+      "url": "./src/content/schemas/ingredients.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/drinks.json"
+      ],
+      "url": "./src/content/schemas/drinks.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/segments.json"
+      ],
+      "url": "./src/content/schemas/segments.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/staff.json"
+      ],
+      "url": "./src/content/schemas/staff.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/upgrades.json"
+      ],
+      "url": "./src/content/schemas/upgrades.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/rivals.json"
+      ],
+      "url": "./src/content/schemas/rivals.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/prompts.json"
+      ],
+      "url": "./src/content/schemas/prompts.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/modifiers.json"
+      ],
+      "url": "./src/content/schemas/modifiers.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/crises.json"
+      ],
+      "url": "./src/content/schemas/crises.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/holidays.json"
+      ],
+      "url": "./src/content/schemas/holidays.schema.json"
+    },
+    {
+      "fileMatch": [
         "src/content/data/strings/letter.json"
       ],
       "url": "./src/content/schemas/strings.letter.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/strings/rumors.json"
+      ],
+      "url": "./src/content/schemas/strings.rumors.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/strings/winds.json"
+      ],
+      "url": "./src/content/schemas/strings.winds.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/strings/finale.json"
+      ],
+      "url": "./src/content/schemas/strings.finale.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/strings/tips.json"
+      ],
+      "url": "./src/content/schemas/strings.tips.schema.json"
     }
   ]
 }

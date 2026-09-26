@@ -1,0 +1,10 @@
+[
+  { "id": "barley", "name": "Barley & Wheat", "basePrice": 4, "buyable": true, "cityMult": { "aleforge": 0.9, "shanty": 1.1, "providence": 1.0, "roto": 1.2 } },
+  { "id": "hops", "name": "Hops", "basePrice": 5, "buyable": true, "cityMult": { "aleforge": 0.8, "shanty": 1.2, "providence": 1.0, "roto": 1.2 } },
+  { "id": "molasses", "name": "Molasses", "basePrice": 6, "buyable": true, "cityMult": { "aleforge": 1.1, "shanty": 0.7, "providence": 1.2, "roto": 0.9 } },
+  { "id": "spice", "name": "Roto Spice", "basePrice": 9, "buyable": true, "cityMult": { "aleforge": 1.2, "shanty": 1.1, "providence": 1.0, "roto": 0.6 } },
+  { "id": "redEarth", "name": "Red-earth", "basePrice": 12, "buyable": true, "cityMult": { "aleforge": 1.3, "shanty": 1.2, "providence": 0.9, "roto": 0.5 } },
+  { "id": "fruit", "name": "Brandywine Fruit", "basePrice": 4, "buyable": true, "cityMult": { "aleforge": 1.0, "shanty": 1.1, "providence": 1.0, "roto": 1.3 } },
+  { "id": "spiritweed", "name": "Spiritweed", "basePrice": 0, "buyable": false, "cityMult": { "aleforge": 1, "shanty": 1, "providence": 1, "roto": 1 } },
+  { "id": "imports", "name": "Off-isles Casks", "basePrice": 30, "buyable": true, "cityMult": { "aleforge": 1.1, "shanty": 1.0, "providence": 1.1, "roto": 0.8 } }
+]

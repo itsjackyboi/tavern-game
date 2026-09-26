@@ -1,0 +1,17 @@
+[
+  { "id": "longtables", "name": "Longtable Extension", "cost": 160, "costGrowth": 1.55, "max": 5, "scope": "tavern", "effects": { "tables": 2 } },
+  { "id": "brass-tap", "name": "Brass Tap Line", "cost": 120, "costGrowth": 1.5, "max": 3, "scope": "tavern", "effects": { "taps": 1 } },
+  { "id": "memorial-print", "name": "Sackbeard Memorial Print", "cost": 90, "scope": "tavern", "effects": { "decor": 0.15 } },
+  { "id": "bouncers-door", "name": "Bouncer's Door", "cost": 140, "scope": "tavern", "effects": { "brawl": -0.25 } },
+  { "id": "cellar-racks", "name": "Cool Cellar Racks", "cost": 110, "scope": "tavern", "effects": { "spoilage": -0.6 } },
+  { "id": "circ-stills", "name": "Circ-forged Stills", "cost": 260, "scope": "tavern", "effects": { "quality": 10, "qualityCategories": ["tonic", "spirits"] } },
+  { "id": "copper-kettles", "name": "Copper Brew Kettles", "cost": 240, "scope": "tavern", "effects": { "quality": 10, "qualityCategories": ["ale", "stout", "cider"] } },
+  { "id": "whimsy-lanterns", "name": "Whimsy Roof Lanterns", "cost": 120, "scope": "tavern", "city": "aleforge", "effects": { "decor": 0.25 } },
+  { "id": "hall-membership", "name": "Hall of Ale Membership", "cost": 300, "scope": "tavern", "city": "aleforge", "effects": { "craftRep": 0.3, "quality": 5, "qualityCategories": ["ale", "stout"] } },
+  { "id": "crashed-hull-beam", "name": "Crashed Hull Beam", "cost": 110, "scope": "tavern", "city": "shanty", "effects": { "decor": 0.15, "appeal": { "captains": 0.4, "tideCallers": 0.2 } } },
+  { "id": "windsunk-charter", "name": "Windsunk Charter", "cost": 200, "scope": "tavern", "city": "shanty", "effects": { "favorTrade": true, "appeal": { "captains": 0.2, "tideCallers": 0.2, "coralEyed": 0.2, "drifters": 0.2 } } },
+  { "id": "patmos-chime", "name": "Patmos Bell Chime", "cost": 150, "scope": "tavern", "city": "providence", "effects": { "decor": 0.15, "appeal": { "apostles": 0.4 }, "church": 0.5 } },
+  { "id": "red-lantern-row", "name": "Red Lantern Row", "cost": 150, "scope": "tavern", "city": "roto", "effects": { "decor": 0.2, "theft": -0.3 } },
+  { "id": "steins-charter", "name": "Stein's Charter", "cost": 500, "scope": "company", "effects": { "foundCost": -0.25 } },
+  { "id": "ofern-tunnels", "name": "O'Fern Tunnels", "cost": 700, "scope": "company", "effects": { "tunnels": true } }
+]

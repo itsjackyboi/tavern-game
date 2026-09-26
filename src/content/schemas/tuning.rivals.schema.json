@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "decisionTicks": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "act2Year": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "act3Year": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "secrecyPerAct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "pressuredShare": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "desperateCashSeasons": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "collapseSeasons": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "archRival": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "startCash": {
+          "type": "number"
+        },
+        "startCities": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "aleforge",
+              "shanty",
+              "providence",
+              "roto"
+            ]
+          }
+        },
+        "expandCash": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "startCash",
+        "startCities",
+        "expandCash"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "decisionTicks",
+    "act2Year",
+    "act3Year",
+    "secrecyPerAct",
+    "pressuredShare",
+    "desperateCashSeasons",
+    "collapseSeasons",
+    "archRival"
+  ],
+  "additionalProperties": false
+}

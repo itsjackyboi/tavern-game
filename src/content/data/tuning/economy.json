@@ -1,4 +1,24 @@
 {
   "monopolyRatio": 2.0,
-  "startingDuckets": 250
+  "monopolyGraceSeasons": 3,
+  "startingDuckets": 300,
+  "kegServings": 20,
+  "brewFee": 4,
+  "kegDeliveryTicks": 160,
+  "cvEarningsMultiple": 2,
+  "cvBrandFactor": 1600,
+  "assetDepreciation": 0.02,
+  "loanRatePerSeason": 0.04,
+  "loanCapFraction": 0.35,
+  "bankruptcyFloor": -150,
+  "favorToDuckets": 3,
+  "researchCost": 40,
+  "spoilagePerSeason": 0.05,
+  "ingredientVolatility": {
+    "aleforge": 0.004,
+    "shanty": 0.006,
+    "providence": 0.004,
+    "roto": 0.014
+  },
+  "priceReversion": 0.004
 }

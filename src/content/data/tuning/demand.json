@@ -1,0 +1,25 @@
+{
+  "phase": {
+    "day": 0.85,
+    "night": 1.25,
+    "lastCall": 0.15,
+    "holiday": 0.6
+  },
+  "season": {
+    "stormtide": 0.85,
+    "goldsun": 1.15,
+    "veilfrost": 1.0
+  },
+  "growthPerYear": 0.03,
+  "logit": {
+    "rep": 3.0,
+    "fit": 1.4,
+    "quality": 1.6,
+    "price": 2.6,
+    "decor": 0.6,
+    "stayHome": 1.2
+  },
+  "drinksPerVisit": 1.8,
+  "drinkSeconds": 7,
+  "repLearnRate": 0.025
+}

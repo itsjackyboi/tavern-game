@@ -1,0 +1,16 @@
+{
+  "priceSpike": ["{ingredient} prices jump in {city}.", "Traders in {city} can't get enough {ingredient}."],
+  "priceDrop": ["{ingredient} is cheap in {city} this season.", "A glut of {ingredient} floods {city}."],
+  "rivalOpened": ["{rival} opens a new house in {city}.", "Fresh paint on a new tavern in {city}: {rival}."],
+  "rivalClosed": ["{rival} shutters its doors in {city}.", "Creditors seize the kegs at {rival}."],
+  "rivalMerged": ["{rival} swallows a struggling neighbour in {city}.", "Two {city} taverns become one under {rival}."],
+  "rivalUndercut": ["{rival} is pricing {category} to the bone in {city}.", "Cheap {category} at {rival}, they say."],
+  "rivalQuality": ["{rival} brought in new stills in {city}.", "Word is {rival}'s pours got better."],
+  "rivalPromo": ["{rival} is throwing a promo night in {city}.", "Handbills for {rival} all over {city}."],
+  "rivalPlot": ["Someone in {city} is asking about your cellar door.", "A {rival} man was drinking alone at yours. Watching."],
+  "rivalExpand": ["{rival} is eyeing a lot in {city}.", "Surveyors for {rival} walk the lanes of {city}."],
+  "vague": ["Something is brewing in {city}.", "Quiet money is moving in {city}.", "Nobody in {city} will say who's buying."],
+  "shipLost": ["A ship bound for {city} went down.", "Wreckers took a cargo off the cliffs near {city}."],
+  "prophecy": ["They say the Long Thirst can't last forever.", "An old woman in the square quotes Beerchelli again."],
+  "general": ["The Hangover bell rang early in Providence.", "Pirates are crashing another hull into the cliffs.", "The Magnate raised no fees this year. Roto cheers.", "John Cum was seen talking to his fields again.", "Somebody swore they saw a Veilwalker by the road."]
+}

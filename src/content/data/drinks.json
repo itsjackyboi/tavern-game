@@ -1,0 +1,332 @@
+[
+  {
+    "id": "brewers-brown",
+    "name": "Brewers' Lane Brown",
+    "category": "ale",
+    "recipe": {
+      "barley": 3,
+      "hops": 2
+    },
+    "price": 8,
+    "quality": 45,
+    "brawl": 0,
+    "church": -0.1,
+    "startIn": [
+      "aleforge",
+      "shanty",
+      "providence",
+      "roto"
+    ]
+  },
+  {
+    "id": "windsunk-grog",
+    "name": "Windsunk Grog",
+    "category": "grog",
+    "recipe": {
+      "molasses": 3,
+      "barley": 1
+    },
+    "price": 8,
+    "quality": 40,
+    "brawl": 0.4,
+    "church": -0.4,
+    "startIn": [
+      "aleforge",
+      "shanty",
+      "providence",
+      "roto"
+    ]
+  },
+  {
+    "id": "brandywine-cider",
+    "name": "Brandywine Cider",
+    "category": "cider",
+    "recipe": {
+      "fruit": 4
+    },
+    "price": 8,
+    "quality": 45,
+    "brawl": -0.1,
+    "church": 0.1,
+    "startIn": [
+      "aleforge",
+      "shanty",
+      "providence",
+      "roto"
+    ]
+  },
+  {
+    "id": "clockheart-tonic",
+    "name": "ClockHeart Tonic",
+    "category": "tonic",
+    "recipe": {
+      "redEarth": 2,
+      "spice": 1
+    },
+    "price": 16,
+    "quality": 70,
+    "brawl": -0.3,
+    "church": 1,
+    "startIn": [
+      "providence"
+    ],
+    "discover": [
+      "redEarth",
+      "spice"
+    ]
+  },
+  {
+    "id": "hall-amber",
+    "name": "Hall of Ale Amber",
+    "category": "ale",
+    "recipe": {
+      "barley": 4,
+      "hops": 4
+    },
+    "price": 12,
+    "quality": 72,
+    "brawl": 0,
+    "church": -0.1,
+    "startIn": [],
+    "discover": [
+      "barley",
+      "hops"
+    ]
+  },
+  {
+    "id": "shell-stout",
+    "name": "Shell Tavern Stout",
+    "category": "stout",
+    "recipe": {
+      "barley": 5,
+      "molasses": 1
+    },
+    "price": 10,
+    "quality": 58,
+    "brawl": 0.1,
+    "church": -0.1,
+    "startIn": [],
+    "discover": [
+      "barley",
+      "molasses"
+    ]
+  },
+  {
+    "id": "sackbeards-last-stand",
+    "name": "Sackbeard's Last Stand",
+    "category": "grog",
+    "recipe": {
+      "molasses": 4,
+      "spice": 2
+    },
+    "price": 14,
+    "quality": 62,
+    "brawl": 0.9,
+    "church": -0.6,
+    "startIn": [],
+    "discover": [
+      "molasses",
+      "spice"
+    ]
+  },
+  {
+    "id": "bjor-hjarta-stout",
+    "name": "Bjor Hjarta Stout",
+    "category": "stout",
+    "recipe": {
+      "imports": 1,
+      "barley": 1
+    },
+    "price": 18,
+    "quality": 86,
+    "brawl": 0,
+    "church": -0.1,
+    "startIn": [],
+    "discover": [
+      "imports",
+      "barley"
+    ]
+  },
+  {
+    "id": "hangover-bell",
+    "name": "Hangover Bell",
+    "category": "tonic",
+    "recipe": {
+      "redEarth": 1,
+      "molasses": 2
+    },
+    "price": 12,
+    "quality": 55,
+    "brawl": 0.3,
+    "church": 0.2,
+    "startIn": [],
+    "discover": [
+      "redEarth",
+      "molasses"
+    ]
+  },
+  {
+    "id": "red-tide-gin",
+    "name": "Red Tide Gin",
+    "category": "spirits",
+    "recipe": {
+      "spice": 3,
+      "barley": 2
+    },
+    "price": 14,
+    "quality": 66,
+    "brawl": 0.2,
+    "church": -0.2,
+    "startIn": [],
+    "discover": [
+      "spice",
+      "barley"
+    ]
+  },
+  {
+    "id": "xis-flat-fee-special",
+    "name": "Xi's Flat Fee Special",
+    "category": "spirits",
+    "recipe": {
+      "spice": 2,
+      "imports": 1
+    },
+    "price": 20,
+    "quality": 82,
+    "brawl": 0.1,
+    "church": -0.3,
+    "taboo": true,
+    "startIn": [],
+    "discover": [
+      "spice",
+      "imports"
+    ]
+  },
+  {
+    "id": "taverna-red",
+    "name": "Taverna Red",
+    "category": "wine",
+    "recipe": {
+      "imports": 1,
+      "fruit": 1
+    },
+    "price": 18,
+    "quality": 80,
+    "brawl": -0.2,
+    "church": 0.1,
+    "startIn": [],
+    "discover": [
+      "imports",
+      "fruit"
+    ]
+  },
+  {
+    "id": "ofkras-temperance",
+    "name": "Ofkra's Temperance",
+    "category": "tonic",
+    "recipe": {
+      "fruit": 2,
+      "redEarth": 1
+    },
+    "price": 10,
+    "quality": 55,
+    "brawl": -0.6,
+    "church": 0.8,
+    "startIn": [],
+    "discover": [
+      "fruit",
+      "redEarth"
+    ]
+  },
+  {
+    "id": "first-pour",
+    "name": "The First Pour",
+    "category": "grog",
+    "recipe": {
+      "molasses": 3,
+      "hops": 2
+    },
+    "price": 12,
+    "quality": 60,
+    "brawl": 0.5,
+    "church": -0.5,
+    "startIn": [],
+    "discover": [
+      "molasses",
+      "hops"
+    ]
+  },
+  {
+    "id": "coral-eyed-murk",
+    "name": "Coral-eyed Murk",
+    "category": "spirits",
+    "recipe": {
+      "spiritweed": 2,
+      "molasses": 1
+    },
+    "price": 16,
+    "quality": 76,
+    "brawl": -0.2,
+    "church": -0.2,
+    "startIn": [],
+    "discover": [
+      "spiritweed",
+      "molasses"
+    ]
+  },
+  {
+    "id": "beerchellis-omen",
+    "name": "Beerchelli's Omen",
+    "category": "ale",
+    "recipe": {
+      "spiritweed": 1,
+      "hops": 2,
+      "barley": 2
+    },
+    "price": 18,
+    "quality": 88,
+    "brawl": -0.1,
+    "church": 0,
+    "startIn": [],
+    "discover": [
+      "spiritweed",
+      "hops"
+    ]
+  },
+  {
+    "id": "tide-callers-draught",
+    "name": "Tide Caller's Draught",
+    "category": "spirits",
+    "recipe": {
+      "molasses": 2,
+      "fruit": 2
+    },
+    "price": 12,
+    "quality": 58,
+    "brawl": 0.2,
+    "church": -0.2,
+    "startIn": [],
+    "discover": [
+      "molasses",
+      "fruit"
+    ]
+  },
+  {
+    "id": "hallis-harvest-cider",
+    "name": "Hallis Harvest Cider",
+    "category": "cider",
+    "recipe": {
+      "fruit": 3,
+      "hops": 1
+    },
+    "price": 10,
+    "quality": 64,
+    "brawl": -0.1,
+    "church": 0.1,
+    "startIn": [],
+    "discover": [
+      "fruit",
+      "hops"
+    ]
+  }
+]

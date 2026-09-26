@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "minItems": 8,
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z][a-zA-Z]*$"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "city": {
+        "type": "string",
+        "enum": [
+          "aleforge",
+          "shanty",
+          "providence",
+          "roto"
+        ]
+      },
+      "weight": {
+        "type": "number",
+        "minimum": 0
+      },
+      "nightWeight": {
+        "type": "number",
+        "minimum": 0
+      },
+      "spend": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "patience": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "brawl": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 0.5
+      },
+      "theft": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 0.5
+      },
+      "tip": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "drinks": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "prefs": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string",
+          "enum": [
+            "ale",
+            "stout",
+            "grog",
+            "tonic",
+            "spirits",
+            "cider",
+            "wine"
+          ]
+        },
+        "additionalProperties": {
+          "type": "number"
+        }
+      },
+      "night": {
+        "type": "object",
+        "properties": {
+          "brawl": {
+            "type": "number"
+          },
+          "drinks": {
+            "type": "number"
+          },
+          "prefs": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "enum": [
+                "ale",
+                "stout",
+                "grog",
+                "tonic",
+                "spirits",
+                "cider",
+                "wine"
+              ]
+            },
+            "additionalProperties": {
+              "type": "number"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "vip": {
+        "default": false,
+        "type": "boolean"
+      },
+      "favorTips": {
+        "default": false,
+        "type": "boolean"
+      },
+      "diffuses": {
+        "type": "string",
+        "enum": [
+          "church",
+          "pirateCulture"
+        ]
+      }
+    },
+    "required": [
+      "id",
+      "name",
+      "city",
+      "weight",
+      "nightWeight",
+      "spend",
+      "patience",
+      "brawl",
+      "theft",
+      "tip",
+      "drinks",
+      "prefs",
+      "vip",
+      "favorTips"
+    ],
+    "additionalProperties": false
+  }
+}

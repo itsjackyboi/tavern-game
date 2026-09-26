@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "minItems": 5,
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "good": {
+        "type": "boolean"
+      },
+      "arrivals": {
+        "type": "number"
+      },
+      "price": {
+        "type": "number"
+      },
+      "brawl": {
+        "type": "number"
+      },
+      "theft": {
+        "type": "number"
+      },
+      "quality": {
+        "type": "number"
+      },
+      "kegCost": {
+        "type": "number"
+      },
+      "repGain": {
+        "type": "number"
+      },
+      "repSwing": {
+        "type": "number"
+      },
+      "spoilage": {
+        "type": "number"
+      },
+      "shippingLoss": {
+        "type": "number"
+      },
+      "tithe": {
+        "type": "number"
+      },
+      "tabooBlocked": {
+        "type": "boolean"
+      },
+      "categoryBan": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "ale",
+            "stout",
+            "grog",
+            "tonic",
+            "spirits",
+            "cider",
+            "wine"
+          ]
+        }
+      },
+      "grainPrice": {
+        "type": "number"
+      },
+      "tips": {
+        "type": "number"
+      }
+    },
+    "required": [
+      "id",
+      "name",
+      "good"
+    ],
+    "additionalProperties": false
+  }
+}

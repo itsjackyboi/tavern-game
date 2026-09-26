@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "placeholder": {
+      "type": "boolean"
+    },
+    "monopoly": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sponsor": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "lost": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bankrupt": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "freeplayNote": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "placeholder",
+    "monopoly",
+    "sponsor",
+    "lost",
+    "bankrupt",
+    "freeplayNote"
+  ],
+  "additionalProperties": false
+}

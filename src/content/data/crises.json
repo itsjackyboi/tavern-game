@@ -1,0 +1,16 @@
+[
+  { "id": "beerchelli", "prompt": "crisis-beerchelli", "weight": 1 },
+  { "id": "addy-sweep", "prompt": "crisis-addy-sweep", "weight": 1.2, "cities": ["providence"], "boosts": [{ "key": "church.providence", "above": 70, "mult": 2 }] },
+  { "id": "windsunk-levy", "prompt": "crisis-windsunk-levy", "weight": 1.2, "cities": ["shanty"], "boosts": [{ "key": "standing.windsunk", "below": -10, "mult": 2 }] },
+  { "id": "taboo-tide", "prompt": "crisis-taboo-tide", "weight": 1.1, "cities": ["roto"] },
+  { "id": "cumstead-blight", "prompt": "crisis-cumstead-blight", "weight": 1, "onStart": [{ "type": "modifier", "id": "cumstead-blight", "seasons": 4, "scope": "global" }], "boosts": [{ "key": "farmerTension", "above": 50, "mult": 3 }] },
+  { "id": "veil-turns", "prompt": "crisis-veil-turns", "weight": 0.8, "boosts": [{ "key": "veilGoodwill", "below": -30, "mult": 3 }, { "key": "veilGoodwill", "above": 30, "mult": 2 }] },
+  { "id": "cartel", "prompt": "crisis-cartel", "weight": 1 },
+  { "id": "showmen", "prompt": "crisis-showmen", "weight": 0.9 },
+  { "id": "cellar-flood", "prompt": "crisis-cellar-flood", "weight": 1 },
+  { "id": "poaching", "prompt": "crisis-poaching", "weight": 0.9 },
+  { "id": "clipped", "prompt": "crisis-clipped", "weight": 0.9, "boosts": [{ "key": "standing.rotoMarket", "below": 0, "mult": 1.5 }] },
+  { "id": "wreckers", "prompt": "crisis-wreckers", "weight": 0.8 },
+  { "id": "false-sun", "prompt": "crisis-false-sun", "weight": 1, "cities": ["shanty"], "boosts": [{ "key": "pirateCulture.shanty", "above": 0.9, "mult": 1.5 }] },
+  { "id": "shorelan-raid", "prompt": "crisis-shorelan-raid", "weight": 1, "cities": ["aleforge"], "boosts": [{ "key": "flag.contrabandSold", "above": 20, "mult": 3 }] }
+]

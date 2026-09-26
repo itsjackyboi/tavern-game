@@ -48,6 +48,104 @@
       "palette": {
         "type": "string",
         "minLength": 1
+      },
+      "marketSize": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "rentPerSeason": {
+        "type": "number",
+        "minimum": 0
+      },
+      "salesTax": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "foundCost": {
+        "type": "number",
+        "minimum": 0
+      },
+      "lots": {
+        "type": "integer",
+        "exclusiveMinimum": 0,
+        "maximum": 9007199254740991
+      },
+      "brawlMult": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "theftMult": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "damageMult": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "annualFee": {
+        "type": "number",
+        "minimum": 0
+      },
+      "qualityBonus": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string",
+          "enum": [
+            "ale",
+            "stout",
+            "grog",
+            "tonic",
+            "spirits",
+            "cider",
+            "wine"
+          ]
+        },
+        "additionalProperties": {
+          "type": "number"
+        }
+      },
+      "kegCostMult": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string",
+          "enum": [
+            "ale",
+            "stout",
+            "grog",
+            "tonic",
+            "spirits",
+            "cider",
+            "wine"
+          ]
+        },
+        "additionalProperties": {
+          "type": "number"
+        }
+      },
+      "contraband": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "tabooAtNightOnly": {
+        "default": false,
+        "type": "boolean"
+      },
+      "favor": {
+        "default": false,
+        "type": "boolean"
+      },
+      "craftWeight": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "nightThirst": {
+        "type": "number",
+        "exclusiveMinimum": 0
       }
     },
     "required": [
@@ -55,7 +153,21 @@
       "name",
       "rivalTaverns",
       "map",
-      "palette"
+      "palette",
+      "marketSize",
+      "rentPerSeason",
+      "salesTax",
+      "foundCost",
+      "lots",
+      "brawlMult",
+      "theftMult",
+      "damageMult",
+      "annualFee",
+      "contraband",
+      "tabooAtNightOnly",
+      "favor",
+      "craftWeight",
+      "nightThirst"
     ],
     "additionalProperties": false
   }

@@ -1,0 +1,10 @@
+{
+  "church.up": ["Bells ring louder in {city}.", "More tonic cups than tankards in {city}."],
+  "church.down": ["The Friars grumble in {city}.", "Fewer robes at the bar in {city}."],
+  "farmerTension.up": ["Smallholders mutter about the Cumstead.", "Farm carts idle by the roadside."],
+  "farmerTension.down": ["The farm lanes are calm again."],
+  "veilGoodwill.up": ["The woods feel kinder this season.", "Your cellar smells of fresh earth."],
+  "veilGoodwill.down": ["Crows on the cellar roof.", "Your luck feels thin lately."],
+  "pirateCulture.up": ["Sea-songs heard far from Shanty Town, in {city}.", "Grog-sloshed boots walk the lanes of {city}."],
+  "consolidation.up": ["Fewer signboards, bigger ones.", "The taverns that remain are hungrier."]
+}

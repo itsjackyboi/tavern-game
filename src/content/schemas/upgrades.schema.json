@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "minItems": 5,
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "cost": {
+        "type": "number",
+        "minimum": 0
+      },
+      "costGrowth": {
+        "default": 1,
+        "type": "number",
+        "minimum": 1
+      },
+      "max": {
+        "default": 1,
+        "type": "integer",
+        "exclusiveMinimum": 0,
+        "maximum": 9007199254740991
+      },
+      "scope": {
+        "type": "string",
+        "enum": [
+          "tavern",
+          "company"
+        ]
+      },
+      "city": {
+        "type": "string",
+        "enum": [
+          "aleforge",
+          "shanty",
+          "providence",
+          "roto"
+        ]
+      },
+      "effects": {
+        "type": "object",
+        "properties": {
+          "tables": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "taps": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "decor": {
+            "type": "number"
+          },
+          "quality": {
+            "type": "number"
+          },
+          "qualityCategories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ale",
+                "stout",
+                "grog",
+                "tonic",
+                "spirits",
+                "cider",
+                "wine"
+              ]
+            }
+          },
+          "brawl": {
+            "type": "number"
+          },
+          "theft": {
+            "type": "number"
+          },
+          "spoilage": {
+            "type": "number"
+          },
+          "appeal": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "craftRep": {
+            "type": "number"
+          },
+          "foundCost": {
+            "type": "number"
+          },
+          "tunnels": {
+            "type": "boolean"
+          },
+          "favorTrade": {
+            "type": "boolean"
+          },
+          "church": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "id",
+      "name",
+      "cost",
+      "costGrowth",
+      "max",
+      "scope",
+      "effects"
+    ],
+    "additionalProperties": false
+  }
+}

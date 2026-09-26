@@ -11,7 +11,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'src/content/schemas');
 mkdirSync(outDir, { recursive: true });
 const mappings: Array<{ fileMatch: string[]; url: string }> = [];
-for (const [rel, schema] of Object.entries(FILE_SCHEMAS)) {
+for (const [rel, [, schema]] of Object.entries(FILE_SCHEMAS)) {
   const name = rel.replace(/\//g, '.').replace(/\.json$/, '.schema.json');
   writeFileSync(join(outDir, name), JSON.stringify(z.toJSONSchema(schema), null, 2) + '\n');
   mappings.push({ fileMatch: [`src/content/data/${rel}`], url: `./src/content/schemas/${name}` });

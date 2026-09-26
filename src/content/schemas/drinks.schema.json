@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "minItems": 6,
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+$"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "ale",
+          "stout",
+          "grog",
+          "tonic",
+          "spirits",
+          "cider",
+          "wine"
+        ]
+      },
+      "recipe": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string",
+          "enum": [
+            "barley",
+            "hops",
+            "molasses",
+            "spice",
+            "redEarth",
+            "fruit",
+            "spiritweed",
+            "imports"
+          ]
+        },
+        "additionalProperties": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "price": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "quality": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "brawl": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 2
+      },
+      "church": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+      },
+      "taboo": {
+        "default": false,
+        "type": "boolean"
+      },
+      "startIn": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "aleforge",
+            "shanty",
+            "providence",
+            "roto"
+          ]
+        }
+      },
+      "discover": {
+        "type": "array",
+        "prefixItems": [
+          {
+            "type": "string",
+            "enum": [
+              "barley",
+              "hops",
+              "molasses",
+              "spice",
+              "redEarth",
+              "fruit",
+              "spiritweed",
+              "imports"
+            ]
+          },
+          {
+            "type": "string",
+            "enum": [
+              "barley",
+              "hops",
+              "molasses",
+              "spice",
+              "redEarth",
+              "fruit",
+              "spiritweed",
+              "imports"
+            ]
+          }
+        ],
+        "items": false,
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "required": [
+      "id",
+      "name",
+      "category",
+      "recipe",
+      "price",
+      "quality",
+      "brawl",
+      "church",
+      "taboo",
+      "startIn"
+    ],
+    "additionalProperties": false
+  }
+}

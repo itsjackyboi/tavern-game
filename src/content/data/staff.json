@@ -1,0 +1,120 @@
+{
+  "tiers": [
+    {
+      "id": "green",
+      "name": "Green",
+      "competence": [
+        0.45,
+        0.6
+      ],
+      "wage": 5,
+      "hireCost": 25
+    },
+    {
+      "id": "seasoned",
+      "name": "Seasoned",
+      "competence": [
+        0.65,
+        0.8
+      ],
+      "wage": 9,
+      "hireCost": 70
+    },
+    {
+      "id": "master",
+      "name": "Master",
+      "competence": [
+        0.85,
+        0.96
+      ],
+      "wage": 15,
+      "hireCost": 170
+    }
+  ],
+  "archetypes": [
+    {
+      "id": "tapster",
+      "name": "Brewers' Lane Tapster",
+      "role": "bar",
+      "wageMult": 1.0
+    },
+    {
+      "id": "runner",
+      "name": "Keeldrift Runner",
+      "role": "floor",
+      "wageMult": 0.8
+    },
+    {
+      "id": "bruiser",
+      "name": "Rum Ridge Bruiser",
+      "role": "door",
+      "wageMult": 1.1
+    },
+    {
+      "id": "cellarer",
+      "name": "Sexton Cellarer",
+      "role": "cellar",
+      "wageMult": 0.8,
+      "skim": 0.02
+    },
+    {
+      "id": "fiddler",
+      "name": "Tide Caller Fiddler",
+      "role": "stage",
+      "wageMult": 1.0
+    },
+    {
+      "id": "informant",
+      "name": "Drifter Informant",
+      "role": "intel",
+      "wageMult": 1.2
+    }
+  ],
+  "managers": {
+    "aleforge": "Hall of Ale Brewmaster",
+    "shanty": "Windsunk Quartermaster",
+    "providence": "Apostle Steward",
+    "roto": "Stall-Boss"
+  },
+  "firstNames": [
+    "Tobin",
+    "Hilde",
+    "Mags",
+    "Orrin",
+    "Wenna",
+    "Pell",
+    "Garrick",
+    "Sable",
+    "Dunstan",
+    "Ilse",
+    "Corvin",
+    "Mirelle",
+    "Hob",
+    "Tamsin",
+    "Brisk",
+    "Odette",
+    "Kestrel",
+    "Wyn",
+    "Barnaby",
+    "Yara",
+    "Colm",
+    "Petra",
+    "Rook",
+    "Nell"
+  ],
+  "epithets": [
+    "the Quick",
+    "Tapwise",
+    "of the Shoals",
+    "Two-Mugs",
+    "Brinehand",
+    "Kegfoot",
+    "the Steady",
+    "Bellwatch",
+    "Saltbrow",
+    "the Loud",
+    "Foamcrest",
+    "Keeldrift"
+  ],
+  "maxStaffPerTavern": 8
+}

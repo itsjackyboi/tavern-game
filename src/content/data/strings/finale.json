@@ -1,0 +1,19 @@
+{
+  "placeholder": true,
+  "monopoly": [
+    "[PLACEHOLDER — monopoly finale. No company in the Isles comes close to yours.]",
+    "[PLACEHOLDER — Thatcher Sr. names your company sponsor of the reinstated Drunken Trials by default.]"
+  ],
+  "sponsor": [
+    "[PLACEHOLDER — Year 463. Mayor Thomas Thatcher Sr. restores the Drunken Trials.]",
+    "[PLACEHOLDER — Your company, the biggest in all four cities, is named sponsor.]",
+    "[PLACEHOLDER — The Long Thirst is ending.]"
+  ],
+  "lost": [
+    "[PLACEHOLDER — Year 463. The Trials return, but another company is named sponsor.]"
+  ],
+  "bankrupt": [
+    "[PLACEHOLDER — The creditors take the kegs. Your company is finished.]"
+  ],
+  "freeplayNote": "You did not win the sponsorship, so this run is not on the leaderboard. Freeplay continues past 463 unranked."
+}

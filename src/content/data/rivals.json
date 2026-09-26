@@ -1,0 +1,18 @@
+{
+  "tavernNames": {
+    "aleforge": ["The Crooked Tap", "Kettle & Crown", "The Sober Stein", "Hops & Hallis", "The Brewmaster's Rest", "The Fountain Mug"],
+    "shanty": ["The Soggy Oar", "Barnacle Bottom", "The Scuttled Keel", "The Crashed Mast", "Rope & Rib"],
+    "providence": ["Bell & Barrel", "The Tidy Tankard", "The Quiet Pew", "The Hangover Hour"],
+    "roto": ["Red Lantern Stall", "The Floating Fence", "Stilt & Stein", "The Flat Fee", "Lacquer & Lees"]
+  },
+  "archetypes": [
+    { "id": "undercutter", "name": "Undercutter", "priceBias": -0.15, "qualityBias": -5, "aggression": 0.7,
+      "weights": { "undercut": 3, "copy": 1.5, "quality": 0.3, "promo": 1, "sabotage": 0.6, "bribe": 0.4, "poach": 0.8, "expand": 1 } },
+    { "id": "snob", "name": "Quality Snob", "priceBias": 0.2, "qualityBias": 12, "aggression": 0.4,
+      "weights": { "undercut": 0.2, "copy": 1.2, "quality": 3, "promo": 1.2, "sabotage": 0.3, "bribe": 0.6, "poach": 1.5, "expand": 1 } },
+    { "id": "brawler", "name": "Brawler", "priceBias": 0, "qualityBias": -2, "aggression": 0.9,
+      "weights": { "undercut": 0.8, "copy": 0.6, "quality": 0.5, "promo": 0.8, "sabotage": 3, "bribe": 0.5, "poach": 0.6, "expand": 0.8 } },
+    { "id": "briber", "name": "Smooth Briber", "priceBias": 0.05, "qualityBias": 3, "aggression": 0.6,
+      "weights": { "undercut": 0.6, "copy": 1, "quality": 1, "promo": 1.4, "sabotage": 0.6, "bribe": 3, "poach": 1.2, "expand": 1.2 } }
+  ]
+}

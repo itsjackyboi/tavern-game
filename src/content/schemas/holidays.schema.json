@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "minItems": 4,
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "season": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "stormtide",
+              "goldsun",
+              "veilfrost"
+            ]
+          },
+          {
+            "type": "string",
+            "const": "holidayKeg"
+          }
+        ]
+      },
+      "cities": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "aleforge",
+            "shanty",
+            "providence",
+            "roto"
+          ]
+        }
+      },
+      "modifier": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "id",
+      "name",
+      "season",
+      "cities",
+      "modifier"
+    ],
+    "additionalProperties": false
+  }
+}

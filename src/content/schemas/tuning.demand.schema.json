@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "phase": {
+      "type": "object",
+      "properties": {
+        "day": {
+          "type": "number"
+        },
+        "night": {
+          "type": "number"
+        },
+        "lastCall": {
+          "type": "number"
+        },
+        "holiday": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "day",
+        "night",
+        "lastCall",
+        "holiday"
+      ],
+      "additionalProperties": false
+    },
+    "season": {
+      "type": "object",
+      "properties": {
+        "stormtide": {
+          "type": "number"
+        },
+        "goldsun": {
+          "type": "number"
+        },
+        "veilfrost": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "stormtide",
+        "goldsun",
+        "veilfrost"
+      ],
+      "additionalProperties": false
+    },
+    "growthPerYear": {
+      "type": "number"
+    },
+    "logit": {
+      "type": "object",
+      "properties": {
+        "rep": {
+          "type": "number"
+        },
+        "fit": {
+          "type": "number"
+        },
+        "quality": {
+          "type": "number"
+        },
+        "price": {
+          "type": "number"
+        },
+        "decor": {
+          "type": "number"
+        },
+        "stayHome": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "rep",
+        "fit",
+        "quality",
+        "price",
+        "decor",
+        "stayHome"
+      ],
+      "additionalProperties": false
+    },
+    "drinksPerVisit": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "drinkSeconds": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "repLearnRate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "phase",
+    "season",
+    "growthPerYear",
+    "logit",
+    "drinksPerVisit",
+    "drinkSeconds",
+    "repLearnRate"
+  ],
+  "additionalProperties": false
+}

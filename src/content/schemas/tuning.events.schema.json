@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "crisisGraceSeasons": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "crisisGapSeasons": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "crisisBaseHazard": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "crisisMaxPerRun": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "tributeEverySeasons": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "vowChance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "inspectionChance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "rivalPromptChance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "managerProposalChance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "crisisGraceSeasons",
+    "crisisGapSeasons",
+    "crisisBaseHazard",
+    "crisisMaxPerRun",
+    "tributeEverySeasons",
+    "vowChance",
+    "inspectionChance",
+    "rivalPromptChance",
+    "managerProposalChance"
+  ],
+  "additionalProperties": false
+}

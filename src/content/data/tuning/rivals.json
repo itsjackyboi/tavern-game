@@ -1,0 +1,18 @@
+{
+  "decisionTicks": 360,
+  "act2Year": 452,
+  "act3Year": 460,
+  "secrecyPerAct": 0.18,
+  "pressuredShare": 0.6,
+  "desperateCashSeasons": 1,
+  "collapseSeasons": 3,
+  "archRival": {
+    "name": "The Gulf Tapworks",
+    "startCash": 900,
+    "startCities": [
+      "aleforge",
+      "roto"
+    ],
+    "expandCash": 1400
+  }
+}

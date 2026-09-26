@@ -1,0 +1,11 @@
+[
+  { "id": "brewmasters-day", "name": "Brewmasters Day", "season": "goldsun", "cities": ["aleforge"], "modifier": "brewmasters-day" },
+  { "id": "beer-day", "name": "Beer Day", "season": "goldsun", "cities": ["shanty"], "modifier": "beer-day" },
+  { "id": "providas", "name": "Providas", "season": "stormtide", "cities": ["providence"], "modifier": "providas" },
+  { "id": "liquor-day", "name": "Liquor Day", "season": "goldsun", "cities": [], "modifier": "liquor-day" },
+  { "id": "earthen-veil", "name": "Night of the Earthen Veil", "season": "veilfrost", "cities": [], "modifier": "earthen-veil" },
+  { "id": "unholy-pilgrimage", "name": "Unholy Pilgrimage", "season": "veilfrost", "cities": [], "modifier": "unholy-pilgrimage" },
+  { "id": "red-tide", "name": "Festival of the Red Tide", "season": "goldsun", "cities": ["providence"], "modifier": "red-tide-festival" },
+  { "id": "beggars-dance", "name": "Beggars Dance", "season": "veilfrost", "cities": ["aleforge"], "modifier": "beggars-dance" },
+  { "id": "hoppy-holidays", "name": "Hoppy Holidays", "season": "holidayKeg", "cities": ["shanty"], "modifier": "hoppy-holidays" }
+]
