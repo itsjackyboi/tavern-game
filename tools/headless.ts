@@ -15,7 +15,7 @@ const t0 = performance.now();
 for (let i = 0; i < years * ticksPerYear(c.time); i++) {
   stepWorld(w, c, []);
   if (i % ticksPerYear(c.time) === ticksPerYear(c.time) - 1) {
-    const cal = calendarAt(w.tick, c.time);
+    const cal = calendarAt(w.tick - (w.clockHold ?? 0), c.time);
     console.log(`--- Year ${cal.year} status=${w.run.status}`);
     for (const co of league(w).slice(0, 8)) {
       const ts = Object.values(w.taverns).filter((t) => t.companyId === co.id && t.status !== 'closed');

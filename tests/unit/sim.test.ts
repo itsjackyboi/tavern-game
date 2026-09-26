@@ -8,8 +8,8 @@ import { hashValue } from '../../src/sim/hash.ts';
 import { player, playerTaverns } from '../../src/sim/lookup.ts';
 import { foundTavern } from '../../src/sim/network.ts';
 import { hashSeed, sfc32 } from '../../src/sim/rng.ts';
-import { stepWorld } from '../../src/sim/step.ts';
-import { calendarAt, endTick, ticksPerYear } from '../../src/sim/time.ts';
+import { CLOSING_HOLD_MAX, stepWorld } from '../../src/sim/step.ts';
+import { calNow, calTick, calendarAt, endTick, ticksPerYear } from '../../src/sim/time.ts';
 import type { World } from '../../src/sim/types.ts';
 import { createWorld, migrateWorld } from '../../src/sim/world.ts';
 import { spawnPrompt } from '../../src/sim/prompts.ts';
@@ -80,40 +80,53 @@ describe('the floor', () => {
   });
 });
 
-describe('last call', () => {
+describe('last call and closing time', () => {
   const inside = (w: World) => w.floor!.patrons.filter((p) => ['toSeat', 'seated', 'ordered', 'drinking'].includes(p.state));
+  const toLastCall = (w: World, bot: Bot) => {
+    while (calNow(w, c.time).phase !== 'lastCall') stepWorld(w, c, bot.think(w, c).filter((cmd) => cmd.type !== 'ringBell'));
+    while (inside(w).length === 0 && calNow(w, c.time).phase === 'lastCall') stepWorld(w, c, bot.think(w, c).filter((cmd) => cmd.type !== 'ringBell'));
+  };
 
-  it('the bell closes the doors but lets the last orders be served, past the end of the shift', () => {
+  it('the bell closes the doors, and the season waits until the last orders are served', () => {
     const w = fresh('bell');
     const bot = new Bot(PROFILES.skilled!);
-    // Play into the Last Call window of the first shift with a busy floor.
-    while (calendarAt(w.tick, c.time).phase !== 'lastCall') stepWorld(w, c, bot.think(w, c).filter((cmd) => cmd.type !== 'ringBell'));
-    while (inside(w).length === 0 && calendarAt(w.tick, c.time).phase === 'lastCall') stepWorld(w, c, []);
+    toLastCall(w, bot);
     stepWorld(w, c, [{ type: 'ringBell' }]);
     expect(w.floor!.lastCallRung).toBe(true);
     expect(w.floor!.patrons.some((p) => p.state === 'waiting')).toBe(false);
     const staying = inside(w).map((p) => p.id);
     expect(staying.length).toBeGreaterThan(0);
-    // Cross the shift boundary: they are still there.
-    while (calendarAt(w.tick, c.time).phase === 'lastCall') stepWorld(w, c, []);
-    stepWorld(w, c, []);
-    expect(w.floor!.patrons.filter((p) => staying.includes(p.id)).length).toBeGreaterThan(0);
-    // Each has at most one drink left, so they finish and go home.
-    for (const p of w.floor!.patrons.filter((x) => staying.includes(x.id))) expect(p.drinksLeft).toBeLessThanOrEqual(1);
-    run(w, 1200, bot);
+    const season = calNow(w, c.time).segment;
+    // Serve them out: the calendar may not move on while any of them is inside.
+    let guard = 0;
+    while (calNow(w, c.time).segment === season && guard++ < 5000) {
+      stepWorld(w, c, bot.think(w, c));
+      if (calNow(w, c.time).segment !== season) expect(w.floor!.patrons.filter((p) => staying.includes(p.id) && p.state !== 'leaving')).toHaveLength(0);
+    }
+    expect(w.clockHold ?? 0).toBeGreaterThan(0);
     expect(w.floor!.patrons.some((p) => staying.includes(p.id))).toBe(false);
   });
 
-  it('without the bell, stragglers are turned out at the end of the shift', () => {
+  it('without the bell, closing time still waits, and stragglers are fined', () => {
     const w = fresh('nobell');
     const bot = new Bot(PROFILES.skilled!);
-    while (calendarAt(w.tick, c.time).phase !== 'lastCall') stepWorld(w, c, bot.think(w, c).filter((cmd) => cmd.type !== 'ringBell'));
-    while (calendarAt(w.tick, c.time).phase === 'lastCall' && inside(w).length === 0) stepWorld(w, c, []);
-    const before = inside(w).map((p) => p.id);
-    expect(before.length).toBeGreaterThan(0);
-    while (calendarAt(w.tick, c.time).phase === 'lastCall') stepWorld(w, c, []);
-    stepWorld(w, c, []);
-    expect(w.floor!.patrons.some((p) => before.includes(p.id))).toBe(false);
+    toLastCall(w, bot);
+    const before = inside(w).length;
+    while (calNow(w, c.time).phase === 'lastCall' && (w.clockHold ?? 0) === 0) stepWorld(w, c, []);
+    if (before > 3) expect(player(w).flows['Fines'] ?? 0).toBeLessThan(0);
+    expect(w.floor!.lastCallRung || inside(w).length === 0).toBe(true);
+  });
+
+  it('the wait is capped, so the game can never stall', () => {
+    const w = fresh('stall');
+    const bot = new Bot(PROFILES.skilled!);
+    toLastCall(w, bot);
+    // Patrons who will never finish on their own.
+    for (const p of inside(w)) { p.state = 'drinking'; p.timer = 1e9; }
+    const season = calNow(w, c.time).segment;
+    run(w, CLOSING_HOLD_MAX + c.time.lastCallTicks + 50);
+    expect(calNow(w, c.time).segment).not.toBe(season);
+    expect(inside(w)).toHaveLength(0);
   });
 });
 
@@ -122,7 +135,9 @@ describe('where the money goes', () => {
     const w = fresh('money');
     const me = player(w);
     const start = me.cash;
-    run(w, ticksPerYear(c.time) + 20, new Bot(PROFILES.skilled!));
+    const bot = new Bot(PROFILES.skilled!);
+    // Run a calendar year (closing time can hold the calendar, so count calendar ticks).
+    while (calTick(w) < ticksPerYear(c.time) + 20) stepWorld(w, c, bot.think(w, c));
     const net = Object.values(me.flows).reduce((a, b) => a + b, 0);
     expect(Math.abs(start + net - me.cash)).toBeLessThan(0.01);
     expect(me.flows['Drink sales']).toBeGreaterThan(0);
@@ -184,7 +199,7 @@ describe('brewing bench', () => {
 describe('calendar bookkeeping', () => {
   it('each season closes exactly once a year; the end of the Holiday Keg closes the year, not another season', () => {
     const w = fresh('seasons');
-    run(w, ticksPerYear(c.time) + 5);
+    while (calTick(w) < ticksPerYear(c.time) + 5) stepWorld(w, c, []);
     expect(w.events.seasonsClosed).toBe(3);
     expect(player(w).yearHistory).toHaveLength(1);
   });

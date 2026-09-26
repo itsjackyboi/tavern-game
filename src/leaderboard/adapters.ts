@@ -1,9 +1,10 @@
 import { lcValidateRecord } from './shared/validate.js';
-import { rankRuns } from './rank.ts';
-import type { Board, BoardCategory, BoardRow, LeaderboardAdapter, RunRecord, SubmitResult } from './types.ts';
+import { boards } from './rank.ts';
+import type { Boards, Era, LeaderboardAdapter, RunRecord, SubmitResult } from './types.ts';
 
 // Three adapters: local (this device only), mock (tests: ?lbmock=ok|fail|slow),
-// and the Apps Script web app (the Mario pattern, hardened).
+// and the Apps Script web app (the Mario pattern, hardened). Every finished run
+// is submitted; the boards show only the two top tens per era.
 
 const LOCAL_KEY = 'last-call:local-board';
 
@@ -31,8 +32,8 @@ export class LocalAdapter implements LeaderboardAdapter {
     recordLocal(rec);
     return 'ok';
   }
-  async board(board: Board, cat: BoardCategory, n: number): Promise<BoardRow[]> {
-    return rankRuns(readLocal(), board, cat, n);
+  async boards(era: Era): Promise<Boards> {
+    return boards(readLocal(), era);
   }
 }
 
@@ -50,10 +51,10 @@ export class MockAdapter implements LeaderboardAdapter {
     this.runs = this.runs.filter((r) => r.runId !== rec.runId).concat(rec);
     return 'ok';
   }
-  async board(board: Board, cat: BoardCategory, n: number): Promise<BoardRow[]> {
+  async boards(era: Era): Promise<Boards> {
     await this.delay();
     if (this.mode === 'fail') throw new Error('offline');
-    return rankRuns(this.runs, board, cat, n);
+    return boards(this.runs, era);
   }
 }
 
@@ -79,7 +80,7 @@ async function send(url: string, init: RequestInit): Promise<unknown> {
 
 export class AppsScriptAdapter implements LeaderboardAdapter {
   readonly shared = true;
-  private cache = new Map<string, { at: number; rows: BoardRow[] }>();
+  private cache = new Map<string, { at: number; data: Boards }>();
   constructor(private url: string) {}
 
   async submit(rec: RunRecord): Promise<SubmitResult> {
@@ -93,13 +94,13 @@ export class AppsScriptAdapter implements LeaderboardAdapter {
     }
   }
 
-  async board(board: Board, cat: BoardCategory, n: number): Promise<BoardRow[]> {
-    const key = `${board}:${cat}:${n}`;
-    const hit = this.cache.get(key);
-    if (hit && Date.now() - hit.at < 45000) return hit.rows;
-    const body = (await send(`${this.url}?board=${board}&cat=${cat}&n=${n}`, { method: 'GET' })) as { rows?: BoardRow[]; error?: string };
-    if (!body.rows) throw new Error(body.error ?? 'bad board');
-    this.cache.set(key, { at: Date.now(), rows: body.rows });
-    return body.rows;
+  async boards(era: Era): Promise<Boards> {
+    const hit = this.cache.get(era);
+    if (hit && Date.now() - hit.at < 45000) return hit.data;
+    const body = (await send(`${this.url}?era=${era}`, { method: 'GET' })) as Partial<Boards> & { error?: string };
+    if (!body.monopoly || !body.sponsor) throw new Error(body.error ?? 'bad board');
+    const data = { monopoly: body.monopoly, sponsor: body.sponsor };
+    this.cache.set(era, { at: Date.now(), data });
+    return data;
   }
 }

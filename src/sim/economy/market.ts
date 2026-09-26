@@ -4,7 +4,7 @@ import {
   type ModTotals,
 } from '../lookup.ts';
 import { rand } from '../rng.ts';
-import { calendarAt, type Calendar } from '../time.ts';
+import { calNow, type Calendar } from '../time.ts';
 import type { Tavern, World } from '../types.ts';
 
 // One demand model for everyone (docs/PLAN.md §4): the floor spawner, the
@@ -49,7 +49,7 @@ export function priceIndex(c: Content, t: Tavern, drinks: string[], mods: ModTot
 
 /** Recomputes every open tavern's arrival rate (patrons per second), city by city. */
 export function updateDemand(w: World, c: Content): void {
-  const cal = calendarAt(w.tick, c.time);
+  const cal = calNow(w, c.time);
   const L = c.demand.logit;
   const growth = Math.pow(1 + c.demand.growthPerYear, cal.yearIndex);
   for (const city of CITY_IDS) {

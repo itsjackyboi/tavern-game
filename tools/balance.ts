@@ -6,7 +6,7 @@ import { CITY_IDS, type CityId } from '../src/content/schema.ts';
 import { league } from '../src/sim/company.ts';
 import { player } from '../src/sim/lookup.ts';
 import { stepWorld } from '../src/sim/step.ts';
-import { calendarAt, endTick } from '../src/sim/time.ts';
+import { calTick, calendarAt, endTick } from '../src/sim/time.ts';
 import { createWorld } from '../src/sim/world.ts';
 
 const c = loadContent();
@@ -36,11 +36,12 @@ export function playRun(profileName: string, city: CityId, seed: string, maxTick
   let brawls = 0;
   const trace = process.env.TRACE === '1';
   let lastYear = -1;
-  while (w.tick < maxTicks) {
+  // Closing time can hold the calendar, so run to the calendar's end (with a hard stop).
+  while (calTick(w) < maxTicks && w.tick < maxTicks * 2) {
     const cmds = bot.think(w, c);
     stepWorld(w, c, cmds);
     if (trace) {
-      const cal = calendarAt(w.tick, c.time);
+      const cal = calendarAt(calTick(w), c.time);
       if (cal.year !== lastYear) {
         lastYear = cal.year;
         const me = player(w);

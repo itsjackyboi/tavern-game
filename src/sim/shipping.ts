@@ -3,7 +3,7 @@ import { spend, track } from './economy/ledger.ts';
 import { log, rumor } from './log.ts';
 import { cityOf, clamp, kegCost, modsFor, newId, player, upgradeCount } from './lookup.ts';
 import { chance } from './rng.ts';
-import { calendarAt } from './time.ts';
+import { calNow } from './time.ts';
 import type { World } from './types.ts';
 
 // Moving kegs between your own taverns: arbitrage across price boards, at the
@@ -21,7 +21,7 @@ export function travelTicks(c: Content, a: CityId, b: CityId, tunnels: boolean):
 export function lossChance(w: World, c: Content, a: CityId, b: CityId): number {
   const me = player(w);
   if (upgradeCount(me, 'ofern-tunnels') && (a === 'aleforge' || b === 'aleforge')) return 0;
-  const cal = calendarAt(w.tick, c.time);
+  const cal = calNow(w, c.time);
   const mods = modsFor(w, c, { id: '', city: a, companyId: me.id });
   let p = cal.segment === 'stormtide' ? 0.1 : 0.03;
   if (a !== 'roto' && b !== 'roto') p += clamp(0.08 * (1 - w.institutions.windsunk / 40), 0, 0.12);

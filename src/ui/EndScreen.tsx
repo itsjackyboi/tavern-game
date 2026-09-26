@@ -5,11 +5,8 @@ import { cityOf, player, playerTaverns } from '../sim/lookup.ts';
 import { establishedIn } from '../sim/network.ts';
 import { formatClock } from '../sim/time.ts';
 import { money } from './describe.ts';
-import { LeaderboardSubmit } from './leaderboard/LeaderboardPanel.tsx';
+import { RunRecordStatus } from './leaderboard/LeaderboardPanel.tsx';
 import { vm } from './vm.ts';
-
-// ?lbmock lets tests exercise submission on a (debug) run against the mock board.
-const lbMock = () => new URLSearchParams(location.search).has('lbmock');
 
 /** The name your company goes by: your first tavern's. */
 function companyName(ctrl: GameController): string {
@@ -41,8 +38,7 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
           <div><span>Total time</span><b>{formatClock(ctrl.clock.simMs)}</b></div>
           <div><span>Company Value</span><b>{money(cv)}</b></div>
         </div>
-        {won && ((!ctrl.debug && !ctrl.tutorial) || lbMock()) && <LeaderboardSubmit ctrl={ctrl} />}
-        {won && (ctrl.debug || ctrl.tutorial) && !lbMock() && <p class="small muted">{ctrl.tutorial ? 'Tutorial runs' : 'Debug runs'} are unranked.</p>}
+        <RunRecordStatus ctrl={ctrl} />
         {!won && r.status === 'lost' && <p class="freeplay-note" data-testid="freeplay-note">{f.freeplayNote}</p>}
         <div class="end-actions">
           <button class="btn btn-primary" onClick={onNewRun} data-testid="return-menu">Return to menu</button>

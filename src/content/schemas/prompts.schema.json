@@ -59,6 +59,11 @@
               "minLength": 1,
               "maxLength": 22
             },
+            "hint": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60
+            },
             "effects": {
               "type": "array",
               "items": {

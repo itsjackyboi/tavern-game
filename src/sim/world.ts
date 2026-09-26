@@ -12,6 +12,8 @@ export interface NewRunOptions {
   seed: string;
   homeCity: CityId;
   tavernName?: string;
+  /** The player's innkeeper name, for the leaderboard and the pause menu. */
+  playerName?: string;
   timerScale?: number;
   ngPlus?: number;
 }
@@ -159,7 +161,7 @@ export function createWorld(opts: NewRunOptions, c: Content): World {
   const shock = Object.fromEntries(ING.map((i) => [i, 1])) as Record<IngredientId, number>;
   const hist = () => Object.fromEntries(ING.map((i) => [i, [] as number[]])) as Record<IngredientId, number[]>;
   const w: World = {
-    meta: { v: WORLD_VERSION, seed: opts.seed, homeCity: opts.homeCity, timerScale: opts.timerScale ?? 1, ngPlus: opts.ngPlus ?? 0 },
+    meta: { v: WORLD_VERSION, seed: opts.seed, homeCity: opts.homeCity, timerScale: opts.timerScale ?? 1, ngPlus: opts.ngPlus ?? 0, ...(opts.playerName ? { playerName: opts.playerName } : {}) },
     tick: 0,
     rng: {},
     focus: { tavernId: '', view: 'floor' },

@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import type { GameController } from '../app/controller.ts';
+import { playerTaverns } from '../sim/lookup.ts';
 import { drawer } from './bus.ts';
 import { SoundSettings } from './drawers/Drawers.tsx';
 import { vm } from './vm.ts';
@@ -26,7 +27,10 @@ export function PauseVeil({ ctrl, onExit }: { ctrl: GameController; onExit: () =
     <div class="pause-veil" role="dialog" aria-label="Paused" data-testid="pause-veil">
       <div class="pause-card">
         <h2>{REASON[v.paused]}</h2>
-        <p class="pause-note">The clock is stopped.</p>
+        <p class="pause-note">
+          The clock is stopped.
+          {ctrl.world.meta.playerName && <span class="pause-who">Innkeeper {ctrl.world.meta.playerName} of {playerTaverns(ctrl.world)[0]?.name ?? 'The Last Call'}</span>}
+        </p>
         <div class="pause-menu">
           <button class="btn btn-primary" onClick={() => ctrl.resume()} autofocus>
             Resume <kbd>P</kbd>

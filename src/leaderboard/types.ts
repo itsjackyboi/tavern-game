@@ -1,15 +1,19 @@
 import type { CityId } from '../content/schema.ts';
 
-export type Board = 'monopoly' | 'cv';
-export type BoardCategory = 'overall' | CityId | 'assisted' | 'ngplus';
+/** v1.x runs are pre-release (testing) records; from v2.0 they're official. */
+export type Era = 'pre' | 'official';
+export type RunResult = 'monopoly' | 'sponsor' | 'lost' | 'bankrupt';
 
+/** One finished run, as sent to the sheet. Every run is logged; only wins make a board. */
 export interface RunRecord {
   runId: string;
   clientId: string;
+  /** The innkeeper (character) name. */
   name: string;
+  tavernName: string;
   homeCity: CityId;
   category: 'standard' | 'assisted' | 'ngplus';
-  winType: 'monopoly' | 'sponsor';
+  result: RunResult;
   monopolyMs: number | null;
   finalCV: number;
   peakCV: number;
@@ -19,7 +23,8 @@ export interface RunRecord {
   pauses: number;
   sessions: number;
   seed: string;
-  build: string;
+  /** The game version, e.g. "v1.5". Its major number picks the era. */
+  version: string;
   contentHash: string;
   date: string;
 }
@@ -27,10 +32,19 @@ export interface RunRecord {
 export interface BoardRow {
   rank: number;
   name: string;
-  homeCity: CityId;
+  tavern: string;
+  /** Monopoly: milliseconds to monopoly. Sponsorship: final Company Value. */
   value: number;
-  winType: string;
+  homeCity: CityId;
+  category: string;
+  version: string;
   date: string;
+}
+
+/** The two top tens: fastest monopolies and the biggest sponsors. */
+export interface Boards {
+  monopoly: BoardRow[];
+  sponsor: BoardRow[];
 }
 
 export type SubmitResult = 'ok' | 'retry' | 'refused';
@@ -38,5 +52,5 @@ export type SubmitResult = 'ok' | 'retry' | 'refused';
 export interface LeaderboardAdapter {
   readonly shared: boolean;
   submit(rec: RunRecord): Promise<SubmitResult>;
-  board(board: Board, cat: BoardCategory, n: number): Promise<BoardRow[]>;
+  boards(era: Era): Promise<Boards>;
 }

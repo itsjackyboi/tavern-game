@@ -6,7 +6,7 @@ import { companyTaverns } from '../sim/company.ts';
 import { cityOf, drinkOf, idx, kegCost, player, playerTaverns, segOf, staffAt } from '../sim/lookup.ts';
 import { canFound, foundingCost } from '../sim/network.ts';
 import { hireCost } from '../sim/staff.ts';
-import { calendarAt } from '../sim/time.ts';
+import { calNow } from '../sim/time.ts';
 import type { World } from '../sim/types.ts';
 
 // Headless bot players for balance runs and tests. Never bundled into the game.
@@ -180,7 +180,7 @@ function floorMove(w: World, c: Content): Command | null {
   if (!f || w.focus.view !== 'floor') return null;
   const t = w.taverns[f.tavernId]!;
   const owner = f.workers.find((x) => x.kind === 'owner')!;
-  const cal = calendarAt(w.tick, c.time);
+  const cal = calNow(w, c.time);
   if (cal.phase === 'lastCall' && !f.lastCallRung && f.patrons.filter((p) => p.state !== 'leaving').length <= 3) return { type: 'ringBell' };
   const inc = f.incidents.find((i) => i.claimedBy !== owner.id);
   if (inc) return { type: 'breakBrawl', incidentId: inc.id };

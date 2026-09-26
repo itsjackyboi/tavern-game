@@ -6,7 +6,7 @@ import {
   tavernUpgradeSum, type ModTotals,
 } from '../lookup.ts';
 import { chance, pick, rand, randInt } from '../rng.ts';
-import { calendarAt } from '../time.ts';
+import { calNow } from '../time.ts';
 import type { FloorState, FloorTable, FxEvent, Incident, Patron, Pos, Staff, Task, Tavern, Worker, World } from '../types.ts';
 import {
   CELLAR, DOOR, DOOR_POST, MAX_TABLES, OWNER_HOME, QUEUE_SLOTS, STAGE, TABLE_SLOTS, TILL, dist, pourPos, seatPos, servePos, tapPos,
@@ -83,7 +83,7 @@ export function syncFloor(w: World, c: Content): void {
 export function materializeFloor(w: World, c: Content, t: Tavern): FloorState {
   const f: FloorState = {
     tavernId: t.id, tables: [], taps: [], patrons: [], workers: [], incidents: [], nextId: 1, spawnAcc: 0,
-    lastCallRung: false, shiftIndex: shiftKey(calendarAt(w.tick, c.time)),
+    lastCallRung: false, shiftIndex: shiftKey(calNow(w, c.time)),
   };
   f.tables = buildTables(t, []);
   f.taps = buildTaps(t);
@@ -157,7 +157,7 @@ function weighted(w: World, entries: Array<[string, number]>): string {
 
 function newPatron(w: World, c: Content, f: FloorState, t: Tavern, segId: string, mods: ModTotals): Patron {
   const seg = segOf(c, segId);
-  const cal = calendarAt(w.tick, c.time);
+  const cal = calNow(w, c.time);
   const city = cityOf(c, t.city);
   const nightDrinks = cal.isNight ? (seg.night?.drinks ?? 1) * city.nightThirst : 1;
   // Unbiased: the expected count matches the aggregate model's drinks-per-visit.
@@ -183,7 +183,7 @@ function freeQueueSlot(f: FloorState): number {
 }
 
 function spawn(w: World, c: Content, f: FloorState, t: Tavern, phase: string): void {
-  if (phase === 'lastCall' || !isOpenNow(w, t)) return;
+  if (phase === 'lastCall' || f.lastCallRung || !isOpenNow(w, t)) return;
   const rate = t.demand.rate;
   if (rate <= 0) return;
   if (!chance(w, 'floor', clamp(rate / 20, 0, 0.5))) return;
@@ -845,7 +845,7 @@ export function applyFloorCommand(w: World, c: Content, cmd: FloorCommand): void
       return;
     }
     case 'ringBell': {
-      const cal = calendarAt(w.tick, c.time);
+      const cal = calNow(w, c.time);
       if (cal.phase !== 'lastCall' || f.lastCallRung) return;
       // Doors close: nobody new comes in, the queue goes home without hard feelings,
       // and everyone inside gets one last round, which carries on past the end of the shift.
@@ -868,7 +868,7 @@ export function stepFloor(w: World, c: Content): void {
   if (!f) return;
   const t = w.taverns[f.tavernId];
   if (!t) return;
-  const cal = calendarAt(w.tick, c.time);
+  const cal = calNow(w, c.time);
   const key = shiftKey(cal);
   if (key !== f.shiftIndex) {
     // A new shift (or the Holiday Keg) begins: settle stragglers from the last one.
@@ -882,32 +882,59 @@ export function stepFloor(w: World, c: Content): void {
   f.patrons = f.patrons.filter((p) => p.state !== 'gone');
 }
 
+/** Patrons still inside and not on their way out. */
+export function patronsInside(f: FloorState): Patron[] {
+  return f.patrons.filter((p) => p.state !== 'gone' && p.state !== 'leaving');
+}
+
+/** Not ringing Last Call leaves stragglers: a fine (double in Providence) past the first few. */
+function strayFine(w: World, c: Content, t: Tavern, inside: number): void {
+  if (inside <= 3) return;
+  const co = w.companies[t.companyId]!;
+  const mult = t.city === 'providence' ? 2 : 1;
+  const fine = Math.round(c.floor.lastCallStragglerFine * mult * (inside - 3));
+  spend(co, fine, 'other', 'Fines', `Stragglers after closing at ${t.name} (bell not rung)`);
+  if (t.city === 'providence' && co.isPlayer) w.institutions.church = clamp(w.institutions.church - 1, -100, 100);
+  fx(w, 'thud', DOOR.x, DOOR.y - 1, fine);
+}
+
 /**
- * End of a shift. If the bell was rung, patrons inside finish their last round
- * into the next shift; otherwise they're stragglers: fined and turned out.
+ * Closing time with people still inside: the doors close as the bell would
+ * (fining stragglers if it wasn't rung) and the calendar waits while they finish.
+ */
+export function closeUp(w: World, c: Content): void {
+  const f = w.floor;
+  if (!f || f.closingSince !== undefined) return;
+  const t = w.taverns[f.tavernId]!;
+  f.closingSince = w.tick;
+  if (!f.lastCallRung) {
+    strayFine(w, c, t, patronsInside(f).length);
+    f.lastCallRung = true;
+    fx(w, 'bell', 8, 3);
+  }
+  for (const p of f.patrons) {
+    if (p.state === 'waiting' || p.state === 'arriving') leave(w, c, f, t, p, false, true);
+    else p.drinksLeft = Math.min(p.drinksLeft, 1);
+  }
+  log(w, 'event', `Closing up at ${t.name}: the last patrons are finishing.`, t.city);
+}
+
+/**
+ * End of a shift. Closing time normally waits for everyone to leave; anyone
+ * still here (the wait ran out, or the bell was never rung) goes home now.
  */
 function settleShift(w: World, c: Content, f: FloorState, t: Tavern): void {
-  const inside = f.patrons.filter((p) => p.state !== 'gone' && p.state !== 'leaving');
+  const inside = patronsInside(f);
   const rung = f.lastCallRung;
-  if (!rung && inside.length > 3) {
-    const co = w.companies[t.companyId]!;
-    const mult = t.city === 'providence' ? 2 : 1;
-    const fine = Math.round(c.floor.lastCallStragglerFine * mult * (inside.length - 3));
-    spend(co, fine, 'other', 'Fines', `Stragglers after closing at ${t.name} (bell not rung)`);
-    if (t.city === 'providence' && co.isPlayer) w.institutions.church = clamp(w.institutions.church - 1, -100, 100);
-    fx(w, 'thud', DOOR.x, DOOR.y - 1, fine);
-  }
+  if (!rung) strayFine(w, c, t, inside.length);
   for (const inc of [...f.incidents]) failBrawl(w, c, f, t, inc);
   if (rung) {
     for (const p of inside) {
       if (p.state === 'sneaking') steal(w, c, f, t, p);
-      else if (p.state === 'waiting' || p.state === 'arriving') leave(w, c, f, t, p, false, true);
-      else {
-        p.drinksLeft = Math.min(p.drinksLeft, 1);
-        p.claimedBy = 0;
-      }
+      else leave(w, c, f, t, p, false, true);
     }
-    f.patrons = f.patrons.filter((p) => p.state !== 'gone');
+    for (const p of f.patrons) p.state = 'gone';
+    f.patrons = [];
   } else {
     for (const p of inside) {
       if (p.state === 'sneaking') steal(w, c, f, t, p);
@@ -918,6 +945,7 @@ function settleShift(w: World, c: Content, f: FloorState, t: Tavern): void {
   }
   f.incidents = [];
   f.lastCallRung = false;
+  f.closingSince = undefined;
   for (const wk of f.workers) {
     releaseTask(f, wk);
     wk.queue = [];

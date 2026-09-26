@@ -5,10 +5,16 @@
 
 var LC_CITIES = ['aleforge', 'shanty', 'providence', 'roto'];
 var LC_CATEGORIES = ['standard', 'assisted', 'ngplus'];
-var LC_WIN_TYPES = ['monopoly', 'sponsor'];
+var LC_RESULTS = ['monopoly', 'sponsor', 'lost', 'bankrupt'];
 
 function lcIsNum(n) {
   return typeof n === 'number' && isFinite(n) && n >= 0;
+}
+
+/** "v1.5" -> 'pre' (testing records); "v2.0" and later -> 'official'. */
+function lcEraOf(version) {
+  var m = /^v(\d+)\./.exec(String(version || ''));
+  return m && Number(m[1]) >= 2 ? 'official' : 'pre';
 }
 
 /** Returns null when the record is acceptable, else a short reason. */
@@ -18,22 +24,27 @@ function lcValidateRecord(r, opts) {
   if (typeof r.runId !== 'string' || !/^[A-Za-z0-9-]{6,64}$/.test(r.runId)) return 'bad runId';
   if (typeof r.clientId !== 'string' || !/^[A-Za-z0-9-]{6,64}$/.test(r.clientId)) return 'bad clientId';
   if (typeof r.name !== 'string' || !/^[A-Za-z0-9 _.'-]{1,16}$/.test(r.name) || !/[A-Za-z0-9]/.test(r.name)) return 'bad name';
+  if (typeof r.tavernName !== 'string' || !/^[A-Za-z0-9 _.'&-]{1,28}$/.test(r.tavernName) || !/[A-Za-z0-9]/.test(r.tavernName)) return 'bad tavern name';
   if (LC_CITIES.indexOf(r.homeCity) < 0) return 'bad homeCity';
   if (LC_CATEGORIES.indexOf(r.category) < 0) return 'bad category';
-  if (LC_WIN_TYPES.indexOf(r.winType) < 0) return 'bad winType';
-  if (typeof r.build !== 'string' || r.build.length > 24) return 'bad build';
-  if (opts.allowedBuilds && opts.allowedBuilds.length && opts.allowedBuilds.indexOf(r.build) < 0) return 'build not allowed';
+  if (LC_RESULTS.indexOf(r.result) < 0) return 'bad result';
+  if (typeof r.version !== 'string' || !/^v\d+\.\d+$/.test(r.version)) return 'bad version';
+  if (opts.allowedVersions && opts.allowedVersions.length) {
+    var ok = false;
+    for (var v = 0; v < opts.allowedVersions.length; v++) if (r.version.indexOf(opts.allowedVersions[v]) === 0) ok = true;
+    if (!ok) return 'version not allowed';
+  }
   var nums = ['finalCV', 'peakCV', 'simMs', 'realMs', 'pauses', 'sessions'];
   for (var i = 0; i < nums.length; i++) if (!lcIsNum(r[nums[i]])) return 'bad ' + nums[i];
   if (r.finalCV > 1e9 || r.peakCV > 1e9) return 'implausible CV';
   if (r.peakCV < r.finalCV * 0.5) return 'peak below final';
-  var maxSim = opts.maxSimMs || 4000000;
+  var maxSim = opts.maxSimMs || 6000000;
   if (r.simMs <= 0 || r.simMs > maxSim) return 'bad run length';
   if (r.realMs < r.simMs * 0.99) return 'clock mismatch';
-  if (r.winType === 'monopoly') {
+  if (r.result === 'monopoly') {
     if (!lcIsNum(r.monopolyMs) || r.monopolyMs <= 0 || r.monopolyMs > r.simMs + 100) return 'bad monopoly time';
     if (opts.minMonopolyMs && r.monopolyMs < opts.minMonopolyMs) return 'implausibly fast';
-  } else if (opts.minSponsorMs && r.simMs < opts.minSponsorMs) {
+  } else if (r.result === 'sponsor' && opts.minSponsorMs && r.simMs < opts.minSponsorMs) {
     return 'sponsor before the verdict';
   }
   var s = r.splits || {};
@@ -52,5 +63,5 @@ function lcSanitizeCell(v) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { lcValidateRecord: lcValidateRecord, lcSanitizeCell: lcSanitizeCell, LC_CITIES: LC_CITIES, LC_CATEGORIES: LC_CATEGORIES };
+  module.exports = { lcValidateRecord: lcValidateRecord, lcSanitizeCell: lcSanitizeCell, lcEraOf: lcEraOf, LC_CITIES: LC_CITIES, LC_CATEGORIES: LC_CATEGORIES, LC_RESULTS: LC_RESULTS };
 }

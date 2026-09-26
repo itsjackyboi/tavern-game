@@ -6,14 +6,14 @@ import { closeSeason, closeYear, repayLoan, takeLoan, updateCV } from './company
 import { updateDemand, updatePrices } from './economy/market.ts';
 import { orderKegs, spoilKegs, stepOrders } from './economy/orders.ts';
 import { onLastCall, onSegmentStart, raiseRequests } from './events.ts';
-import { applyFloorCommand, stepFloor, type FloorCommand } from './floor/floor.ts';
+import { applyFloorCommand, closeUp, patronsInside, stepFloor, type FloorCommand } from './floor/floor.ts';
 import { player } from './lookup.ts';
 import { enterFreeplay, foundTavern, stepLifecycle, stepRun } from './network.ts';
 import { answerPrompt, stepPrompts } from './prompts.ts';
 import { seasonRivals, stepRivals } from './rivals.ts';
 import { ship, stepShipping } from './shipping.ts';
 import { fireStaff, giveRaise, hireManager, hireStaff, seasonStaff, trainStaff } from './staff.ts';
-import { calendarAt } from './time.ts';
+import { calNow, calTick, calendarAt, type Calendar } from './time.ts';
 import type { World } from './types.ts';
 import { cultureWinds, seasonUndercurrents, yearUndercurrents } from './undercurrents.ts';
 
@@ -59,8 +59,37 @@ export function applyCommand(w: World, c: Content, cmd: Command): string {
   }
 }
 
-function segmentKey(cal: ReturnType<typeof calendarAt>): string {
+function segmentKey(cal: Calendar): string {
   return `${cal.year}:${cal.segment}`;
+}
+
+/** Longest the calendar waits at closing time for the last patrons (45 s). */
+export const CLOSING_HOLD_MAX = 900;
+
+/**
+ * Closing time: at the very end of a shift, if the focused floor still has
+ * patrons inside, the calendar waits (the doors close) until they've left or
+ * the wait runs out. Only the floor and a few bookkeeping systems run, so the
+ * rest of the Isles doesn't get free time.
+ */
+function holdForClosing(w: World, c: Content): boolean {
+  const f = w.floor;
+  if (!f) return false;
+  // The calendar tick we'd be leaving: is it the last one of its segment?
+  const prev = calendarAt(calTick(w) - 1, c.time);
+  if (prev.segmentTick !== prev.segmentTicks - 1) return false;
+  if (patronsInside(f).length === 0) return false;
+  if (f.closingSince !== undefined && w.tick - f.closingSince >= CLOSING_HOLD_MAX) return false;
+  w.clockHold = (w.clockHold ?? 0) + 1;
+  closeUp(w, c);
+  if (w.tick % 20 === 1) {
+    stepOrders(w, c);
+    stepPrompts(w, c);
+    updateCV(w, c);
+    stepRun(w, c);
+  }
+  stepFloor(w, c);
+  return true;
 }
 
 export function stepWorld(w: World, c: Content, cmds: readonly Command[]): CommandResult[] {
@@ -70,7 +99,8 @@ export function stepWorld(w: World, c: Content, cmds: readonly Command[]): Comma
   if (status === 'won' || status === 'lost' || status === 'bankrupt') return results;
 
   w.tick += 1;
-  const cal = calendarAt(w.tick, c.time);
+  if (holdForClosing(w, c)) return results;
+  const cal = calNow(w, c.time);
 
   // Segment boundaries: close the old season/year, open the new one.
   const key = segmentKey(cal);

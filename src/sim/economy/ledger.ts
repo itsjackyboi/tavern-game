@@ -1,6 +1,6 @@
 import type { Content, Segment } from '../../content/schema.ts';
 import { cityOf, clamp, prefOf, drinkOf, drinkQuality, tavernUpgradeSum, type ModTotals } from '../lookup.ts';
-import { calendarAt } from '../time.ts';
+import { calNow } from '../time.ts';
 import type { Company, Ledger, Tavern, World } from '../types.ts';
 
 // The only place money moves (docs/PLAN.md §4). Floor and aggregate sims both
@@ -105,5 +105,5 @@ export function applyVisitRep(w: World, c: Content, t: Tavern, sat: number, qual
 }
 
 export function isNightNow(w: World, c: Content): boolean {
-  return calendarAt(w.tick, c.time).isNight;
+  return calNow(w, c.time).isNight;
 }

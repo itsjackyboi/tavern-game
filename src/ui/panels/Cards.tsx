@@ -59,7 +59,7 @@ export function Card({ ctrl, p, hotkeys }: { ctrl: GameController; p: ActiveProm
                 {isDefault && <span class="opt-default">if you wait</span>}
                 {o.cost !== undefined && <span class="cost">{o.cost}◉{o.favorCost ? ` or ${o.favorCost}⚓` : ''}</span>}
               </span>
-              <span class="opt-effects">{effectLines(c, o.effects, true).filter((l) => !(o.cost !== undefined && l === `−${o.cost} Duckets`)).join(' · ') || (o.cost !== undefined ? 'Just the cost' : 'Nothing happens')}</span>
+              <span class="opt-effects">{[o.hint, ...effectLines(c, o.effects, true).filter((l) => !(o.cost !== undefined && l === `−${o.cost} Duckets`))].filter(Boolean).join(' · ') || (o.cost !== undefined ? 'Just the cost' : 'Nothing happens')}</span>
             </button>
           );
         })}

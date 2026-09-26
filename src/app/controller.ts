@@ -1,7 +1,7 @@
 import type { CityId, Content } from '../content/schema.ts';
 import type { Command } from '../sim/commands.ts';
 import { applyCommand, stepWorld, type CommandResult } from '../sim/step.ts';
-import { calendarAt } from '../sim/time.ts';
+import { calNow } from '../sim/time.ts';
 import { createWorld, type World } from '../sim/world.ts';
 import { clearSave, contentHash, writeSave, writeSaveSync, type SaveFile } from './save.ts';
 
@@ -29,6 +29,7 @@ export interface NewRunConfig {
   seed: string;
   homeCity: CityId;
   tavernName?: string;
+  playerName?: string;
   timerScale?: number;
   ngPlus?: number;
   debug?: boolean;
@@ -75,7 +76,7 @@ export class GameController {
       this.tutorial = !!cfg.tutorial;
       if (this.tutorial) this.autosave = false;
       this.world = createWorld(
-        { seed: cfg.seed, homeCity: cfg.homeCity, tavernName: cfg.tavernName, timerScale: cfg.timerScale, ngPlus: cfg.ngPlus },
+        { seed: cfg.seed, homeCity: cfg.homeCity, tavernName: cfg.tavernName, playerName: cfg.playerName, timerScale: cfg.timerScale, ngPlus: cfg.ngPlus },
         content,
       );
     }
@@ -98,7 +99,7 @@ export class GameController {
   }
 
   calendar() {
-    return calendarAt(this.world.tick, this.content.time);
+    return calNow(this.world, this.content.time);
   }
 
   subscribe(fn: Listener): () => void {

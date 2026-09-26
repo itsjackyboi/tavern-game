@@ -130,46 +130,73 @@ test('map view, drawers and the sim keep running across views', async ({ page })
   expect(errors).toEqual([]);
 });
 
-test('monopoly win → end screen → leaderboard (mock board)', async ({ page }) => {
-  await startRun(page, 'debug&seed=mono&lbmock=ok');
+/** Starts a run with the innkeeper and tavern names filled in on the home page. */
+async function startNamedRun(page: Page, query: string, innkeeper: string, tavern: string): Promise<void> {
+  await page.goto(`/?${query}`);
+  await page.getByTestId('innkeeper-name').fill(innkeeper);
+  await page.getByTestId('tavern-name').fill(tavern);
+  await page.getByTestId('play').click();
+  await expect(page.locator('[data-testid="board"] canvas')).toBeVisible();
+  await page.waitForFunction(() => (window.__game?.tick() ?? 0) > 5);
+}
+
+test('monopoly win → recorded automatically → on the pre-release top ten (mock board)', async ({ page }) => {
+  await startNamedRun(page, 'debug&seed=mono&lbmock=ok', 'Tester', "Tester's Tap");
   await page.evaluate(() => {
     window.__game!.grant(1_000_000);
     window.__game!.step(4000);
   });
   await expect(page.getByTestId('end-screen')).toBeVisible();
   await expect(page.getByTestId('end-screen')).toContainText('State sanctioned monopoly!');
-  await expect(page.getByTestId('end-screen')).toContainText('has been chosen as the official brewer');
+  await expect(page.getByTestId('end-screen')).toContainText("Tester's Tap has been chosen as the official brewer");
   await expect(page.getByTestId('end-stats')).toContainText('Company Value');
   expect(await page.evaluate(() => window.__game!.status())).toBe('won');
-
-  await page.getByTestId('lb-name').fill('Tester');
-  await page.getByTestId('lb-submit').click();
-  await expect(page.getByTestId('lb-submit')).toHaveText('On the board!');
+  // No button to press: the run is sent the moment it ends.
+  await expect(page.getByTestId('run-status')).toContainText('Run recorded in the pre-release records');
   await page.screenshot({ path: `${SHOTS}/end-monopoly.png`, animations: 'disabled' });
 
-  // A win unlocks NG+ on the title screen.
+  // A win unlocks NG+ on the title screen, and the names are remembered.
   await page.getByTestId('return-menu').click();
   await expect(page.getByText('NG+')).toBeVisible();
+  await expect(page.getByTestId('innkeeper-name')).toHaveValue('Tester');
+  await expect(page.getByTestId('tavern-name')).toHaveValue("Tester's Tap");
+  await page.screenshot({ path: `${SHOTS}/title-names.png`, animations: 'disabled' });
 
   await page.getByTestId('open-leaderboard').click();
   const board = page.getByTestId('leaderboard');
-  await expect(board).toContainText('Tester');
+  await expect(page.getByTestId('era-pre')).toHaveClass(/on/);
+  await expect(page.getByTestId('board-monopoly')).toContainText('Tester');
+  await expect(page.getByTestId('board-monopoly')).toContainText("Tester's Tap");
+  await expect(page.getByTestId('board-sponsor')).toContainText('No runs yet');
   await page.screenshot({ path: `${SHOTS}/leaderboard.png`, animations: 'disabled' });
-  await board.getByRole('button', { name: 'Highest Company Value' }).click();
-  await expect(board).toContainText('Tester');
+  await page.getByTestId('era-official').click();
+  await expect(board).toContainText('Official records begin with v2.0');
+  await expect(page.getByTestId('board-monopoly')).toContainText('No runs yet');
 });
 
-test('leaderboard failures queue the run instead of losing it', async ({ page }) => {
-  await startRun(page, 'debug&seed=fail&lbmock=fail');
+test('a failed send queues the run instead of losing it', async ({ page }) => {
+  await startNamedRun(page, 'debug&seed=fail&lbmock=fail', 'Offline', 'The Dry Well');
   await page.evaluate(() => {
     window.__game!.grant(1_000_000);
     window.__game!.step(4000);
   });
-  await page.getByTestId('lb-name').fill('Offline');
-  await page.getByTestId('lb-submit').click();
-  await expect(page.getByTestId('lb-submit')).toHaveText('Queued, will retry');
+  await expect(page.getByTestId('run-status')).toContainText('queued');
   const queued = await page.evaluate(() => JSON.parse(localStorage.getItem('last-call:outbox') ?? '[]').length);
   expect(queued).toBe(1);
+});
+
+test('a run without a name asks for one at the end', async ({ page }) => {
+  await page.goto('/?debug&seed=noname&lbmock=ok');
+  await page.getByTestId('innkeeper-name').fill('');
+  await page.getByTestId('play').click();
+  await page.waitForFunction(() => (window.__game?.tick() ?? 0) > 5);
+  await page.evaluate(() => {
+    window.__game!.grant(1_000_000);
+    window.__game!.step(4000);
+  });
+  await page.getByTestId('lb-name').fill('Late Name');
+  await page.getByTestId('lb-submit').click();
+  await expect(page.getByTestId('run-status')).toContainText('Run recorded');
 });
 
 test('a run survives a reload and resumes paused', async ({ page }) => {
@@ -201,9 +228,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.4');
+  await expect(page.getByTestId('version')).toHaveText('v1.5');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.4');
+  await expect(page.getByTestId('version')).toHaveText('v1.5');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {
@@ -310,4 +337,14 @@ test('a new brew chimes and says so; a dud batch is just crossed off', async ({ 
   await drawer.getByRole('button', { name: /Brew a test batch/ }).click();
   await expect(drawer.getByTestId('brew-result')).toContainText('Nothing new');
   await expect(page.locator('.toast-error')).toHaveCount(0);
+});
+
+test('the hired-thugs decision says what each choice does', async ({ page }) => {
+  await startRun(page, 'debug&seed=thugs');
+  await page.evaluate(() => window.__game!.prompt('rival-thugs'));
+  const card = page.locator('[data-testid="prompt-card"]').filter({ hasText: 'Thugs hired against you' });
+  await expect(card).toContainText('Post extra doormen');
+  await expect(card).toContainText('The gang is kept out');
+  await expect(card).toContainText('Let them come');
+  await expect(card).toContainText('brawls +90%');
 });

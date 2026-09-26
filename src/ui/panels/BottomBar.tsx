@@ -1,5 +1,5 @@
 import type { GameController } from '../../app/controller.ts';
-import { calendarAt } from '../../sim/time.ts';
+import { calNow } from '../../sim/time.ts';
 import { APP_VERSION } from '../../version.ts';
 import { drawer, sound, uiFrame, type DrawerId } from '../bus.ts';
 import { vm } from '../vm.ts';
@@ -11,7 +11,7 @@ const BUTTONS: Array<[Exclude<DrawerId, null | 'city'>, string, string]> = [
 export function BottomBar({ ctrl }: { ctrl: GameController }) {
   void uiFrame.value;
   const w = ctrl.world;
-  const cal = calendarAt(w.tick, ctrl.content.time);
+  const cal = calNow(w, ctrl.content.time);
   const lastCall = cal.phase === 'lastCall' && !!w.floor && !w.floor.lastCallRung;
   const alerts = vm.value?.floorAlerts ?? 0;
   return (
@@ -31,7 +31,7 @@ export function BottomBar({ ctrl }: { ctrl: GameController }) {
         </button>
       ))}
       <button class={`btn bell ${lastCall ? 'ring' : ''}`} disabled={!lastCall} onClick={() => ctrl.dispatch({ type: 'ringBell' })} title="Ring the Last Call bell (B)">
-        <kbd>B</kbd> 🔔 Last Call
+        <kbd>B</kbd> 🔔 {w.floor?.closingSince !== undefined ? 'Closing…' : 'Last Call'}
       </button>
       <span class="version-tag" data-testid="version">{APP_VERSION}</span>
     </footer>

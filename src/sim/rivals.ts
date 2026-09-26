@@ -8,7 +8,7 @@ import {
 import { closeTavern, lotsFree, rivalFound } from './network.ts';
 import { spawnPrompt } from './prompts.ts';
 import { chance, pick, rand } from './rng.ts';
-import { calendarAt } from './time.ts';
+import { calNow } from './time.ts';
 import type { Company, Tavern, World } from './types.ts';
 import { makeStaff } from './world.ts';
 
@@ -152,7 +152,7 @@ function intelReports(w: World, c: Content): void {
 }
 
 function actTier(w: World, c: Content, co: Company): 0 | 1 | 2 {
-  const year = calendarAt(w.tick, c.time).year;
+  const year = calNow(w, c.time).year;
   let tier: number = co.rival?.tier ?? 0;
   const mine = playerTaverns(w);
   if (year >= c.rivalTuning.act2Year || mine.length >= 2) tier = Math.max(tier, 1);
@@ -373,7 +373,7 @@ export function seasonRivals(w: World, c: Content): void {
 /** 1 Hz: each rival company acts on its own schedule. */
 export function stepRivals(w: World, c: Content): void {
   if (w.tick % c.rivalTuning.decisionTicks === 0) updateTracking(w, c);
-  const year = calendarAt(w.tick, c.time).year;
+  const year = calNow(w, c.time).year;
   const actIdx = year >= c.rivalTuning.act3Year ? 2 : year >= c.rivalTuning.act2Year ? 1 : 0;
   for (const co of Object.values(w.companies)) {
     const brain = co.rival;

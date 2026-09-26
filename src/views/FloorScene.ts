@@ -7,7 +7,7 @@ import {
   BAR_ROW, BAR_X0, BAR_X1, CELLAR, DOOR, GRID_H, GRID_W, STAGE, TILL, dist, pourPos, seatPos,
 } from '../sim/floor/layout.ts';
 import { drinkOf } from '../sim/lookup.ts';
-import { calendarAt } from '../sim/time.ts';
+import { calNow } from '../sim/time.ts';
 import type { FloorState, Patron, Worker } from '../sim/types.ts';
 import { hover, sound, tutorialTarget } from '../ui/bus.ts';
 
@@ -190,7 +190,7 @@ export class FloorScene extends Phaser.Scene {
     this.buildStatic(f);
     const t = w.taverns[f.tavernId]!;
     const c = this.ctrl.content;
-    const cal = calendarAt(w.tick, c.time);
+    const cal = calNow(w, c.time);
     const g = this.gfx;
     g.clear();
     this.labelIdx = 0;
@@ -315,6 +315,7 @@ export class FloorScene extends Phaser.Scene {
     this.tint.setFillStyle(cal.phase === 'holiday' ? 0x5a2a00 : th.night, alpha);
     let banner = '';
     if (w.tick < t.closedUntil) banner = 'DOORS SHUT';
+    else if (f.closingSince !== undefined) banner = `CLOSING UP - ${f.patrons.filter((p) => p.state !== 'leaving' && p.state !== 'gone').length} FINISHING`;
     else if (cal.phase === 'lastCall') banner = f.lastCallRung ? 'DOORS CLOSED - LAST ORDERS' : 'LAST CALL - RING THE BELL (B)';
     else if (cal.segment === 'holidayKeg') banner = 'HOLIDAY KEG';
     else if (w.focus.view !== 'floor') banner = '';

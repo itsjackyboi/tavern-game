@@ -1,75 +1,62 @@
-# Shared leaderboard (Google Sheets + Apps Script)
+# Connecting the leaderboard (Google Sheets + Apps Script)
 
-The game runs without this. Until a URL is set, winning runs are kept on the
-player's own device. These steps set up the shared board. They follow the
-same pattern as the Mario project's board, with extra hardening.
+It takes about 5 minutes. The game works without this; until it's connected,
+runs are saved on each player's own device.
 
-## One-time setup
+## How it's organised (like the Mario board)
 
-1. Create a new Google Sheet, for example "Last Call leaderboard".
-2. In the Sheet, open **Extensions → Apps Script**.
-3. Delete the starter code. Paste in the whole of `gas/Code.gs` from this repo.
-   It is generated, so don't edit it by hand. After changing
-   `gas/Code.template.gs` or `src/leaderboard/shared/validate.js`, run
-   `npm run build-gas`.
-4. **Project Settings → Script Properties → Add script property:**
-   - `ALLOWED_BUILDS` = `lc-1.0`
-   - Use a comma-separated list for more than one build. It must include the
-     `BUILD` value in `src/leaderboard/config.ts`.
-   - If you leave it empty, every build is accepted.
-5. **Deploy → New deployment**, then pick the type **Web app**:
+- **`runs` tab:** every finished run is logged here: wins, losses and
+  bankruptcies. Each row has the innkeeper and tavern names, home city, result,
+  times, Company Value, version and more. This is the full record.
+- **`Pre Release Records` tab:** the top ten **Fastest Monopoly** and the top ten
+  **Sponsored the Trials** (by Company Value) from **v1.x** builds, i.e. the
+  current testing phase.
+- **`Official Records` tab:** the same two top tens from **v2.0 onwards**. It
+  starts filling itself the day the game's version reaches v2.0. Nothing to
+  change here.
+- The in-game Leaderboards window shows both, with Official and Pre-release
+  tabs.
+
+## Set it up
+
+1. Create a new **Google Sheet**, e.g. "Last Call leaderboard".
+2. **Extensions → Apps Script.** Delete the starter code and paste in the whole
+   of [`gas/Code.gs`](Code.gs). Save.
+3. **Deploy → New deployment**. Click the gear and choose **Web app**:
    - Execute as: **Me**
    - Who has access: **Anyone**
-6. Authorise it when prompted. The script only touches this one Sheet
-   (`@OnlyCurrentDoc`).
-7. Copy the **Web app URL**; it ends in `/exec`. Paste it into
-   `src/leaderboard/config.ts` as `LEADERBOARD_URL`, then commit and push. The
-   Pages build picks it up.
 
-The script creates a `runs` tab with a header row on the first submission.
+   Then click **Deploy** and **Authorise**. Google warns that the app is
+   unverified: choose Advanced → Go to (project). The script can only touch this
+   one Sheet.
+4. Copy the **Web app URL**; it ends in `/exec`.
+5. Send me the URL and I'll put it in and publish. Or edit
+   `src/leaderboard/config.ts` yourself: `export const LEADERBOARD_URL = 'https://script.google.com/macros/s/…/exec';`
+   The tabs create themselves on the first run that comes in.
 
-## Updating the script later
+## Later
 
-Use **Deploy → Manage deployments → (pencil) Edit → Version: New version → Deploy**.
-This keeps the same `/exec` URL. A brand-new deployment would change the URL,
-and the game would stop reaching the board.
-
-## Moderation
-
-- The `runs` tab is append-only.
-- To hide a run, put anything in its `hidden` column. Boards are cached for up
-  to 60 seconds, so the change takes a minute to show.
-- When a balance change makes old runs incomparable:
-  - bump `BUILD` in `src/leaderboard/config.ts`;
-  - set `ALLOWED_BUILDS` to the new value.
-  Old rows stay in the Sheet but no longer accept new submissions under the old build.
+- **Updating the script:** use **Deploy → Manage deployments → ✏️ Edit → Version: New
+  version → Deploy**. This keeps the same URL. A brand-new deployment gets a new URL.
+- **Hiding a run:** type anything in its `hidden` column in `runs`, then visit
+  `…/exec?rebuild=1` to redraw the record tabs. Boards are cached for about a minute.
+- **Locking out old builds (optional):** Project Settings → Script Properties
+  → `ALLOWED_VERSIONS` = `v2.`. That accepts v2.x only; a comma-separated list
+  of prefixes is also allowed.
+- **Going official:** when the game's version becomes **v2.0** (`src/version.ts`),
+  new runs land in `Official Records`. The v1 runs stay in
+  `Pre Release Records` as a keepsake.
 
 ## What the server checks
 
-The server uses the same shared validation as the client (`validate.js`). On
-top of that it:
-- enforces the build allowlist;
-- rejects monopolies faster than 8 minutes;
-- rejects sponsorship wins before the 50-minute mark (the Year-463 verdict comes about 54 minutes in);
-- escapes formula characters in every text cell;
-- limits one run per client per minute and 30 runs a minute overall;
-- rejects duplicate run IDs;
-- takes a script lock around writes.
+- It uses the same validation as the game (`src/leaderboard/shared/validate.js`).
+- Monopolies faster than 8 minutes and sponsorships before the 50-minute mark
+  are rejected.
+- Formula characters are escaped in every text cell.
+- Rate limits: one run per player a minute, and 30 a minute overall.
+- Duplicate runs are ignored.
+- Writes happen under a script lock.
 
-This is honest-mode protection. A static game can't stop a determined cheat,
-but it keeps out junk and spreadsheet injection.
-
-## Endpoints
-
-- `POST` (body: the run record as JSON, sent as `text/plain` to avoid a CORS
-  preflight) returns one of:
-  - `{"ok":true}`
-  - `{"ok":false,"error":"…"}`
-  - `{"ok":false,"retry":true,"error":"…"}` (the client's outbox retries these with backoff)
-- `GET ?board=monopoly|cv&cat=overall|aleforge|shanty|providence|roto|assisted|ngplus&n=25`
-  returns `{"rows":[{rank,name,homeCity,value,winType,date}]}`
-
-`tests/gas/code.test.ts` runs `Code.gs` against a small shim of the Apps
-Script services. `script.google.com` can't be reached from CI, so check the
-live board once by hand after deploying: open the game with the URL set, win
-a debug-free run, and submit it.
+It's honest-mode protection: enough to keep junk and spreadsheet tricks out.
+`tests/gas/code.test.ts` runs the script against a stand-in for Google's
+services in CI.

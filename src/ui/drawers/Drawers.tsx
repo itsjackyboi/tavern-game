@@ -10,7 +10,7 @@ import {
   cityOf, drinkOf, drinkQuality, idx, ingredientPrice, kegCost, modsFor, player, playerTaverns, prefOf, servingPrice, staffAt, upgradeCount,
 } from '../../sim/lookup.ts';
 import { FOUND_MIN_REP, canFound, foundingCost, lotsFree, networkRep } from '../../sim/network.ts';
-import { calendarAt } from '../../sim/time.ts';
+import { calNow } from '../../sim/time.ts';
 import { INSURANCE_RATE, lossChance, travelTicks } from '../../sim/shipping.ts';
 import { hireCost, trainCost } from '../../sim/staff.ts';
 import type { Tavern } from '../../sim/types.ts';
@@ -235,7 +235,7 @@ function SalesPanel({ ctrl }: { ctrl: GameController }) {
   const t = focusTavern(ctrl);
   if (!t) return null;
   const onTap = t.menu.slice(0, t.taps);
-  const night = calendarAt(w.tick, c.time).isNight;
+  const night = calNow(w, c.time).isNight;
   const sold = (id: string) => (t.kpi.byDrink[id] ?? 0) + (t.lastKpi?.byDrink[id] ?? 0);
   const total = onTap.reduce((sum, m) => sum + sold(m.drinkId), 0);
   const segs = Object.entries(t.demand.segRates).map(([id, rate]) => [c.segments.find((x) => x.id === id)!, rate] as const).filter(([seg]) => !!seg);

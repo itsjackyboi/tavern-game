@@ -4,7 +4,7 @@ import {
   availableDrinks, cityOf, prefOf, clamp, drinkOf, drinkQuality, idx, isOpenNow, managerOf, modsFor, seats, servingPrice,
   staffAt, tavernUpgradeSum,
 } from './lookup.ts';
-import { calendarAt } from './time.ts';
+import { calNow } from './time.ts';
 import type { Staff, Tavern, World } from './types.ts';
 
 // Equation-level simulation for every tavern that isn't on screen (1 Hz).
@@ -61,7 +61,7 @@ export function stepAggregate(w: World, c: Content, t: Tavern): void {
     t.agg.backlog = 0;
     return;
   }
-  const cal = calendarAt(w.tick, c.time);
+  const cal = calNow(w, c.time);
   const mods = modsFor(w, c, t);
   const city = cityOf(c, t.city);
   const drinks = availableDrinks(w, c, t, mods).filter((d) => (t.tapLevels[d] ?? 0) + (t.cellar[d] ?? 0) > 0);

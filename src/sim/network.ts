@@ -4,7 +4,7 @@ import { spend } from './economy/ledger.ts';
 import { log } from './log.ts';
 import { cityOf, clamp, player, playerTaverns, seasonTicks, upgradeCount } from './lookup.ts';
 import { makeStaff, makeTavern, startMenu } from './world.ts';
-import { calendarAt, endTick } from './time.ts';
+import { calNow, endTick, calTick } from './time.ts';
 import type { Tavern, World } from './types.ts';
 
 // Founding sisters, tavern lifecycles, milestones, monopoly, the Year-463
@@ -148,7 +148,7 @@ export function stepRun(w: World, c: Content): void {
   const next = ranked[0]?.cv ?? 0;
   if (me.cv > next && run.splits.firstNo1 === null) run.splits.firstNo1 = w.tick;
 
-  const cal = calendarAt(w.tick, c.time);
+  const cal = calNow(w, c.time);
   const grace = c.economy.monopolyGraceSeasons * seasonTicks(c);
   if (w.tick >= grace && me.cv > 0 && me.cv >= c.economy.monopolyRatio * Math.max(next, 1)) {
     run.status = 'won';
@@ -174,7 +174,7 @@ export function stepRun(w: World, c: Content): void {
     }
   } else run.lowCashSince = null;
 
-  if (w.tick >= endTick(c.time) && !run.verdictDone) {
+  if (calTick(w) >= endTick(c.time) && !run.verdictDone) {
     run.verdictDone = true;
     const allFour = CITY_IDS.every((city) => establishedIn(w, me.id).has(city));
     const top = me.cv > next;

@@ -2,7 +2,7 @@ import type {
   Category, City, CityId, Content, Drink, Ingredient, IngredientId, ModifierDef, Prompt, Segment, Upgrade,
 } from '../content/schema.ts';
 import type { Company, Tavern, World } from './types.ts';
-import { calendarAt } from './time.ts';
+import { calNow } from './time.ts';
 
 // Memoised content indexes plus small pure helpers shared by every system.
 
@@ -201,7 +201,7 @@ export function servingPrice(c: Content, t: Tavern, drinkId: string, mods: ModTo
 
 /** Drinks that can be sold right now at this tavern (menu, bans, contraband is allowed but risky, taboo by night in Roto). */
 export function availableDrinks(w: World, c: Content, t: Tavern, mods: ModTotals): string[] {
-  const cal = calendarAt(w.tick, c.time);
+  const cal = calNow(w, c.time);
   const city = cityOf(c, t.city);
   return t.menu
     .map((m) => m.drinkId)

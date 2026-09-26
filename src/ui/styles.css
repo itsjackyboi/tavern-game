@@ -931,3 +931,23 @@ body[data-tut='drawers'] .bottom-bar .btn:not(.view-toggle):not(.bell) { animati
 .brew-result.found { color: var(--gold); }
 .recipe-new { background: rgba(233, 162, 59, 0.12); border-radius: 3px; padding: 4px 6px; animation: feed-glow 1.4s ease-in-out 3; }
 .new-tag { font-family: var(--font-mini); font-size: 10px; background: var(--gold); color: #1b1108; padding: 0 4px; border-radius: 2px; margin-right: 6px; vertical-align: 2px; }
+
+/* v1.5: names panel and leaderboards */
+.who-panel {
+  width: min(560px, 94vw); background: rgba(36, 26, 18, 0.9); border: 3px solid var(--panel-edge); border-radius: 6px;
+  padding: 10px 18px 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.who-panel h2 { margin: 0; font-weight: normal; color: var(--gold); font-size: 26px; text-align: center; }
+.big-field { display: flex; flex-direction: column; gap: 4px; font-size: 20px; }
+.big-field small { color: var(--muted); font-size: 15px; }
+.big-field input { font-size: 26px; padding: 6px 10px; border-width: 3px; }
+.big-field input:focus { outline: 2px solid var(--gold); }
+.lb-card { width: min(980px, 100%); }
+.lb-boards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 6px; }
+.lb-board h3 { margin: 4px 0; font-weight: normal; color: var(--gold); font-size: 20px; }
+.lb-table td .tag { margin-left: 6px; }
+.run-status { text-align: center; font-size: 18px; }
+.run-status.state-sent { color: #1f5aa8; }
+.run-status.state-queued { color: #a8421a; }
+@media (max-width: 760px) { .lb-boards { grid-template-columns: 1fr; } }
+.pause-who { display: block; color: var(--parchment); margin-top: 4px; }

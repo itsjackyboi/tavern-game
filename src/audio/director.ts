@@ -1,6 +1,6 @@
 import type { GameController } from '../app/controller.ts';
 import { idx } from '../sim/lookup.ts';
-import { calendarAt } from '../sim/time.ts';
+import { calNow } from '../sim/time.ts';
 import { onSound } from '../ui/bus.ts';
 import { audio } from './engine.ts';
 
@@ -16,7 +16,7 @@ export function bindAudio(ctrl: GameController): () => void {
     const w = ctrl.world;
     const c = ctrl.content;
     const t = w.taverns[w.focus.tavernId];
-    const cal = calendarAt(w.tick, c.time);
+    const cal = calNow(w, c.time);
     let song: string | null = 'world';
     if (w.focus.view === 'floor' && t) {
       if (t.city === 'providence') song = cal.isNight ? 'providence-night' : 'providence-day';

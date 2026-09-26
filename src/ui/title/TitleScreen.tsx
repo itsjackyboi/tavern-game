@@ -3,15 +3,16 @@ import type { SaveFile } from '../../app/save.ts';
 import { PALETTES } from '../../art/palettes.ts';
 import type { CityId, Content } from '../../content/schema.ts';
 import { cityOf } from '../../sim/lookup.ts';
+import { savedName, saveName } from '../../leaderboard/outbox.ts';
 import { LeaderboardView } from '../leaderboard/LeaderboardPanel.tsx';
 import { APP_VERSION } from '../../version.ts';
 import { TUTORIAL_DONE_KEY } from '../tutorial/Tutorial.tsx';
 import { SealedLetter, type LetterState } from './SealedLetter.tsx';
 
 export type TitleChoice =
-  | { kind: 'new'; city: CityId; tavernName: string; timerScale: number; ngPlus: number }
+  | { kind: 'new'; city: CityId; tavernName: string; playerName: string; timerScale: number; ngPlus: number }
   | { kind: 'continue'; save: SaveFile }
-  | { kind: 'tutorial'; tavernName: string };
+  | { kind: 'tutorial'; tavernName: string; playerName: string };
 
 const CITY_BLURB: Record<CityId, string> = {
   aleforge: '+ cheap, high-quality ale · − high rent, crowded',
@@ -21,6 +22,10 @@ const CITY_BLURB: Record<CityId, string> = {
 };
 
 const WINS_KEY = 'last-call:wins';
+
+/** Letters, numbers, spaces and . _ ' - only (what the leaderboard accepts). */
+const cleanName = (s: string) => s.replace(/[^A-Za-z0-9 _.'-]/g, '').slice(0, 16);
+const cleanTavern = (s: string) => s.replace(/[^A-Za-z0-9 _.'&-]/g, '').slice(0, 28);
 const PREFS_KEY = 'last-call:title-prefs';
 
 interface Prefs { city: CityId; name: string; assist: number }
@@ -41,6 +46,7 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
   const prefs = loadPrefs();
   const [city, setCity] = useState<CityId>(prefs.city);
   const [name, setName] = useState(prefs.name);
+  const [innkeeper, setInnkeeper] = useState(savedName());
   const [assist, setAssist] = useState(prefs.assist);
   const [confirmNew, setConfirmNew] = useState(false);
   const [ngPlus, setNgPlus] = useState(false);
@@ -60,7 +66,8 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
       return;
     }
     savePrefs({ city, name, assist });
-    onPlay({ kind: 'new', city, tavernName: name, timerScale: assist, ngPlus: ngPlus ? 1 : 0 });
+    saveName(innkeeper.trim());
+    onPlay({ kind: 'new', city, tavernName: name.trim() || 'The Last Call', playerName: innkeeper.trim(), timerScale: assist, ngPlus: ngPlus ? 1 : 0 });
   };
 
   useEffect(() => { void loadSave().then(setSave); }, []);
@@ -81,6 +88,26 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
         </div>
       )}
 
+      <section class="who-panel" aria-label="Who's pouring?">
+        <h2>Who’s pouring?</h2>
+        <label class="big-field">
+          <span>Your name <small>(innkeeper · shown on the leaderboards)</small></span>
+          <input
+            type="text" maxLength={16} value={innkeeper} placeholder="e.g. Jack Casimir"
+            onInput={(e) => setInnkeeper(cleanName((e.target as HTMLInputElement).value))}
+            data-testid="innkeeper-name"
+          />
+        </label>
+        <label class="big-field">
+          <span>Tavern name <small>(your company goes by it)</small></span>
+          <input
+            type="text" maxLength={28} value={name} placeholder="The Last Call"
+            onInput={(e) => setName(cleanTavern((e.target as HTMLInputElement).value))}
+            data-testid="tavern-name"
+          />
+        </label>
+      </section>
+
       <fieldset class="city-picker" aria-label="Home city">
         <legend>Home city</legend>
         {content.cities.map((c) => (
@@ -100,7 +127,6 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
       <p class="small city-blurb">{cityOf(content, city).name}: {CITY_BLURB[city]}</p>
 
       <div class="title-options">
-        <label>Tavern name <input type="text" maxLength={28} value={name} onInput={(e) => setName((e.target as HTMLInputElement).value)} /></label>
         <label title="Longer reaction windows. Runs go on the Assisted leaderboard.">
           Timers
           <select value={assist} onChange={(e) => setAssist(Number((e.target as HTMLSelectElement).value))}>
@@ -126,7 +152,7 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
         </button>
         <button
           class={`btn ${tutorialDone ? '' : 'tutorial-new'}`}
-          onClick={() => onPlay({ kind: 'tutorial', tavernName: name })}
+          onClick={() => onPlay({ kind: 'tutorial', tavernName: name.trim() || 'The Last Call', playerName: innkeeper.trim() })}
           data-testid="tutorial-start"
           title="A guided first shift: the controls, step by step (not ranked, doesn't touch your saved run)"
         >

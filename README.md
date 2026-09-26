@@ -24,9 +24,21 @@ The whole game is playable end to end:
 - **Win or lose:** monopoly (instant), sponsorship at the end of 463, a loss, or bankruptcy. Freeplay ("One More Keg") is offered afterwards.
 - **Autosave** and Continue.
 - **Audio:** Kenney samples, procedural fallbacks, per-city chiptune, and ducking.
-- **Leaderboards:** two boards, Fastest Monopoly and Highest Company Value. They are local until the shared board is deployed (see [`gas/README.md`](gas/README.md)).
+- **Leaderboards:** top tens for Fastest Monopoly and Sponsored the Trials, in pre-release (v1.x) and official (v2.0+) eras. They are local until the shared board is connected (see [`gas/README.md`](gas/README.md)).
 
 The letter and finale text are still clearly marked placeholders.
+
+### v1.5
+- **Shared leaderboard, like the Mario board:**
+  - Every finished run is logged to the Google Sheet's `runs` tab.
+  - The game shows a top ten for Fastest Monopoly and a top ten for Sponsored the Trials (by Company Value).
+  - v1.x runs are pre-release records; from v2.0 they're official.
+  - Setup is in [`gas/README.md`](gas/README.md).
+- **Home page:** big "Who's pouring?" fields for your innkeeper name and tavern name. Both are remembered and shown on the boards. Runs are recorded automatically when they end.
+- **Closing time:** the season no longer moves on while patrons are still inside.
+  - The doors close and the calendar waits (up to 45 s) for the last of them.
+  - Without the bell, stragglers are still fined.
+- **Clearer decisions:** options whose only effect is a cost say what they do, e.g. "Post extra doormen: the gang is kept out". The hired-thugs decision is reworded.
 
 ### v1.4
 - **New brews:** discovering a recipe at the brewing bench plays a chime and shows a big notice in the drink's own colour. The new recipe is marked NEW at the top of Your recipes. A batch that finds nothing just says so, without an error.

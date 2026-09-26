@@ -1,3 +1,4 @@
+import { spawnPrompt } from '../sim/prompts.ts';
 import type { GameController } from './controller.ts';
 
 // Exposed on window.__game only for ?debug runs (which are unranked) and dev builds.
@@ -18,6 +19,8 @@ export interface TestHooks {
   /** Debug only: empties the player's purse (to see the money warnings). */
   drain(): void;
   phase(): string;
+  /** Debug only: brings in a decision by id. */
+  prompt(id: string): void;
   floor(): {
     patrons: Array<{ id: number; state: string; x: number; y: number }>;
     tables: Array<{ id: number; x: number; y: number; dirty: boolean; free: boolean }>;
@@ -50,6 +53,10 @@ export function installTestHooks(ctrl: GameController): void {
       if (me) me.cash = 0;
     },
     phase: () => ctrl.calendar().phase,
+    prompt: (id) => {
+      spawnPrompt(ctrl.world, ctrl.content, id, { tavernId: ctrl.world.focus.tavernId, vars: { rival: 'The Gulf Tapworks' } });
+      ctrl.step(1);
+    },
     floor: () => {
       const f = ctrl.world.floor;
       if (!f) return null;

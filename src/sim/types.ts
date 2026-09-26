@@ -351,6 +351,8 @@ export interface FloorState {
   spawnAcc: number;
   lastCallRung: boolean;
   shiftIndex: number;
+  /** World tick when closing time began holding the calendar for the last patrons (optional for older saves). */
+  closingSince?: number;
 }
 
 // ---------------------------------------------------------------- run
@@ -391,8 +393,12 @@ export interface World {
     /** Prompt/incident timer multiplier (Assisted mode is > 1). */
     timerScale: number;
     ngPlus: number;
+    /** The innkeeper's name (optional for older saves). */
+    playerName?: string;
   };
   tick: number;
+  /** Ticks the calendar has waited at closing time for the last patrons to leave. Optional for older saves. */
+  clockHold?: number;
   rng: Record<string, RngState>;
   focus: { tavernId: Id; view: 'floor' | 'world' };
   playerId: Id;

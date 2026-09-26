@@ -386,6 +386,8 @@ export type EffectT =
 
 export const PromptOption = z.strictObject({
   label: z.string().min(1).max(22),
+  /** Plain words for what the choice does when its effects alone don't say (e.g. a cost that prevents something). */
+  hint: z.string().min(1).max(60).optional(),
   effects: z.array(Effect),
   /** Minimum Duckets needed to pick this option. */
   cost: z.number().nonnegative().optional(),

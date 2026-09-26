@@ -189,6 +189,7 @@ export function answerPrompt(w: World, c: Content, uid: number, option: number, 
     me.favor -= opt.favorCost!;
     parts.push(`Paid ${opt.favorCost} Favor instead of Duckets`);
   }
+  if (opt.hint) parts.push(opt.hint);
   applyEffects(w, c, opt.effects, p, payWithFavor, parts);
   w.prompts.outcomes.push({ seq: ++w.prompts.outcomeSeq, title: promptTitle(c, p), option: opt.label, auto: viaTimeout, parts });
   if (w.prompts.outcomes.length > 12) w.prompts.outcomes.shift();

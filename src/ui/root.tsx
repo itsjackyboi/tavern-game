@@ -16,6 +16,7 @@ import { Drawers } from './drawers/Drawers.tsx';
 import { EndScreen } from './EndScreen.tsx';
 import { Hud } from './hud/Hud.tsx';
 import { Alerts } from './Alerts.tsx';
+import { autoSubmit, submission } from './leaderboard/submission.ts';
 import { bindMoneyFeed } from './moneyFeed.ts';
 import { BottomBar } from './panels/BottomBar.tsx';
 import { LeftPanel } from './panels/LeftPanel.tsx';
@@ -57,7 +58,7 @@ export function App({ content }: { content: Content }) {
     }
     if (choice.kind === 'tutorial') {
       // A fixed, gentle start. The tutorial never touches the saved run.
-      setCtrl(new GameController(content, { seed: 'tutorial', homeCity: 'aleforge', tavernName: choice.tavernName, tutorial: true, debug: flags.debug }));
+      setCtrl(new GameController(content, { seed: 'tutorial', homeCity: 'aleforge', tavernName: choice.tavernName, playerName: choice.playerName, tutorial: true, debug: flags.debug }));
       return;
     }
     clearSave();
@@ -65,6 +66,7 @@ export function App({ content }: { content: Content }) {
       seed: flags.seed ?? newSeed(),
       homeCity: flags.city ?? choice.city,
       tavernName: choice.tavernName,
+      playerName: choice.playerName,
       timerScale: choice.timerScale,
       ngPlus: choice.ngPlus,
       debug: flags.debug,
@@ -103,13 +105,16 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
     const unbindMoney = bindMoneyFeed(ctrl);
     if (ctrl.debug || import.meta.env.DEV) installTestHooks(ctrl);
     let winRecorded = ctrl.world.run.status === 'won';
+    const ended = (s: string) => s === 'won' || s === 'lost' || s === 'bankrupt';
+    let endSent = ended(ctrl.world.run.status) || ctrl.world.run.verdictDone;
+    submission.value = { state: 'idle' };
     let bellWas = ctrl.world.floor?.lastCallRung ?? false;
     let seasonsWas = ctrl.world.events.seasonsClosed ?? 0;
     let yearsWas = ctrl.world.companies[ctrl.world.playerId]?.yearHistory.length ?? 0;
     const unsub = ctrl.subscribe(() => {
       views.current?.setView(ctrl.world.focus.view);
       const bell = ctrl.world.floor?.lastCallRung ?? false;
-      if (bell && !bellWas) toast('Doors closed: no more patrons tonight. Serve the last orders.', 'good');
+      if (bell && !bellWas) toast('Doors closed: no more patrons tonight. Serve the last orders; the next season starts once they leave.', 'good');
       bellWas = bell;
       // A season (and at the Holiday Keg's end, a year) closed: say how it went, once.
       const me = ctrl.world.companies[ctrl.world.playerId];
@@ -125,6 +130,11 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
         yearsWas = me.yearHistory.length;
         const y = me.yearHistory[me.yearHistory.length - 1];
         if (y) toast(`Year ${y.year} closed: ${y.profit >= 0 ? 'profit +' : 'loss −'}${Math.abs(Math.round(y.profit)).toLocaleString()} Duckets (see the Ledger)`, y.profit >= 0 ? 'good' : 'info');
+      }
+      // A run just finished: log it to the sheet (wins, losses and bankruptcies alike).
+      if (!endSent && ended(ctrl.world.run.status)) {
+        endSent = true;
+        autoSubmit(ctrl);
       }
       if (!winRecorded && ctrl.world.run.status === 'won') {
         winRecorded = true;

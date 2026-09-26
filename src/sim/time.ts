@@ -98,3 +98,13 @@ export function formatClock(ms: number): string {
   const ss = String(s).padStart(2, '0');
   return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
 }
+
+/** Calendar time: world ticks minus any closing-time hold (the calendar waits for the last patrons). */
+export function calTick(w: { tick: number; clockHold?: number }): number {
+  return w.tick - (w.clockHold ?? 0);
+}
+
+/** The calendar as it stands now, allowing for closing-time holds. */
+export function calNow(w: { tick: number; clockHold?: number }, t: TimeTuning): Calendar {
+  return calendarAt(calTick(w), t);
+}
