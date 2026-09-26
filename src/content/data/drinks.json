@@ -3,6 +3,7 @@
     "id": "brewers-brown",
     "name": "Brewers' Lane Brown",
     "category": "ale",
+    "color": "#E8A33D",
     "recipe": {
       "barley": 3,
       "hops": 2
@@ -22,6 +23,7 @@
     "id": "windsunk-grog",
     "name": "Windsunk Grog",
     "category": "grog",
+    "color": "#C8642A",
     "recipe": {
       "molasses": 3,
       "barley": 1
@@ -41,6 +43,7 @@
     "id": "brandywine-cider",
     "name": "Brandywine Cider",
     "category": "cider",
+    "color": "#B4E03C",
     "recipe": {
       "fruit": 4
     },
@@ -59,6 +62,7 @@
     "id": "clockheart-tonic",
     "name": "ClockHeart Tonic",
     "category": "tonic",
+    "color": "#FF5A8C",
     "recipe": {
       "redEarth": 2,
       "spice": 1
@@ -79,6 +83,7 @@
     "id": "hall-amber",
     "name": "Hall of Ale Amber",
     "category": "ale",
+    "color": "#F7E35A",
     "recipe": {
       "barley": 4,
       "hops": 4
@@ -97,6 +102,7 @@
     "id": "shell-stout",
     "name": "Shell Tavern Stout",
     "category": "stout",
+    "color": "#8E6242",
     "recipe": {
       "barley": 5,
       "molasses": 1
@@ -115,6 +121,7 @@
     "id": "sackbeards-last-stand",
     "name": "Sackbeard's Last Stand",
     "category": "grog",
+    "color": "#FFB3C8",
     "recipe": {
       "molasses": 4,
       "spice": 2
@@ -133,6 +140,7 @@
     "id": "bjor-hjarta-stout",
     "name": "Bjor Hjarta Stout",
     "category": "stout",
+    "color": "#A98CFF",
     "recipe": {
       "imports": 1,
       "barley": 1
@@ -151,6 +159,7 @@
     "id": "hangover-bell",
     "name": "Hangover Bell",
     "category": "tonic",
+    "color": "#E040FB",
     "recipe": {
       "redEarth": 1,
       "molasses": 2
@@ -169,6 +178,7 @@
     "id": "red-tide-gin",
     "name": "Red Tide Gin",
     "category": "spirits",
+    "color": "#FF3030",
     "recipe": {
       "spice": 3,
       "barley": 2
@@ -187,6 +197,7 @@
     "id": "xis-flat-fee-special",
     "name": "Xi's Flat Fee Special",
     "category": "spirits",
+    "color": "#48DDE8",
     "recipe": {
       "spice": 2,
       "imports": 1
@@ -206,6 +217,7 @@
     "id": "taverna-red",
     "name": "Taverna Red",
     "category": "wine",
+    "color": "#9C1F3A",
     "recipe": {
       "imports": 1,
       "fruit": 1
@@ -224,6 +236,7 @@
     "id": "ofkras-temperance",
     "name": "Ofkra's Temperance",
     "category": "tonic",
+    "color": "#86F0B4",
     "recipe": {
       "fruit": 2,
       "redEarth": 1
@@ -242,6 +255,7 @@
     "id": "first-pour",
     "name": "The First Pour",
     "category": "grog",
+    "color": "#D9BE8C",
     "recipe": {
       "molasses": 3,
       "hops": 2
@@ -260,6 +274,7 @@
     "id": "coral-eyed-murk",
     "name": "Coral-eyed Murk",
     "category": "spirits",
+    "color": "#2E9E7E",
     "recipe": {
       "spiritweed": 2,
       "molasses": 1
@@ -278,6 +293,7 @@
     "id": "beerchellis-omen",
     "name": "Beerchelli's Omen",
     "category": "ale",
+    "color": "#2F6FE8",
     "recipe": {
       "spiritweed": 1,
       "hops": 2,
@@ -297,6 +313,7 @@
     "id": "tide-callers-draught",
     "name": "Tide Caller's Draught",
     "category": "spirits",
+    "color": "#F2F0E6",
     "recipe": {
       "molasses": 2,
       "fruit": 2
@@ -315,6 +332,7 @@
     "id": "hallis-harvest-cider",
     "name": "Hallis Harvest Cider",
     "category": "cider",
+    "color": "#5DAA2E",
     "recipe": {
       "fruit": 3,
       "hops": 1

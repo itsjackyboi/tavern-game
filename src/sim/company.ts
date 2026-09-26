@@ -1,6 +1,6 @@
 import type { Content } from '../content/schema.ts';
 import { emptyKpi, emptyLedger } from './world.ts';
-import { spend } from './economy/ledger.ts';
+import { FINANCING, spend, track } from './economy/ledger.ts';
 import { cityOf, clamp, kegCost, seats } from './lookup.ts';
 import type { Company, Tavern, World } from './types.ts';
 
@@ -54,6 +54,7 @@ export function takeLoan(c: Content, co: Company, amount: number): boolean {
   if (amt <= 0) return false;
   co.debt += amt;
   co.cash += amt;
+  track(co, amt, FINANCING, 'Borrowed from the moneylender');
   return true;
 }
 
@@ -62,6 +63,7 @@ export function repayLoan(co: Company, amount: number): boolean {
   if (amt <= 0) return false;
   co.debt -= amt;
   co.cash -= amt;
+  track(co, -amt, FINANCING, 'Repaid the moneylender');
   return true;
 }
 
@@ -72,17 +74,17 @@ export function closeSeason(w: World, c: Content): void {
     for (const t of companyTaverns(w, co)) {
       if (t.status === 'building') continue;
       const rent = cityOf(c, t.city).rentPerSeason * Math.sqrt(t.tables / 6);
-      spend(co, rent, 'rent');
+      spend(co, rent, 'rent', 'Rent', `${t.name} (season end)`);
       t.kpi.costs += rent;
       t.assetValue *= 1 - c.economy.assetDepreciation;
     }
     for (const s of Object.values(w.staff)) {
       const t = w.taverns[s.tavernId];
       if (!t || t.companyId !== co.id || t.status === 'closed') continue;
-      spend(co, s.wage, 'wages');
+      spend(co, s.wage, 'wages', 'Wages', `${t.name} staff (season end)`);
       t.kpi.costs += s.wage;
     }
-    if (co.debt > 0) spend(co, co.debt * c.economy.loanRatePerSeason, 'other');
+    if (co.debt > 0) spend(co, co.debt * c.economy.loanRatePerSeason, 'other', 'Loan interest', 'Moneylender (season end)');
     // Profit this season: revenue minus everything spent, from the ledger deltas.
     const revenue = companyTaverns(w, co).reduce((s, t) => s + t.kpi.revenue, 0);
     const costs = companyTaverns(w, co).reduce((s, t) => s + t.kpi.costs, 0);
@@ -102,10 +104,22 @@ export function closeYear(w: World, c: Content): void {
     for (const t of companyTaverns(w, co)) {
       const fee = cityOf(c, t.city).annualFee;
       if (fee > 0 && t.status !== 'building') {
-        spend(co, fee * clamp(1 - w.institutions.rotoMarket / 400, 0.75, 1.25), 'tax');
+        spend(co, fee * clamp(1 - w.institutions.rotoMarket / 400, 0.75, 1.25), 'tax', 'Fees & tithes', `${cityOf(c, t.city).name} flat fee (year end)`);
       }
     }
     co.lastLedger = co.ledger;
     co.ledger = emptyLedger();
+    if (co.isPlayer) {
+      // One bar on the ledger's year-over-year chart. Borrowing isn't income.
+      let income = 0;
+      let spending = 0;
+      for (const [k, v] of Object.entries(co.flowsYear)) {
+        if (k === FINANCING) continue;
+        if (v >= 0) income += v;
+        else spending -= v;
+      }
+      co.yearHistory.push({ year: c.time.startYear + co.yearHistory.length, income, spending, profit: income - spending });
+      co.flowsYear = {};
+    }
   }
 }

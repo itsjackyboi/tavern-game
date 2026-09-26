@@ -223,6 +223,8 @@ export const Drink = z.strictObject({
   id: z.string().regex(/^[a-z0-9-]+$/),
   name: label,
   category: Category,
+  /** Its own colour on taps, kegs and lists; every drink's must be distinct. */
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   recipe: z.partialRecord(IngredientId, z.number().int().positive()),
   price: z.number().positive(),
   quality: z.number().min(0).max(100),

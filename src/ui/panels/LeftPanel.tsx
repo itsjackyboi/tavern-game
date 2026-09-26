@@ -1,9 +1,8 @@
 import type { GameController } from '../../app/controller.ts';
-import { CATEGORY_CSS } from '../../art/themes.ts';
+import { drinkCss } from '../../art/themes.ts';
 import { drinkOf, kegCost, player, playerTaverns, staffAt } from '../../sim/lookup.ts';
 import type { Tavern } from '../../sim/types.ts';
 import { hover, uiFrame } from '../bus.ts';
-import { Card, visibleCards } from './Cards.tsx';
 import { money } from '../describe.ts';
 
 const ROLE_ICON: Record<string, string> = { bar: '🍺', floor: '🏃', door: '✊', cellar: '🛢', stage: '♪', intel: '👁', manage: '✎' };
@@ -45,8 +44,8 @@ function Stock({ ctrl, t }: { ctrl: GameController; t: Tavern }) {
         const cost = kegCost(w, c, m.drinkId, t.city, player(w), t);
         return (
           <div class="stock-row" key={m.drinkId} title={`${d.name}: tap ${lvl}/${c.economy.kegServings}, ${cellar} kegs in the cellar${onOrder ? `, ${onOrder} on order` : ''}`}>
-            <span class="stock-name" style={{ color: CATEGORY_CSS[d.category] }}>{d.name}</span>
-            <span class="bar"><span class={`fill ${lvl <= 0 ? 'empty' : ''}`} style={{ width: `${(lvl / c.economy.kegServings) * 100}%`, background: CATEGORY_CSS[d.category] }} /></span>
+            <span class="stock-name" style={{ color: drinkCss(c, d.id) }}>{d.name}</span>
+            <span class="bar"><span class={`fill ${lvl <= 0 ? 'empty' : ''}`} style={{ width: `${(lvl / c.economy.kegServings) * 100}%`, background: drinkCss(c, d.id) }} /></span>
             <span class={`stock-kegs ${cellar === 0 ? 'zero' : ''}`}>{cellar}{onOrder ? `+${onOrder}` : ''}</span>
             <button class="btn btn-tiny" onClick={() => ctrl.dispatch({ type: 'orderKegs', tavernId: t.id, drinkId: m.drinkId, kegs: 1 })} title={`Order a keg: ${money(cost)} Duckets`}>
               +1
@@ -139,6 +138,7 @@ function Shipments({ ctrl }: { ctrl: GameController }) {
 
 /** The Isles' news, newest first. Hovering something on the floor shows its details here instead. */
 function EventFeed({ ctrl }: { ctrl: GameController }) {
+  void uiFrame.value; // reads another signal (hover), so it must subscribe to frames itself
   const recent = ctrl.world.log.slice(-6).reverse();
   return (
     <section class="panel-block feed" data-testid="ticker">
@@ -152,20 +152,6 @@ function EventFeed({ ctrl }: { ctrl: GameController }) {
           </div>
         ))
       )}
-    </section>
-  );
-}
-
-/** Decision cards, pinned to the bottom-left so nothing else jumps around. */
-function Decisions({ ctrl }: { ctrl: GameController }) {
-  const all = visibleCards(ctrl);
-  const cards = all.slice(0, 2);
-  const extra = all.length - cards.length;
-  return (
-    <section class="decisions" data-testid="cards">
-      {cards.length > 0 && <h3>Decisions</h3>}
-      {cards.map((p, i) => <Card key={p.uid} ctrl={ctrl} p={p} hotkeys={i === 0} />)}
-      {extra > 0 && <div class="more-cards">+{extra} more waiting</div>}
     </section>
   );
 }
@@ -185,7 +171,6 @@ export function LeftPanel({ ctrl }: { ctrl: GameController }) {
         <Shipments ctrl={ctrl} />
       </div>
       <EventFeed ctrl={ctrl} />
-      <Decisions ctrl={ctrl} />
     </aside>
   );
 }

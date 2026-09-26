@@ -59,7 +59,7 @@ const STEPS: Step[] = [
   {
     title: 'Kegs and taps',
     text: () =>
-      'Each tap has a fill bar; the number under it is kegs in the cellar. Click a tap to change its keg. The +1 buttons in Taps (left) order kegs, which arrive after a short wait.',
+      'Each tap has a fill bar in its drink’s own colour; the number under it is kegs in the cellar. Click a tap to change its keg. The +1 buttons in Taps (left) order kegs, which arrive after a short wait. Money spent or earned pops up at the bottom of the board, and the Ledger (F) lists it all.',
     spot: 'taps',
     target: (w) => {
       const t = w.floor ? w.taverns[w.floor.tavernId] : null;
@@ -78,7 +78,7 @@ const STEPS: Step[] = [
   {
     title: 'Decisions',
     text: () =>
-      'Decisions appear at the bottom-left. Answer with the mouse or keys 1–3. The bar shows how long you have; if time runs out, the dashed option happens.',
+      'Decisions appear at the bottom-right with a chime. Each choice lists what it will do. Answer with the mouse or keys 1–3; the bar shows how long you have, and if time runs out the “if you wait” option happens. Afterwards a receipt at the bottom of the board shows what it did.',
     spot: 'decisions',
     done: (_c, p) => p.cmds.has('answer'),
   },
@@ -96,7 +96,7 @@ const STEPS: Step[] = [
   },
   {
     title: 'Pausing',
-    text: () => 'P (or Esc) pauses. The clock stops and the board is hidden until you resume. The pause screen also has sound settings and Return to title. Pause, then resume.',
+    text: () => 'P (or Esc) pauses and stops the clock. The pause menu also has sound settings and Return to title. Pause, then resume.',
     done: (ctrl, p) => p.sawPause && !ctrl.paused,
   },
   {

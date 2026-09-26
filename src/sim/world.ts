@@ -6,7 +6,7 @@ import type { Company, Ledger, Staff, Tavern, TavernKpi, World } from './types.t
 
 export type { World } from './types.ts';
 
-export const WORLD_VERSION = 2;
+export const WORLD_VERSION = 3;
 
 export interface NewRunOptions {
   seed: string;
@@ -27,6 +27,7 @@ export function makeCompany(w: World, opts: { name: string; isPlayer: boolean; c
     id, name: opts.name, isPlayer: opts.isPlayer, cash: opts.cash, favor: 0, debt: 0, spiritweed: 0,
     unlocked: [], upgrades: {}, grainSource: 'mixed', profitYear: 0, seasonProfit: 0,
     ledger: emptyLedger(), lastLedger: null, cv: 0, cvHistory: [], rival: null,
+    flows: {}, flowsYear: {}, recent: [], moneySeq: 0, yearHistory: [],
   };
   w.companies[id] = co;
   return co;
@@ -177,7 +178,7 @@ export function createWorld(opts: NewRunOptions, c: Content): World {
       notified: {}, lastWindShift: -10, vowThisYear: false,
     },
     modifiers: [],
-    prompts: { active: [], pending: [], nextUid: 1, answered: 0, missed: 0 },
+    prompts: { active: [], pending: [], nextUid: 1, answered: 0, missed: 0, outcomes: [], outcomeSeq: 0 },
     shipments: [],
     floor: null,
     log: [],
@@ -219,5 +220,24 @@ export function createWorld(opts: NewRunOptions, c: Content): World {
   w.floor = materializeFloor(w, c, flagship);
   // Make sure every starting menu drink is valid.
   for (const t of Object.values(w.taverns)) for (const m of t.menu) drinkOf(c, m.drinkId);
+  return w;
+}
+
+/** Brings an older save up to date. Returns null if it can't be read. */
+export function migrateWorld(w: World, from: number): World | null {
+  if (from < 2 || from > WORLD_VERSION) return null;
+  if (from < 3) {
+    // v3: the money trail and decision receipts.
+    for (const co of Object.values(w.companies)) {
+      co.flows ??= {};
+      co.flowsYear ??= {};
+      co.recent ??= [];
+      co.moneySeq ??= 0;
+      co.yearHistory ??= [];
+    }
+    w.prompts.outcomes ??= [];
+    w.prompts.outcomeSeq ??= 0;
+  }
+  w.meta.v = WORLD_VERSION;
   return w;
 }

@@ -1,5 +1,6 @@
 import type { GameController } from '../../app/controller.ts';
 import { idx, player } from '../../sim/lookup.ts';
+import { effectLines } from '../../sim/effectText.ts';
 import { promptTitle } from '../../sim/prompts.ts';
 import type { ActivePrompt } from '../../sim/types.ts';
 import { sound } from '../bus.ts';
@@ -27,6 +28,7 @@ export function Card({ ctrl, p, hotkeys }: { ctrl: GameController; p: ActiveProm
   const frac = total > 0 ? left / total : 0;
   const me = player(w);
   const tavern = p.tavernId ? w.taverns[p.tavernId] : null;
+  const secsLeft = Math.ceil(left / 20);
   return (
     <div class={`card tier-${def.tier} tension-${def.tension}`} data-testid="prompt-card">
       <div class="card-head">
@@ -35,7 +37,10 @@ export function Card({ ctrl, p, hotkeys }: { ctrl: GameController; p: ActiveProm
         {tavern && tavern.id !== w.focus.tavernId && <span class="card-where">{tavern.name}</span>}
       </div>
       {def.line && <div class="card-line">{def.line.replace(/\{(\w+)\}/g, (_, k: string) => p.vars[k] ?? k)}</div>}
-      <div class="countdown"><span style={{ width: `${frac * 100}%` }} class={frac < 0.3 ? 'hot' : ''} /></div>
+      <div class="countdown-row">
+        <div class="countdown"><span style={{ width: `${frac * 100}%` }} class={frac < 0.3 ? 'hot' : ''} /></div>
+        <span class={`secs ${frac < 0.3 ? 'hot' : ''}`}>{secsLeft}s</span>
+      </div>
       <div class="card-options">
         {def.options.map((o, i) => {
           const isDefault = (p.defaultOverride ?? def.defaultOption) === i;
@@ -48,9 +53,13 @@ export function Card({ ctrl, p, hotkeys }: { ctrl: GameController; p: ActiveProm
               title={isDefault ? 'Happens if you do nothing' : undefined}
               onClick={() => { ctrl.dispatch({ type: 'answer', uid: p.uid, option: i }); sound('confirm'); }}
             >
-              {hotkeys && <kbd>{i + 1}</kbd>}
-              {o.label}
-              {o.cost !== undefined && <span class="cost">{o.cost}◉{o.favorCost ? `/${o.favorCost}⚓` : ''}</span>}
+              <span class="opt-top">
+                {hotkeys && <kbd>{i + 1}</kbd>}
+                <span class="opt-label">{o.label}</span>
+                {isDefault && <span class="opt-default">if you wait</span>}
+                {o.cost !== undefined && <span class="cost">{o.cost}◉{o.favorCost ? ` or ${o.favorCost}⚓` : ''}</span>}
+              </span>
+              <span class="opt-effects">{effectLines(c, o.effects, true).filter((l) => !(o.cost !== undefined && l === `−${o.cost} Duckets`)).join(' · ') || (o.cost !== undefined ? 'Just the cost' : 'Nothing happens')}</span>
             </button>
           );
         })}

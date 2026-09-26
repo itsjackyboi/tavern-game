@@ -58,3 +58,11 @@ export const CATEGORY_COLOR: Record<string, number> = {
 export const CATEGORY_CSS: Record<string, string> = {
   ale: '#e8a33d', stout: '#7a5232', grog: '#c77a2e', tonic: '#e2485a', spirits: '#9fd3e6', cider: '#a8c64a', wine: '#b0386a',
 };
+
+/** Each drink's own colour (content/data/drinks.json), for Phaser (number) and CSS. */
+export function drinkCss(c: { drinks: Array<{ id: string; color: string }> }, id: string): string {
+  return c.drinks.find((d) => d.id === id)?.color ?? '#ffffff';
+}
+export function drinkHex(c: { drinks: Array<{ id: string; color: string }> }, id: string): number {
+  return parseInt(drinkCss(c, id).slice(1), 16);
+}

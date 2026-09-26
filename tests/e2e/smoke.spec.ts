@@ -198,18 +198,24 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.1');
+  await expect(page.getByTestId('version')).toHaveText('v1.2');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.1');
+  await expect(page.getByTestId('version')).toHaveText('v1.2');
 });
 
-test('decisions sit bottom-left and every company is listed', async ({ page }) => {
+test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {
   await startRun(page, 'debug&seed=layout');
-  for (let i = 0; i < 40 && (await page.locator('.left-panel [data-testid="prompt-card"]').count()) === 0; i++) {
+  for (let i = 0; i < 40 && (await page.locator('.right-panel [data-testid="prompt-card"]').count()) === 0; i++) {
     await page.evaluate(() => window.__game!.step(200));
   }
-  await expect(page.locator('.left-panel [data-testid="prompt-card"]').first()).toBeVisible();
-  await expect(page.locator('.right-panel [data-testid="prompt-card"]')).toHaveCount(0);
+  const card = page.locator('.right-panel [data-testid="prompt-card"]').first();
+  await expect(card).toBeVisible();
+  await expect(page.locator('.left-panel [data-testid="prompt-card"]')).toHaveCount(0);
+  await expect(card.locator('.opt-effects').first()).not.toBeEmpty();
+  await page.screenshot({ path: `${SHOTS}/decision.png`, animations: 'disabled' });
+  await page.keyboard.press('1');
+  await expect(page.getByTestId('receipts')).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/receipt.png`, animations: 'disabled' });
   const rows = page.locator('[data-testid="league"] .league-row');
   expect(await rows.count()).toBeGreaterThan(8);
   await expect(page.locator('[data-testid="league"] .league-row.me')).toHaveCount(1);
@@ -269,4 +275,18 @@ test('tutorial walks through the first steps', async ({ page }) => {
   await page.getByTestId('tutorial-end').click();
   await expect(coach).toBeHidden();
   expect(errors).toEqual([]);
+});
+
+test('the ledger shows totals by reason and a year-by-year chart', async ({ page }) => {
+  await startRun(page, 'debug&seed=ledger');
+  await page.evaluate(() => window.__game!.step(9000));
+  // The news feed on the left keeps up with the Isles.
+  await expect(page.locator('.feed .tick-line').first()).toBeVisible();
+  await page.keyboard.press('f');
+  await expect(page.getByTestId('ledger-totals')).toContainText('Rent');
+  await expect(page.getByTestId('profit-chart').locator('path').first()).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/ledger.png`, animations: 'disabled' });
+  await page.keyboard.press('k');
+  await expect(page.getByTestId('sales')).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/brew-sales.png`, animations: 'disabled' });
 });

@@ -108,6 +108,22 @@ export interface Ledger {
   other: number;
 }
 
+/** One entry in the player's money trail: what the Duckets were for. */
+export interface MoneyEntry {
+  seq: number;
+  key: string;
+  detail: string;
+  amount: number;
+}
+
+/** A finished year's money, for the ledger's year-over-year chart. */
+export interface YearRecord {
+  year: number;
+  income: number;
+  spending: number;
+  profit: number;
+}
+
 export interface Company {
   id: Id;
   name: string;
@@ -126,6 +142,13 @@ export interface Company {
   cv: number;
   cvHistory: number[];
   rival: RivalBrain | null;
+  /** Player only: signed Duckets by reason, since the run began and this year. Loans are financing, not profit. */
+  flows: Record<string, number>;
+  flowsYear: Record<string, number>;
+  /** Player only: the latest money movements (sales excluded), newest last. */
+  recent: MoneyEntry[];
+  moneySeq: number;
+  yearHistory: YearRecord[];
 }
 
 export interface CityState {
@@ -158,6 +181,15 @@ export interface ActiveModifier {
   /** Tavern id, city id or company id depending on scope. */
   target: string;
   untilTick: number;
+}
+
+/** What a decision actually did, for the receipt the player sees. */
+export interface PromptOutcome {
+  seq: number;
+  title: string;
+  option: string;
+  auto: boolean;
+  parts: string[];
 }
 
 export interface ActivePrompt {
@@ -369,7 +401,7 @@ export interface World {
   institutions: Record<InstitutionId, number>;
   undercurrents: Undercurrents;
   modifiers: ActiveModifier[];
-  prompts: { active: ActivePrompt[]; pending: PendingPrompt[]; nextUid: number; answered: number; missed: number };
+  prompts: { active: ActivePrompt[]; pending: PendingPrompt[]; nextUid: number; answered: number; missed: number; outcomes: PromptOutcome[]; outcomeSeq: number };
   shipments: Shipment[];
   floor: FloorState | null;
   log: LogEntry[];

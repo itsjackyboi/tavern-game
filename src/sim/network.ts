@@ -45,7 +45,7 @@ export function foundTavern(w: World, c: Content, city: CityId, name?: string): 
   if (check !== 'ok') return check;
   const me = player(w);
   const cost = foundingCost(w, c, city);
-  spend(me, cost, 'other');
+  spend(me, cost, 'other', 'New taverns', `Founding in ${cityOf(c, city).name}`);
   for (const d of c.drinks) if (d.startIn.includes(city) && !me.unlocked.includes(d.id)) me.unlocked.push(d.id);
   const t = makeTavern(w, c, {
     company: me, city, name: name ?? `The Last Call ${cityOf(c, city).name}`, tables: 6, taps: 3, rep: 35,

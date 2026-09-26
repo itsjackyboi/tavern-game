@@ -26,6 +26,10 @@
           "wine"
         ]
       },
+      "color": {
+        "type": "string",
+        "pattern": "^#[0-9A-Fa-f]{6}$"
+      },
       "recipe": {
         "type": "object",
         "propertyNames": {
@@ -122,6 +126,7 @@
       "id",
       "name",
       "category",
+      "color",
       "recipe",
       "price",
       "quality",

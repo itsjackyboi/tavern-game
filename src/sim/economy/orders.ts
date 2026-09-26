@@ -1,6 +1,6 @@
 import type { Content } from '../../content/schema.ts';
 import { chance } from '../rng.ts';
-import { kegCost, managerOf, modsFor, spiritweedPerKeg, tavernUpgradeSum } from '../lookup.ts';
+import { drinkOf, kegCost, managerOf, modsFor, spiritweedPerKeg, tavernUpgradeSum } from '../lookup.ts';
 import type { Tavern, World } from '../types.ts';
 import { spend } from './ledger.ts';
 
@@ -9,14 +9,16 @@ import { spend } from './ledger.ts';
 
 export type OrderResult = 'ok' | 'cash' | 'spiritweed' | 'none';
 
-export function orderKegs(w: World, c: Content, t: Tavern, drinkId: string, kegs: number): OrderResult {
+export function orderKegs(w: World, c: Content, t: Tavern, drinkId: string, kegs: number, auto = false): OrderResult {
   if (kegs <= 0) return 'none';
   const co = w.companies[t.companyId]!;
   const cost = kegCost(w, c, drinkId, t.city, co, t) * kegs;
   const weed = spiritweedPerKeg(c, drinkId) * kegs;
   if (weed > co.spiritweed) return 'spiritweed';
-  if (co.cash - cost < (co.isPlayer ? c.economy.bankruptcyFloor * 0.5 : 0)) return 'cash';
-  spend(co, cost, 'kegs');
+  // You can order into a little debt by hand, but auto-restock never borrows.
+  const floor = co.isPlayer && !auto ? c.economy.bankruptcyFloor * 0.5 : 0;
+  if (co.cash - cost < floor) return 'cash';
+  spend(co, cost, 'kegs', 'Kegs', `${kegs}× ${drinkOf(c, drinkId).name} for ${t.name}${auto ? ' (auto-restock)' : ''}`);
   co.spiritweed -= weed;
   t.kpi.costs += cost;
   t.orders.push({ drinkId, kegs, arriveTick: w.tick + c.economy.kegDeliveryTicks });
@@ -51,7 +53,7 @@ export function stepOrders(w: World, c: Content): void {
     for (const m of t.menu.slice(0, t.taps)) {
       const tapLow = (t.tapLevels[m.drinkId] ?? 0) < c.economy.kegServings * 0.3 ? 1 : 0;
       const need = t.restockTarget + tapLow - pendingKegs(t, m.drinkId);
-      if (need > 0) orderKegs(w, c, t, m.drinkId, need);
+      if (need > 0) orderKegs(w, c, t, m.drinkId, need, true);
     }
   }
 }

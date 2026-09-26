@@ -146,12 +146,12 @@ export function stepAggregate(w: World, c: Content, t: Tavern): void {
   const thefts = admitted * theft * city.theftMult * mods.theft * (1 + tavernUpgradeSum(c, t, 'theft')) * 2.2 * (1 - mitigation * 0.8);
   const co = w.companies[t.companyId]!;
   if (brawls > 0) {
-    spend(co, brawls * 27 * city.damageMult, 'other');
+    spend(co, brawls * 27 * city.damageMult, 'other', 'Brawl damage', `Brawls at ${t.name}`);
     t.rep = clamp(t.rep - brawls * 1.4 * mods.repSwing, 0, 100);
     t.kpi.brawls += brawls;
   }
   if (thefts > 0) {
-    spend(co, thefts * clamp(co.cash * 0.03, 6, 60), 'other');
+    spend(co, thefts * clamp(co.cash * 0.03, 6, 60), 'other', 'Theft', `Thieves at ${t.name}`);
     t.kpi.thefts += thefts;
   }
 

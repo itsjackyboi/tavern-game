@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import type { GameController } from '../app/controller.ts';
 import { SHEETS, SPRITES, TILE, type SpriteName, type SpriteRef } from '../art/atlas.ts';
 import { lookFor, staffLook, type Look } from '../art/characters.ts';
-import { CATEGORY_COLOR, THEMES } from '../art/themes.ts';
+import { THEMES, drinkHex } from '../art/themes.ts';
 import {
   BAR_ROW, BAR_X0, BAR_X1, CELLAR, DOOR, GRID_H, GRID_W, STAGE, TILL, dist, pourPos, seatPos,
 } from '../sim/floor/layout.ts';
@@ -201,11 +201,10 @@ export class FloorScene extends Phaser.Scene {
     f.taps.forEach((tap, i) => {
       const lvl = t.tapLevels[tap.drinkId] ?? 0;
       const frac = lvl / c.economy.kegServings;
-      const cat = drinkOf(c, tap.drinkId).category;
       const x = px(tap.x) + 3;
       const y = px(BAR_ROW) - 3;
       g.fillStyle(0x1a0f08, 0.85).fillRect(x - 1, y - 12, 12, 12);
-      g.fillStyle(CATEGORY_COLOR[cat] ?? 0xffffff, 1).fillRect(x, y - 11 + 10 * (1 - frac), 10, 10 * frac);
+      g.fillStyle(drinkHex(c, tap.drinkId), 1).fillRect(x, y - 11 + 10 * (1 - frac), 10, 10 * frac);
       if (lvl <= 0 && blink) g.lineStyle(2, 0xff4040, 1).strokeRect(x - 2, y - 13, 14, 14);
       const cellar = t.cellar[tap.drinkId] ?? 0;
       this.label(`${cellar}`, x + 5, y + 2, cellar ? '#d9c79c' : '#ff7070', 8);
@@ -380,10 +379,9 @@ export class FloorScene extends Phaser.Scene {
       this.bar(x + 1, y - 4, p.patience / p.patienceMax);
       if (p.vip && !p.greeted) this.label('★', x + 8, y - 9, blink ? '#ffd23f' : '#fff4b0', 12);
     } else if (p.state === 'ordered' && p.drinkId) {
-      const cat = drinkOf(c, p.drinkId).category;
       g.fillStyle(0xf8f0dc, 1).fillRoundedRect(x + 3, y - 13, 11, 10, 2);
       g.fillTriangle(x + 6, y - 3, x + 9, y - 3, x + 6, y);
-      g.fillStyle(CATEGORY_COLOR[cat] ?? 0xffffff, 1).fillRect(x + 5, y - 11, 7, 6);
+      g.fillStyle(drinkHex(c, p.drinkId), 1).fillRect(x + 5, y - 11, 7, 6);
       if (p.claimedBy) g.lineStyle(1, 0xffe066, 1).strokeRoundedRect(x + 2, y - 14, 13, 12, 2);
       this.bar(x + 1, y - 17, p.patience / p.patienceMax);
     } else if (p.state === 'sneaking') {
@@ -399,7 +397,7 @@ export class FloorScene extends Phaser.Scene {
       g.fillStyle(0xffd23f, 1).fillTriangle(d.box.x + 5, d.box.y - 6, d.box.x + 11, d.box.y - 6, d.box.x + 8, d.box.y - 2);
     }
     if (wk.carrying) {
-      const col = wk.carrying === 'keg' ? 0x8a5a3b : (CATEGORY_COLOR[drinkOf(this.ctrl.content, wk.carrying).category] ?? 0xffffff);
+      const col = wk.carrying === 'keg' ? 0x8a5a3b : drinkHex(this.ctrl.content, wk.carrying);
       g.fillStyle(col, 1).fillRect(d.box.x + 11, d.box.y + 6, wk.carrying === 'keg' ? 6 : 4, wk.carrying === 'keg' ? 7 : 5);
     }
   }

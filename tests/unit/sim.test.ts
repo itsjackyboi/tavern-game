@@ -11,7 +11,8 @@ import { hashSeed, sfc32 } from '../../src/sim/rng.ts';
 import { stepWorld } from '../../src/sim/step.ts';
 import { calendarAt, endTick, ticksPerYear } from '../../src/sim/time.ts';
 import type { World } from '../../src/sim/types.ts';
-import { createWorld } from '../../src/sim/world.ts';
+import { createWorld, migrateWorld } from '../../src/sim/world.ts';
+import { spawnPrompt } from '../../src/sim/prompts.ts';
 
 const c = loadContent();
 const fresh = (seed = 't', city: (typeof CITY_IDS)[number] = 'aleforge') => createWorld({ seed, homeCity: city }, c);
@@ -112,6 +113,57 @@ describe('last call', () => {
     while (calendarAt(w.tick, c.time).phase === 'lastCall') stepWorld(w, c, []);
     stepWorld(w, c, []);
     expect(w.floor!.patrons.some((p) => before.includes(p.id))).toBe(false);
+  });
+});
+
+describe('where the money goes', () => {
+  it('every Duckets movement is filed under a reason, and the reasons add up to the cash change', () => {
+    const w = fresh('money');
+    const me = player(w);
+    const start = me.cash;
+    run(w, ticksPerYear(c.time) + 20, new Bot(PROFILES.skilled!));
+    const net = Object.values(me.flows).reduce((a, b) => a + b, 0);
+    expect(Math.abs(start + net - me.cash)).toBeLessThan(0.01);
+    expect(me.flows['Drink sales']).toBeGreaterThan(0);
+    expect(me.flows['Rent']).toBeLessThan(0);
+    expect(me.recent.every((e) => e.key !== 'Drink sales')).toBe(true);
+    // A year closed: one bar for the chart, whose profit is income minus spending.
+    expect(me.yearHistory).toHaveLength(1);
+    const y = me.yearHistory[0]!;
+    expect(y.year).toBe(c.time.startYear);
+    expect(y.profit).toBeCloseTo(y.income - y.spending);
+  });
+
+  it('auto-restock never borrows', () => {
+    const w = fresh('broke');
+    const me = player(w);
+    me.cash = 5;
+    run(w, 400);
+    expect(me.cash).toBeGreaterThanOrEqual(0);
+  });
+
+  it('answering a decision leaves a receipt of what it did', () => {
+    const w = fresh('receipt');
+    const t = playerTaverns(w)[0]!;
+    const p = spawnPrompt(w, c, 'hall-contest', { tavernId: t.id })!;
+    stepWorld(w, c, [{ type: 'answer', uid: p.uid, option: 0 }]);
+    const o = w.prompts.outcomes.at(-1)!;
+    expect(o.option).toBe('Enter');
+    expect(o.parts).toContain('−50 Duckets');
+    expect(o.parts.some((x) => x.startsWith('Reputation'))).toBe(true);
+    expect(player(w).recent.at(-1)).toMatchObject({ key: 'Decisions', amount: -50 });
+  });
+
+  it('old saves gain the money trail when loaded', () => {
+    const w = fresh('old') as World & { meta: { v: number } };
+    const me = player(w) as unknown as Record<string, unknown>;
+    delete me.flows; delete me.flowsYear; delete me.recent; delete me.moneySeq; delete me.yearHistory;
+    delete (w.prompts as unknown as Record<string, unknown>).outcomes;
+    const m = migrateWorld(w, 2)!;
+    expect(player(m).flows).toEqual({});
+    expect(m.prompts.outcomes).toEqual([]);
+    expect(m.meta.v).toBe(3);
+    run(m, 50);
   });
 });
 

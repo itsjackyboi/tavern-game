@@ -9,6 +9,7 @@ import { audio } from './engine.ts';
 
 export function bindAudio(ctrl: GameController): () => void {
   const offSound = onSound((k) => audio.play(k));
+  let lastUid = 0;
   let lastAlerts = 0;
   const tick = () => {
     const w = ctrl.world;
@@ -25,6 +26,12 @@ export function bindAudio(ctrl: GameController): () => void {
     const tense = w.prompts.active.some((p) => (idx(c).prompt.get(p.defId)?.tension ?? 0) >= 2);
     audio.setDuck(tense || w.floor?.incidents.length !== 0 && w.focus.view === 'floor' && (w.floor?.incidents.length ?? 0) > 1);
     audio.setAmbience(ctrl.paused ? 'title' : w.focus.view, w.floor?.patrons.length ?? 0);
+    // A new decision arrives: a two-note chime so it isn't missed.
+    const newest = w.prompts.nextUid;
+    if (newest > lastUid) {
+      if (lastUid > 0) audio.play('vip');
+      lastUid = newest;
+    }
     const alerts = w.log.filter((l) => l.kind === 'alert').length;
     if (alerts > lastAlerts) audio.play('alert');
     lastAlerts = alerts;

@@ -14,6 +14,7 @@ import { Drawers } from './drawers/Drawers.tsx';
 import { EndScreen } from './EndScreen.tsx';
 import { Hud } from './hud/Hud.tsx';
 import { Alerts } from './Alerts.tsx';
+import { bindMoneyFeed } from './moneyFeed.ts';
 import { BottomBar } from './panels/BottomBar.tsx';
 import { LeftPanel } from './panels/LeftPanel.tsx';
 import { RightPanel } from './panels/RightPanel.tsx';
@@ -97,6 +98,7 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
     const unbindVm = bindViewModel(ctrl);
     const unbindKeys = installHotkeys(ctrl);
     const unbindAudio = bindAudio(ctrl);
+    const unbindMoney = bindMoneyFeed(ctrl);
     if (ctrl.debug || import.meta.env.DEV) installTestHooks(ctrl);
     let winRecorded = ctrl.world.run.status === 'won';
     let bellWas = ctrl.world.floor?.lastCallRung ?? false;
@@ -143,6 +145,7 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
       unbindVm();
       unbindKeys();
       unbindAudio();
+      unbindMoney();
       unsub();
       views.current?.destroy();
       drawer.value = null;

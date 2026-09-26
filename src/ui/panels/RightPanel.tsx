@@ -5,7 +5,7 @@ import { companyTaverns, league } from '../../sim/company.ts';
 import { establishedSisters } from '../../sim/network.ts';
 import { uiFrame } from '../bus.ts';
 import { money } from '../describe.ts';
-import { Card, inboxItems } from './Cards.tsx';
+import { Card, inboxItems, visibleCards } from './Cards.tsx';
 
 function Inbox({ ctrl }: { ctrl: GameController }) {
   const items = inboxItems(ctrl);
@@ -87,15 +87,32 @@ function Institutions({ ctrl }: { ctrl: GameController }) {
   );
 }
 
+/** Decision cards, pinned to the bottom-right so nothing else jumps around. */
+function Decisions({ ctrl }: { ctrl: GameController }) {
+  const all = visibleCards(ctrl);
+  const cards = all.slice(0, 2);
+  const extra = all.length - cards.length;
+  return (
+    <section class="decisions" data-testid="cards">
+      {cards.length > 0 && <h3>Decisions</h3>}
+      {cards.map((p, i) => <Card key={p.uid} ctrl={ctrl} p={p} hotkeys={i === 0} />)}
+      {extra > 0 && <div class="more-cards">+{extra} more waiting</div>}
+    </section>
+  );
+}
+
 export function RightPanel({ ctrl }: { ctrl: GameController }) {
   void uiFrame.value;
   const world = ctrl.world.focus.view === 'world';
   return (
     <aside class="right-panel">
-      <Inbox ctrl={ctrl} />
-      <League ctrl={ctrl} />
-      {world && <Ladder ctrl={ctrl} />}
-      {world && <Institutions ctrl={ctrl} />}
+      <div class="right-scroll">
+        <Inbox ctrl={ctrl} />
+        <League ctrl={ctrl} />
+        {world && <Ladder ctrl={ctrl} />}
+        {world && <Institutions ctrl={ctrl} />}
+      </div>
+      <Decisions ctrl={ctrl} />
     </aside>
   );
 }

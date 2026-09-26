@@ -28,6 +28,21 @@ The whole game is playable end to end:
 
 The letter and finale text are still clearly marked placeholders.
 
+### v1.2
+- **Where the money goes:**
+  - Every Duckets movement is filed under a reason.
+  - Money in (blue) and out (orange) pops up at the bottom of the board with the reason, e.g. "−140 Rent, The Last Call (season end)".
+  - The Ledger shows whole-run totals by reason, a year-by-year profit-or-loss chart, the latest transactions, and recent decisions with what they did.
+- **Auto-restock** no longer orders kegs on credit. It used to be able to push you 75 Duckets into debt.
+- **Decisions:**
+  - They sit bottom-right, bigger, with a chime and a seconds countdown.
+  - Every choice lists its effects before you pick.
+  - A receipt afterwards shows what actually happened, including when time ran out.
+- **Drinks:** every drink has its own colour (checked distinct), used on taps, order bubbles and lists.
+- **Brew tab:** shows how each drink on tap is selling: share of orders, who likes it, and how patrons feel about its price.
+- **Pausing** dims the board instead of hiding it.
+- **Fix:** the news feed on the left now updates live.
+
 ### v1.1
 - **Layout:**
   - Decision cards sit at the bottom-left, under the news feed. They no longer push the Company Value list around.
@@ -61,7 +76,7 @@ URL flags:
 - `?lbmock=ok|fail|slow` swaps the leaderboard for an in-memory mock (tests).
 
 Keys:
-- `P` or `Esc` pauses and resumes. Pausing stops the clock and hides the board. Switching tabs or windows also pauses.
+- `P` or `Esc` pauses and resumes. Pausing stops the clock and opens the menu. Switching tabs or windows also pauses.
 - `Tab` switches between the floor and the Isles map.
 - `1`–`3` answer the top card. `Q`/`W`/`E`/`C` are quick floor actions.
 - `B` rings the bell.

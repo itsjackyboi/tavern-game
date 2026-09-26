@@ -1,18 +1,21 @@
 import { useState } from 'preact/hooks';
 import type { GameController } from '../../app/controller.ts';
-import { CATEGORY_CSS } from '../../art/themes.ts';
+import { drinkCss } from '../../art/themes.ts';
 import type { CityId, IngredientId } from '../../content/schema.ts';
 import type { Staff } from '../../sim/types.ts';
 import { MAX_TAPS, upgradePrice } from '../../sim/actions.ts';
 import { loanCap } from '../../sim/company.ts';
+import { FINANCING } from '../../sim/economy/ledger.ts';
 import {
-  cityOf, drinkOf, drinkQuality, idx, ingredientPrice, kegCost, modsFor, player, playerTaverns, servingPrice, staffAt, upgradeCount,
+  cityOf, drinkOf, drinkQuality, idx, ingredientPrice, kegCost, modsFor, player, playerTaverns, prefOf, servingPrice, staffAt, upgradeCount,
 } from '../../sim/lookup.ts';
 import { FOUND_MIN_REP, canFound, foundingCost, lotsFree, networkRep } from '../../sim/network.ts';
+import { calendarAt } from '../../sim/time.ts';
 import { INSURANCE_RATE, lossChance, travelTicks } from '../../sim/shipping.ts';
 import { hireCost, trainCost } from '../../sim/staff.ts';
 import type { Tavern } from '../../sim/types.ts';
 import { audio } from '../../audio/engine.ts';
+import { ProfitChart } from '../ledger/ProfitChart.tsx';
 import { drawer, selectedCity, sound, uiFrame } from '../bus.ts';
 import { RESULT_TEXT, describeDrink, describeUpgrade, money, recipeText } from '../describe.ts';
 
@@ -133,7 +136,7 @@ function MenuDrawer({ ctrl }: { ctrl: GameController }) {
         return (
           <div class="menu-row" key={m.drinkId}>
             <div class="menu-top">
-              <span class="drink-name" style={{ color: CATEGORY_CSS[d.category] }}>{d.name}</span>
+              <span class="drink-name" style={{ color: drinkCss(c, d.id) }}>{d.name}</span>
               <span class="small">Q{Math.round(drinkQuality(w, c, t, m.drinkId, mods))}</span>
               {city.contraband.includes(m.drinkId) && <span class="tag warn" title="Contraband here: sells, but draws the wardens">contraband</span>}
               {d.taboo && city.tabooAtNightOnly && <span class="tag" title="Taboo: sells after dark only">night only</span>}
@@ -159,7 +162,7 @@ function MenuDrawer({ ctrl }: { ctrl: GameController }) {
           const d = drinkOf(c, id);
           return (
             <div class="menu-row compact" key={id}>
-              <span class="drink-name" style={{ color: CATEGORY_CSS[d.category] }}>{d.name}</span>
+              <span class="drink-name" style={{ color: drinkCss(c, d.id) }}>{d.name}</span>
               <span class="small">{describeDrink(d)}</span>
               <button class="btn btn-tiny" disabled={onMenu.length >= t.taps} onClick={() => setMenu([...onMenu, id])}>Add</button>
             </div>
@@ -218,6 +221,54 @@ function UpgradesDrawer({ ctrl }: { ctrl: GameController }) {
 
 const INGS: IngredientId[] = ['barley', 'hops', 'molasses', 'spice', 'redEarth', 'fruit', 'spiritweed', 'imports'];
 
+const FEEL: Array<[number, string, string]> = [
+  [-0.12, 'cheap', 'feel-cheap'], [0.1, 'fair', 'feel-fair'], [0.3, 'steep', 'feel-steep'], [Infinity, 'very steep', 'feel-dear'],
+];
+
+/**
+ * How each drink on tap is selling at the focused tavern: its share of orders
+ * (this season and last), who likes it, and how patrons feel about its price.
+ */
+function SalesPanel({ ctrl }: { ctrl: GameController }) {
+  const c = ctrl.content;
+  const w = ctrl.world;
+  const t = focusTavern(ctrl);
+  if (!t) return null;
+  const onTap = t.menu.slice(0, t.taps);
+  const night = calendarAt(w.tick, c.time).isNight;
+  const sold = (id: string) => (t.kpi.byDrink[id] ?? 0) + (t.lastKpi?.byDrink[id] ?? 0);
+  const total = onTap.reduce((sum, m) => sum + sold(m.drinkId), 0);
+  const segs = Object.entries(t.demand.segRates).map(([id, rate]) => [c.segments.find((x) => x.id === id)!, rate] as const).filter(([seg]) => !!seg);
+  const segTotal = segs.reduce((sum, [, r]) => sum + r, 0) || 1;
+  const mods = modsFor(w, c, t);
+  return (
+    <section class="panel-block sales" data-testid="sales">
+      <h3>Selling at {t.name} <span class="muted">this season + last</span></h3>
+      {onTap.map((m) => {
+        const d = drinkOf(c, m.drinkId);
+        const share = total > 0 ? sold(m.drinkId) / total : 0;
+        const likes = segs.filter(([seg]) => prefOf(seg, d.category, night) > 0).reduce((sum, [, r]) => sum + r, 0) / segTotal;
+        const priceMult = m.price * (1 + t.priceBias) * mods.price;
+        const feelScore = segs.reduce((sum, [seg, r]) => sum + ((priceMult - 1) / seg.spend) * r, 0) / segTotal;
+        const [, feel, cls] = FEEL.find(([lim]) => feelScore < lim)!;
+        return (
+          <div class="sales-row" key={m.drinkId}>
+            <span class="swatch" style={{ background: drinkCss(c, d.id) }} />
+            <span class="drink-name" style={{ color: drinkCss(c, d.id) }}>{d.name}</span>
+            <span class="bar" title={`${sold(m.drinkId)} served`}><span class="fill" style={{ width: `${share * 100}%`, background: drinkCss(c, d.id) }} /></span>
+            <span class="sales-pct">{Math.round(share * 100)}%</span>
+            <div class="sales-detail small">
+              {sold(m.drinkId)} served · liked by {Math.round(likes * 100)}% of today’s patrons · {servingPrice(c, t, m.drinkId, mods).toFixed(1)}◉ a pour ({Math.round(m.price * 100)}% of list) · price feels <b class={cls}>{feel}</b>
+            </div>
+          </div>
+        );
+      })}
+      {total === 0 && <p class="small muted">Nothing sold yet this season.</p>}
+      <p class="small muted">Change prices in Menu (M).</p>
+    </section>
+  );
+}
+
 function ResearchDrawer({ ctrl }: { ctrl: GameController }) {
   void uiFrame.value; // components with local state must subscribe themselves to redraw live
   const [pick, setPick] = useState<IngredientId[]>([]);
@@ -229,6 +280,8 @@ function ResearchDrawer({ ctrl }: { ctrl: GameController }) {
   const tried = key && w.research.tried.includes(key);
   return (
     <Shell title="Brewing bench">
+      <SalesPanel ctrl={ctrl} />
+      <h3 class="bench-title">Try a new recipe</h3>
       <p class="small muted">Combine two ingredients to try for a new recipe. Each attempt costs {c.economy.researchCost}◉. Spiritweed only comes from Veilwalker vows (you hold {me.spiritweed}).</p>
       <div class="ing-grid">
         {INGS.map((i) => (
@@ -246,7 +299,7 @@ function ResearchDrawer({ ctrl }: { ctrl: GameController }) {
           const d = drinkOf(c, id);
           return (
             <div class="recipe" key={id}>
-              <span class="drink-name" style={{ color: CATEGORY_CSS[d.category] }}>{d.name}</span>
+              <span class="drink-name" style={{ color: drinkCss(c, d.id) }}>{d.name}</span>
               <div class="small">{describeDrink(d)} · {recipeText(c, d)}</div>
             </div>
           );
@@ -264,25 +317,56 @@ function FinanceDrawer({ ctrl }: { ctrl: GameController }) {
   const c = ctrl.content;
   const me = player(w);
   const cap = loanCap(c, me);
-  const L = me.ledger;
-  const P = me.lastLedger;
-  const line = (label: string, k: keyof typeof L) => (
-    <tr key={k}><td>{label}</td><td>{money(L[k])}</td><td class="muted">{P ? money(P[k]) : '-'}</td></tr>
-  );
+  const flows = Object.entries(me.flows).filter(([k, v]) => k !== FINANCING && Math.abs(v) >= 0.5);
+  const income = flows.filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+  const spending = flows.filter(([, v]) => v < 0).sort((a, b) => a[1] - b[1]);
+  const inSum = income.reduce((s, [, v]) => s + v, 0);
+  const outSum = -spending.reduce((s, [, v]) => s + v, 0);
+  let yIn = 0;
+  let yOut = 0;
+  for (const [k, v] of Object.entries(me.flowsYear)) {
+    if (k === FINANCING) continue;
+    if (v >= 0) yIn += v;
+    else yOut -= v;
+  }
+  const current = { year: c.time.startYear + me.yearHistory.length, income: yIn, spending: yOut, profit: yIn - yOut };
+  const recent = [...me.recent].reverse().slice(0, 12);
   return (
     <Shell title="Ledger">
-      <table class="grid-table">
-        <thead><tr><th /><th>This year</th><th>Last year</th></tr></thead>
+      <table class="grid-table money-table" data-testid="ledger-totals">
+        <thead><tr><th>Money in, whole run</th><th>Duckets</th></tr></thead>
         <tbody>
-          {line('Revenue (net)', 'revenue')}
-          {line('Kegs', 'kegs')}
-          {line('Wages & hiring', 'wages')}
-          {line('Rent', 'rent')}
-          {line('Tax, tithe & fees', 'tax')}
-          {line('Everything else', 'other')}
+          {income.map(([k, v]) => <tr key={k}><td>{k}</td><td class="pos">+{money(v)}</td></tr>)}
+          {income.length === 0 && <tr><td class="muted" colSpan={2}>Nothing yet</td></tr>}
+          <tr class="subhead"><th>Money out, whole run</th><th /></tr>
+          {spending.map(([k, v]) => <tr key={k}><td>{k}</td><td class="neg">−{money(-v)}</td></tr>)}
+          {spending.length === 0 && <tr><td class="muted" colSpan={2}>Nothing yet</td></tr>}
+          <tr class="total"><td>Net</td><td class={inSum - outSum >= 0 ? 'pos' : 'neg'}>{inSum - outSum >= 0 ? '+' : '−'}{money(Math.abs(inSum - outSum))}</td></tr>
         </tbody>
       </table>
-      <p class="small">Profit trend: {money(me.profitYear)}◉ a year · Company Value {money(me.cv)}</p>
+      <ProfitChart years={me.yearHistory} current={current} />
+      <section class="panel-block">
+        <h3>Latest money in and out <span class="muted">(drink sales not listed)</span></h3>
+        {recent.length === 0 && <p class="small muted">Nothing yet.</p>}
+        {recent.map((e) => (
+          <div class="money-row" key={e.seq}>
+            <span class={e.amount >= 0 ? 'pos' : 'neg'}>{e.amount >= 0 ? '+' : '−'}{money(Math.abs(e.amount))}</span>
+            <span>{e.key}</span>
+            <span class="muted small">{e.detail}</span>
+          </div>
+        ))}
+      </section>
+      <section class="panel-block" data-testid="decision-log">
+        <h3>Recent decisions and what they did</h3>
+        {w.prompts.outcomes.length === 0 && <p class="small muted">None yet.</p>}
+        {[...w.prompts.outcomes].reverse().slice(0, 6).map((o) => (
+          <div class="decision-row" key={o.seq}>
+            <span>{o.title} → <b>{o.option}</b>{o.auto ? <span class="muted"> (time ran out)</span> : null}</span>
+            <span class="small muted">{o.parts.join(' · ') || 'No immediate effect'}</span>
+          </div>
+        ))}
+      </section>
+      <p class="small">Cash {money(me.cash)}◉ · Profit trend {money(me.profitYear)}◉ a year · Company Value {money(me.cv)}</p>
       <section class="panel-block">
         <h3>Brewers' Lane moneylender</h3>
         <p class="small">Debt {money(me.debt)}◉ at {Math.round(c.economy.loanRatePerSeason * 100)}% a season · can borrow {money(cap)}◉ more</p>
@@ -453,10 +537,10 @@ function HelpDrawer() {
         <h3>The screen</h3>
         <ul class="small">
           <li><b>Top:</b> year and season, day/night, run clock, Duckets, Company Value and rank, the monopoly bar, and your sister taverns.</li>
-          <li><b>Left:</b> your tavern's taps, staff and local rivals; the news of the Isles; and decisions waiting for you at the bottom.</li>
-          <li><b>Right:</b> every company's Company Value, yours highlighted.</li>
-          <li><b>Decisions:</b> the bar is the time left; the dashed option happens if you don't choose.</li>
-          <li><b>Red banners</b> at the bottom of the board stay up until the problem is fixed (money, dry taps).</li>
+          <li><b>Left:</b> your tavern's taps, staff and local rivals, then the news of the Isles.</li>
+          <li><b>Right:</b> every company's Company Value, yours highlighted; decisions waiting for you at the bottom.</li>
+          <li><b>Decisions:</b> each choice lists its effects; the bar and seconds show the time left; the “if you wait” option happens if you don't choose. A receipt then shows what happened.</li>
+          <li><b>Bottom of the board:</b> money in (blue) and out (orange) with the reason, and red banners that stay until a problem is fixed (money, dry taps). The Ledger (F) has the full account.</li>
         </ul>
       </section>
       <section class="panel-block">

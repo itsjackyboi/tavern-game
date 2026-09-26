@@ -6,14 +6,43 @@ import type { Company, Ledger, Tavern, World } from '../types.ts';
 // The only place money moves (docs/PLAN.md §4). Floor and aggregate sims both
 // record effects through these calls, so the economy's rules are identical.
 
-export function spend(co: Company, amount: number, line: keyof Ledger): void {
-  co.cash -= amount;
-  co.ledger[line] += line === 'revenue' ? -amount : amount;
+const LINE_KEY: Record<keyof Ledger, string> = {
+  revenue: 'Drink sales', kegs: 'Kegs', wages: 'Wages', rent: 'Rent', tax: 'Fees & tithes', other: 'Other',
+};
+
+/** Money that isn't profit or loss: borrowing and repaying. */
+export const FINANCING = 'Loans';
+const RECENT_MAX = 40;
+
+/**
+ * Notes a player money movement under a reason, so the game can always say
+ * where the Duckets went. Consecutive entries for the same thing merge.
+ */
+export function track(co: Company, amount: number, key: string, detail = ''): void {
+  if (!co.isPlayer || amount === 0) return;
+  co.flows[key] = (co.flows[key] ?? 0) + amount;
+  co.flowsYear[key] = (co.flowsYear[key] ?? 0) + amount;
+  if (key === 'Drink sales') return;
+  const last = co.recent[co.recent.length - 1];
+  if (last && last.key === key && last.detail === detail) {
+    last.amount += amount;
+    last.seq = ++co.moneySeq;
+    return;
+  }
+  co.recent.push({ seq: ++co.moneySeq, key, detail, amount });
+  if (co.recent.length > RECENT_MAX) co.recent.splice(0, co.recent.length - RECENT_MAX);
 }
 
-export function earn(co: Company, amount: number): void {
+export function spend(co: Company, amount: number, line: keyof Ledger, why?: string, detail?: string): void {
+  co.cash -= amount;
+  co.ledger[line] += line === 'revenue' ? -amount : amount;
+  track(co, -amount, why ?? LINE_KEY[line], detail);
+}
+
+export function earn(co: Company, amount: number, why = 'Drink sales', detail?: string): void {
   co.cash += amount;
   co.ledger.revenue += amount;
+  track(co, amount, why, detail);
 }
 
 /** Share of revenue lost to tax, tithe and counterfeits in this tavern's city. */

@@ -1,7 +1,7 @@
 import { RAW_CONTENT } from '../content/index.ts';
 import { hashValue } from '../sim/hash.ts';
 import type { World } from '../sim/types.ts';
-import { WORLD_VERSION } from '../sim/world.ts';
+import { WORLD_VERSION, migrateWorld } from '../sim/world.ts';
 
 // One continuous save slot (no save-scumming): written at every season
 // rollover, when the tab is hidden and on pagehide. Continue or Abandon only.
@@ -60,7 +60,12 @@ export async function readSave(): Promise<SaveFile | null> {
     const data = localStorage.getItem(KEY);
     if (!data) return null;
     const save = JSON.parse(await decompress(data)) as SaveFile;
-    if (save.v !== WORLD_VERSION) return null;
+    if (save.v !== WORLD_VERSION) {
+      const w = migrateWorld(save.world, save.v);
+      if (!w) return null;
+      save.world = w;
+      save.v = WORLD_VERSION;
+    }
     return save;
   } catch {
     return null;

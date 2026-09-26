@@ -33,7 +33,7 @@ export function buyUpgrade(w: World, c: Content, tavernId: string | null, upgrad
   if (u.effects.tables && t && t.tables >= MAX_TABLES) return 'max';
   if (u.effects.taps && t && t.taps >= MAX_TAPS) return 'max';
   if (me.cash < price) return 'cash';
-  spend(me, price, 'other');
+  spend(me, price, 'other', 'Upgrades', u.name);
   owner.upgrades[upgradeId] = upgradeCount(owner, upgradeId) + 1;
   if (t) {
     if (u.effects.tables) t.tables = Math.min(MAX_TABLES, t.tables + u.effects.tables);
@@ -86,7 +86,7 @@ export function research(w: World, c: Content, a: IngredientId, b: IngredientId)
   if (w.research.tried.includes(key)) return { status: 'tried' };
   if ((a === 'spiritweed' || b === 'spiritweed') && me.spiritweed < 1) return { status: 'weed' };
   if (me.cash < c.economy.researchCost) return { status: 'cash' };
-  spend(me, c.economy.researchCost, 'other');
+  spend(me, c.economy.researchCost, 'other', 'Brewing research', 'A test batch');
   w.research.tried.push(key);
   const d = c.drinks.find((x) => x.discover && [...x.discover].sort().join('+') === key);
   if (!d) return { status: 'nothing' };

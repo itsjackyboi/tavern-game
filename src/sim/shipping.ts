@@ -1,5 +1,5 @@
 import type { CityId, Content } from '../content/schema.ts';
-import { spend } from './economy/ledger.ts';
+import { spend, track } from './economy/ledger.ts';
 import { log, rumor } from './log.ts';
 import { cityOf, clamp, kegCost, modsFor, newId, player, upgradeCount } from './lookup.ts';
 import { chance } from './rng.ts';
@@ -43,7 +43,7 @@ export function ship(w: World, c: Content, fromId: string, toId: string, drinkId
   const value = kegCost(w, c, drinkId, from.city, me, from) * kegs;
   const premium = insured ? Math.round(value * INSURANCE_RATE) : 0;
   if (me.cash < premium) return 'cash';
-  if (premium) spend(me, premium, 'other');
+  if (premium) spend(me, premium, 'other', 'Shipping', 'Voyage Wager insurance');
   from.cellar[drinkId] = (from.cellar[drinkId] ?? 0) - kegs;
   const tunnels = upgradeCount(me, 'ofern-tunnels') > 0;
   w.shipments.push({
@@ -69,6 +69,7 @@ export function stepShipping(w: World, c: Content): void {
       rumor(w, c, 'shipLost', to.city);
       if (s.insured) {
         me.cash += s.value;
+        track(me, s.value, 'Shipping', 'Voyage Wager payout for a lost cargo');
         log(w, 'news', `Voyage Wager pays out ${Math.round(s.value)} Duckets.`, to.city);
       }
       continue;

@@ -69,6 +69,12 @@ export function crossCheck(c: Content): string[] {
   const ids = new Set(c.cities.map((x) => x.id));
   if (ids.size !== 4) problems.push('cities: each of the four cities must appear exactly once');
   const drinkIds = new Set(c.drinks.map((d) => d.id));
+  const colors = new Map<string, string>();
+  for (const d of c.drinks) {
+    const k = d.color.toLowerCase();
+    if (colors.has(k)) problems.push(`drinks: ${d.id} has the same colour as ${colors.get(k)}; every drink needs its own`);
+    colors.set(k, d.id);
+  }
   const modIds = new Set(c.modifiers.map((m) => m.id));
   const promptIds = new Set(c.prompts.map((p) => p.id));
   for (const city of c.cities) {

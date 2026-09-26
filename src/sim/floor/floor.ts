@@ -345,7 +345,7 @@ function startSneak(w: World, c: Content, f: FloorState, p: Patron): void {
 function steal(w: World, c: Content, f: FloorState, t: Tavern, p: Patron): void {
   const co = w.companies[t.companyId]!;
   const amount = Math.round(clamp(co.cash * 0.03, 6, 60) * cityOf(c, t.city).theftMult);
-  spend(co, amount, 'other');
+  spend(co, amount, 'other', 'Theft', `A thief at ${t.name}`);
   t.kpi.thefts += 1;
   fx(w, 'steal', p.x, p.y, amount);
   p.thief = false;
@@ -397,7 +397,7 @@ function failBrawl(w: World, c: Content, f: FloorState, t: Tavern, inc: Incident
   const co = w.companies[t.companyId]!;
   const mods = modsFor(w, c, t);
   const damage = Math.round((15 + rand(w, 'floor') * 25) * cityOf(c, t.city).damageMult);
-  spend(co, damage, 'other');
+  spend(co, damage, 'other', 'Brawl damage', `A brawl at ${t.name}`);
   t.rep = clamp(t.rep - 2 * mods.repSwing, 0, 100);
   t.kpi.brawls += 1;
   for (const id of inc.patronIds) {
@@ -599,7 +599,7 @@ function runTask(w: World, c: Content, f: FloorState, t: Tavern, wk: Worker, nig
         fx(w, 'restock', wk.x, wk.y);
         const co = w.companies[t.companyId]!;
         const skim = wk.staffId ? (c.staff.archetypes.find((a) => a.id === w.staff[wk.staffId!]?.archetype)?.skim ?? 0) : 0;
-        if (skim > 0 && chance(w, 'floor', skim * 5)) spend(co, 4, 'other');
+        if (skim > 0 && chance(w, 'floor', skim * 5)) spend(co, 4, 'other', 'Theft', 'Your cellarer pocketed some');
       }
       return true;
     }
@@ -893,7 +893,7 @@ function settleShift(w: World, c: Content, f: FloorState, t: Tavern): void {
     const co = w.companies[t.companyId]!;
     const mult = t.city === 'providence' ? 2 : 1;
     const fine = Math.round(c.floor.lastCallStragglerFine * mult * (inside.length - 3));
-    spend(co, fine, 'other');
+    spend(co, fine, 'other', 'Fines', `Stragglers after closing at ${t.name} (bell not rung)`);
     if (t.city === 'providence' && co.isPlayer) w.institutions.church = clamp(w.institutions.church - 1, -100, 100);
     fx(w, 'thud', DOOR.x, DOOR.y - 1, fine);
   }

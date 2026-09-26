@@ -1,5 +1,6 @@
 import type { CityId, Content, EffectT } from '../content/schema.ts';
-import { spend } from './economy/ledger.ts';
+import { spend, track } from './economy/ledger.ts';
+import { effectLine } from './effectText.ts';
 import { syncFloor } from './floor/floor.ts';
 import { log } from './log.ts';
 import { addModifier, clamp, fmt, idx, managerOf, player, playerTaverns, staffAt } from './lookup.ts';
@@ -59,15 +60,24 @@ function targetTavern(w: World, p: ActivePrompt): Tavern | null {
   return w.taverns[w.focus.tavernId] ?? null;
 }
 
-export function applyEffects(w: World, c: Content, effects: EffectT[], p: ActivePrompt, skipDuckets = false): void {
+/**
+ * Applies a prompt's effects. `out`, when given, collects a plain-language line
+ * for each effect that actually happened (chances already resolved), for the receipt.
+ */
+export function applyEffects(w: World, c: Content, effects: EffectT[], p: ActivePrompt, skipDuckets = false, out?: string[]): void {
   const me = player(w);
   const t = targetTavern(w, p);
+  const title = promptTitle(c, p);
   for (const e of effects) {
+    if (out && e.type !== 'chance' && !(e.type === 'duckets' && skipDuckets && e.amount < 0)) {
+      const line = effectLine(c, e, false);
+      if (line) out.push(line);
+    }
     switch (e.type) {
       case 'duckets':
         if (skipDuckets && e.amount < 0) break;
-        if (e.amount >= 0) { me.cash += e.amount; me.ledger.other -= e.amount; }
-        else spend(me, -e.amount, 'other');
+        if (e.amount >= 0) { me.cash += e.amount; me.ledger.other -= e.amount; track(me, e.amount, 'Decisions', title); }
+        else spend(me, -e.amount, 'other', 'Decisions', title);
         break;
       case 'favor':
         me.favor = Math.max(0, me.favor + e.amount);
@@ -150,7 +160,7 @@ export function applyEffects(w: World, c: Content, effects: EffectT[], p: Active
         w.events.flags[e.id] = e.value;
         break;
       case 'chance':
-        applyEffects(w, c, chance(w, 'events', e.p) ? e.then : (e.else ?? []), p, skipDuckets);
+        applyEffects(w, c, chance(w, 'events', e.p) ? e.then : (e.else ?? []), p, skipDuckets, out);
         break;
     }
   }
@@ -174,8 +184,14 @@ export function answerPrompt(w: World, c: Content, uid: number, option: number, 
     payWithFavor = true;
   }
   w.prompts.active = w.prompts.active.filter((x) => x.uid !== uid);
-  if (payWithFavor) me.favor -= opt.favorCost!;
-  applyEffects(w, c, opt.effects, p, payWithFavor);
+  const parts: string[] = [];
+  if (payWithFavor) {
+    me.favor -= opt.favorCost!;
+    parts.push(`Paid ${opt.favorCost} Favor instead of Duckets`);
+  }
+  applyEffects(w, c, opt.effects, p, payWithFavor, parts);
+  w.prompts.outcomes.push({ seq: ++w.prompts.outcomeSeq, title: promptTitle(c, p), option: opt.label, auto: viaTimeout, parts });
+  if (w.prompts.outcomes.length > 12) w.prompts.outcomes.shift();
   if (viaTimeout) w.prompts.missed += 1;
   else w.prompts.answered += 1;
   // Answering a sister's inbox item counts as checking in on it.

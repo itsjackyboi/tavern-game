@@ -22,7 +22,7 @@ export function hireStaff(w: World, c: Content, t: Tavern, archetype: string, ti
   const co = w.companies[t.companyId]!;
   const cost = hireCost(c, tier);
   if (co.cash < cost) return 'cash';
-  spend(co, cost, 'wages');
+  spend(co, cost, 'wages', 'Hiring', `${arch.name} (${tier}) for ${t.name}`);
   makeStaff(w, c, { archetype, tier, tavernId: t.id, stream: 'staff' });
   if (w.floor?.tavernId === t.id) syncFloor(w, c);
   return 'ok';
@@ -32,7 +32,7 @@ export function hireManager(w: World, c: Content, t: Tavern, tier: Staff['tier']
   const co = w.companies[t.companyId]!;
   const cost = hireCost(c, tier, true);
   if (co.cash < cost) return 'cash';
-  spend(co, cost, 'wages');
+  spend(co, cost, 'wages', 'Hiring', `A ${tier} manager for ${t.name}`);
   if (t.managerId) delete w.staff[t.managerId];
   const m = makeStaff(w, c, { archetype: 'manager', tier, tavernId: t.id, stream: 'staff' });
   t.managerId = m.id;
@@ -60,7 +60,7 @@ export function trainStaff(w: World, c: Content, staffId: string): boolean {
   const co = w.companies[t.companyId]!;
   const cost = trainCost(s);
   if (co.cash < cost) return false;
-  spend(co, cost, 'wages');
+  spend(co, cost, 'wages', 'Training', s.name);
   s.competence = Math.round(clamp(s.competence + 0.06, 0, 0.97) * 100) / 100;
   s.morale = clamp(s.morale + 0.05, 0, 1);
   void c;

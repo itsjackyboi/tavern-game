@@ -15,8 +15,8 @@ function toggleFullscreen(): void {
   else void document.documentElement.requestFullscreen?.().catch(() => undefined);
 }
 
-// Owner's rule: pausing stops the clock and hides the board, so a pause can't
-// be used as free planning time. The veil is opaque on purpose. It doubles as the game menu.
+// Pausing stops the clock. The board stays visible behind a dim veil (owner's
+// call in v1.2). The veil doubles as the game menu.
 export function PauseVeil({ ctrl, onExit }: { ctrl: GameController; onExit: () => void }) {
   const [leaving, setLeaving] = useState(false);
   const v = vm.value;
