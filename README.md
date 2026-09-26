@@ -28,6 +28,10 @@ The whole game is playable end to end:
 
 The letter and finale text are still clearly marked placeholders.
 
+### v1.8
+- **Intro letter:** it now sets the scene. It's Year 448, there has been no Liquor King for 36 years (since Ofkra), and Glendolph Galleyway runs Aleforge.
+- **Leaderboard test run:** a manual Actions workflow ("Leaderboard test run") sends one labelled test run to the sheet to check the connection.
+
 ### v1.7
 - **Reputation box** on the left, between Rivals here and Word around the Isles. It shows the current tavern's reputation (0–100) with a marker at 40 (the sister-tavern bar), and whether it has been **rising, falling or steady** over the last minute, with a small trend line. With several taverns it also shows your network average. It replaces the small number on the tavern tab.
 - **Home page:**

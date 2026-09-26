@@ -1,0 +1,25 @@
+name: Leaderboard test run
+
+# Manual only: sends one labelled test run ("TestRun" / "Test Ping Tavern")
+# to the shared leaderboard sheet, to check the connection end to end.
+on:
+  workflow_dispatch:
+    inputs:
+      result:
+        description: 'lost = logged on the runs tab only; monopoly = also appears on Pre Release Records'
+        type: choice
+        options: [lost, monopoly]
+        default: lost
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/lb-ping.mjs ${{ inputs.result }}
