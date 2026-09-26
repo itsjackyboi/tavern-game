@@ -21,7 +21,7 @@ export function revenueSkim(w: World, c: Content, t: Tavern, mods: ModTotals): n
   const city = cityOf(c, t.city);
   let skim = city.salesTax;
   if (t.city === 'providence') {
-    skim += clamp(0.12 + (0.2 * w.undercurrents.church.providence) / 100 + mods.tithe - w.institutions.church / 1000, 0.05, 0.45);
+    skim += clamp(0.06 + (0.12 * w.undercurrents.church.providence) / 100 + mods.tithe - w.institutions.church / 1000, 0.03, 0.4);
   }
   if (t.city === 'roto') skim += clamp(0.04 * (1 - w.institutions.rotoMarket / 100), 0, 0.08);
   return skim;

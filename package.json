@@ -19,7 +19,9 @@
     "gen-schema": "tsx tools/gen-json-schema.ts",
     "lore-lint": "tsx tools/lore-lint.ts",
     "fetch-assets": "node tools/fetch-assets.mjs",
-    "check": "npm run typecheck && npm test && npm run validate-content && npm run build && npm run lore-lint"
+    "check": "npm run typecheck && npm test && npm run validate-content && npm run build && npm run lore-lint",
+    "build-gas": "tsx tools/build-gas.ts",
+    "balance": "tsx tools/balance.ts"
   },
   "dependencies": {
     "@preact/signals": "2.11.2",

@@ -1,26 +1,398 @@
 [
-  { "id": "farmers", "name": "Farmers", "city": "aleforge", "weight": 0.24, "nightWeight": 0.18, "spend": 0.9, "patience": 1.1, "brawl": 0.006, "theft": 0.004, "tip": 0.05, "drinks": 1.0, "prefs": { "ale": 1.0, "cider": 0.9, "stout": 0.6 } },
-  { "id": "brewers", "name": "Brewers", "city": "aleforge", "weight": 0.2, "nightWeight": 0.2, "spend": 1.15, "patience": 0.9, "brawl": 0.004, "theft": 0.002, "tip": 0.08, "drinks": 1.0, "prefs": { "ale": 1.2, "stout": 1.0, "cider": 0.4 } },
-  { "id": "craftsmen", "name": "Craftsmen", "city": "aleforge", "weight": 0.2, "nightWeight": 0.2, "spend": 1.0, "patience": 1.0, "brawl": 0.006, "theft": 0.004, "tip": 0.06, "drinks": 1.0, "prefs": { "ale": 0.8, "spirits": 0.7, "wine": 0.5, "stout": 0.6 } },
-  { "id": "traders", "name": "Traders", "city": "aleforge", "weight": 0.14, "nightWeight": 0.12, "spend": 1.3, "patience": 0.8, "brawl": 0.003, "theft": 0.006, "tip": 0.1, "drinks": 0.9, "prefs": { "wine": 1.0, "spirits": 0.9, "tonic": 0.8 } },
-  { "id": "miners", "name": "Miners", "city": "aleforge", "weight": 0.12, "nightWeight": 0.16, "spend": 0.9, "patience": 1.0, "brawl": 0.02, "theft": 0.004, "tip": 0.04, "drinks": 1.3, "prefs": { "stout": 1.2, "grog": 0.7, "ale": 0.8 } },
-  { "id": "pirates", "name": "Pirates", "city": "aleforge", "weight": 0.1, "nightWeight": 0.14, "spend": 1.2, "patience": 0.7, "brawl": 0.03, "theft": 0.01, "tip": 0.2, "drinks": 1.4, "prefs": { "grog": 1.2, "spirits": 0.8 } },
-
-  { "id": "tideCallers", "name": "Tide Callers", "city": "shanty", "weight": 0.18, "nightWeight": 0.18, "spend": 1.0, "patience": 1.0, "brawl": 0.008, "theft": 0.004, "tip": 0.12, "drinks": 1.1, "prefs": { "spirits": 1.0, "grog": 0.8, "stout": 0.5 }, "favorTips": true },
-  { "id": "coralEyed", "name": "Coral-eyed", "city": "shanty", "weight": 0.12, "nightWeight": 0.16, "spend": 1.1, "patience": 1.2, "brawl": 0.006, "theft": 0.008, "tip": 0.1, "drinks": 1.0, "prefs": { "spirits": 1.2, "stout": 0.7, "tonic": 0.4 }, "favorTips": true },
-  { "id": "ashenOath", "name": "Ashen Oath", "city": "shanty", "weight": 0.12, "nightWeight": 0.08, "spend": 0.9, "patience": 0.9, "brawl": 0.012, "theft": 0.002, "tip": 0.04, "drinks": 0.8, "prefs": { "cider": 1.1, "tonic": 0.9, "grog": -1.2, "spirits": -0.4 } },
-  { "id": "captains", "name": "Captains & Crews", "city": "shanty", "weight": 0.38, "nightWeight": 0.42, "spend": 1.3, "patience": 0.7, "brawl": 0.03, "theft": 0.008, "tip": 0.28, "drinks": 1.5, "prefs": { "grog": 1.3, "spirits": 0.8, "ale": 0.5 }, "favorTips": true, "diffuses": "pirateCulture" },
-  { "id": "drifters", "name": "Drifters", "city": "shanty", "weight": 0.2, "nightWeight": 0.16, "spend": 1.0, "patience": 1.0, "brawl": 0.008, "theft": 0.012, "tip": 0.08, "drinks": 1.0, "prefs": { "wine": 0.8, "spirits": 0.7, "ale": 0.7, "cider": 0.5 } },
-
-  { "id": "apostles", "name": "Apostles", "city": "providence", "weight": 0.5, "nightWeight": 0.5, "spend": 1.5, "patience": 1.2, "brawl": 0.001, "theft": 0.001, "tip": 0.06, "drinks": 1.0, "prefs": { "tonic": 1.4, "spirits": 0.4, "wine": 0.6, "grog": -0.8 }, "night": { "brawl": 0.02, "drinks": 1.7, "prefs": { "grog": 1.0, "ale": 1.0, "spirits": 1.0, "tonic": 0.8 } }, "diffuses": "church" },
-  { "id": "circs", "name": "Circs", "city": "providence", "weight": 0.15, "nightWeight": 0.12, "spend": 1.2, "patience": 1.1, "brawl": 0.002, "theft": 0.001, "tip": 0.06, "drinks": 1.0, "prefs": { "tonic": 1.0, "spirits": 0.9, "stout": 0.5 } },
-  { "id": "sextons", "name": "Sextons", "city": "providence", "weight": 0.18, "nightWeight": 0.2, "spend": 0.9, "patience": 0.9, "brawl": 0.006, "theft": 0.025, "tip": 0.02, "drinks": 1.1, "prefs": { "ale": 0.9, "grog": 0.6, "cider": 0.6 } },
-  { "id": "pilgrims", "name": "Pilgrims", "city": "providence", "weight": 0.13, "nightWeight": 0.1, "spend": 1.1, "patience": 1.0, "brawl": 0.002, "theft": 0.003, "tip": 0.05, "drinks": 0.9, "prefs": { "wine": 0.9, "ale": 0.7, "cider": 0.8 } },
-  { "id": "kalifarts", "name": "Kalifarts", "city": "providence", "weight": 0.04, "nightWeight": 0.08, "spend": 2.2, "patience": 0.8, "brawl": 0.0, "theft": 0.0, "tip": 0.3, "drinks": 1.2, "prefs": { "tonic": 1.3, "spirits": 1.0, "wine": 1.0 }, "vip": true },
-
-  { "id": "merchants", "name": "Merchants", "city": "roto", "weight": 0.34, "nightWeight": 0.24, "spend": 1.4, "patience": 0.8, "brawl": 0.003, "theft": 0.008, "tip": 0.1, "drinks": 1.0, "prefs": { "wine": 1.1, "spirits": 1.0, "tonic": 0.6 } },
-  { "id": "stallhands", "name": "Stall-hands", "city": "roto", "weight": 0.28, "nightWeight": 0.2, "spend": 0.9, "patience": 0.9, "brawl": 0.01, "theft": 0.015, "tip": 0.04, "drinks": 1.1, "prefs": { "ale": 0.8, "grog": 0.9, "cider": 0.6 } },
-  { "id": "rotoPirates", "name": "Fence Pirates", "city": "roto", "weight": 0.2, "nightWeight": 0.24, "spend": 1.2, "patience": 0.7, "brawl": 0.025, "theft": 0.01, "tip": 0.2, "drinks": 1.4, "prefs": { "grog": 1.2, "spirits": 0.9 } },
-  { "id": "smugglers", "name": "Smugglers", "city": "roto", "weight": 0.1, "nightWeight": 0.24, "spend": 1.2, "patience": 0.8, "brawl": 0.01, "theft": 0.04, "tip": 0.1, "drinks": 1.1, "prefs": { "spirits": 1.2, "tonic": 0.8, "wine": 0.6 } },
-  { "id": "magnates", "name": "Spirit-realm Magnates", "city": "roto", "weight": 0.04, "nightWeight": 0.06, "spend": 2.4, "patience": 0.8, "brawl": 0.0, "theft": 0.0, "tip": 0.3, "drinks": 1.2, "prefs": { "wine": 1.3, "spirits": 1.1 }, "vip": true }
+  {
+    "id": "farmers",
+    "name": "Farmers",
+    "city": "aleforge",
+    "weight": 0.24,
+    "nightWeight": 0.18,
+    "spend": 0.9,
+    "patience": 1.1,
+    "brawl": 0.006,
+    "theft": 0.004,
+    "tip": 0.05,
+    "drinks": 1.0,
+    "prefs": {
+      "ale": 1.0,
+      "cider": 0.9,
+      "stout": 0.6
+    }
+  },
+  {
+    "id": "brewers",
+    "name": "Brewers",
+    "city": "aleforge",
+    "weight": 0.2,
+    "nightWeight": 0.2,
+    "spend": 1.15,
+    "patience": 0.9,
+    "brawl": 0.004,
+    "theft": 0.002,
+    "tip": 0.08,
+    "drinks": 1.0,
+    "prefs": {
+      "ale": 1.2,
+      "stout": 1.0,
+      "cider": 0.4
+    }
+  },
+  {
+    "id": "craftsmen",
+    "name": "Craftsmen",
+    "city": "aleforge",
+    "weight": 0.2,
+    "nightWeight": 0.2,
+    "spend": 1.0,
+    "patience": 1.0,
+    "brawl": 0.006,
+    "theft": 0.004,
+    "tip": 0.06,
+    "drinks": 1.0,
+    "prefs": {
+      "ale": 0.8,
+      "spirits": 0.7,
+      "wine": 0.5,
+      "stout": 0.6
+    }
+  },
+  {
+    "id": "traders",
+    "name": "Traders",
+    "city": "aleforge",
+    "weight": 0.14,
+    "nightWeight": 0.12,
+    "spend": 1.3,
+    "patience": 0.8,
+    "brawl": 0.003,
+    "theft": 0.006,
+    "tip": 0.1,
+    "drinks": 0.9,
+    "prefs": {
+      "wine": 1.0,
+      "spirits": 0.9,
+      "tonic": 0.8
+    }
+  },
+  {
+    "id": "miners",
+    "name": "Miners",
+    "city": "aleforge",
+    "weight": 0.12,
+    "nightWeight": 0.16,
+    "spend": 0.9,
+    "patience": 1.0,
+    "brawl": 0.02,
+    "theft": 0.004,
+    "tip": 0.04,
+    "drinks": 1.3,
+    "prefs": {
+      "stout": 1.2,
+      "grog": 0.7,
+      "ale": 0.8
+    }
+  },
+  {
+    "id": "pirates",
+    "name": "Pirates",
+    "city": "aleforge",
+    "weight": 0.1,
+    "nightWeight": 0.14,
+    "spend": 1.2,
+    "patience": 0.7,
+    "brawl": 0.03,
+    "theft": 0.01,
+    "tip": 0.2,
+    "drinks": 1.4,
+    "prefs": {
+      "grog": 1.2,
+      "spirits": 0.8
+    }
+  },
+  {
+    "id": "tideCallers",
+    "name": "Tide Callers",
+    "city": "shanty",
+    "weight": 0.18,
+    "nightWeight": 0.18,
+    "spend": 1.0,
+    "patience": 1.0,
+    "brawl": 0.008,
+    "theft": 0.004,
+    "tip": 0.12,
+    "drinks": 1.1,
+    "prefs": {
+      "spirits": 1.0,
+      "grog": 0.8,
+      "stout": 0.5
+    },
+    "favorTips": true
+  },
+  {
+    "id": "coralEyed",
+    "name": "Coral-eyed",
+    "city": "shanty",
+    "weight": 0.12,
+    "nightWeight": 0.16,
+    "spend": 1.1,
+    "patience": 1.2,
+    "brawl": 0.006,
+    "theft": 0.008,
+    "tip": 0.1,
+    "drinks": 1.0,
+    "prefs": {
+      "spirits": 1.2,
+      "stout": 0.7,
+      "tonic": 0.4
+    },
+    "favorTips": true
+  },
+  {
+    "id": "ashenOath",
+    "name": "Ashen Oath",
+    "city": "shanty",
+    "weight": 0.12,
+    "nightWeight": 0.08,
+    "spend": 0.9,
+    "patience": 0.9,
+    "brawl": 0.012,
+    "theft": 0.002,
+    "tip": 0.04,
+    "drinks": 0.8,
+    "prefs": {
+      "cider": 1.1,
+      "tonic": 0.9,
+      "grog": -1.2,
+      "spirits": -0.4
+    }
+  },
+  {
+    "id": "captains",
+    "name": "Captains & Crews",
+    "city": "shanty",
+    "weight": 0.38,
+    "nightWeight": 0.42,
+    "spend": 1.3,
+    "patience": 0.7,
+    "brawl": 0.03,
+    "theft": 0.008,
+    "tip": 0.28,
+    "drinks": 1.5,
+    "prefs": {
+      "grog": 1.3,
+      "spirits": 0.8,
+      "ale": 0.5
+    },
+    "favorTips": true,
+    "diffuses": "pirateCulture"
+  },
+  {
+    "id": "drifters",
+    "name": "Drifters",
+    "city": "shanty",
+    "weight": 0.2,
+    "nightWeight": 0.16,
+    "spend": 1.0,
+    "patience": 1.0,
+    "brawl": 0.008,
+    "theft": 0.012,
+    "tip": 0.08,
+    "drinks": 1.0,
+    "prefs": {
+      "wine": 0.8,
+      "spirits": 0.7,
+      "ale": 0.7,
+      "cider": 0.5
+    }
+  },
+  {
+    "id": "apostles",
+    "name": "Apostles",
+    "city": "providence",
+    "weight": 0.5,
+    "nightWeight": 0.5,
+    "spend": 1.5,
+    "patience": 1.2,
+    "brawl": 0.001,
+    "theft": 0.001,
+    "tip": 0.2,
+    "drinks": 1.0,
+    "prefs": {
+      "tonic": 1.4,
+      "spirits": 0.4,
+      "wine": 0.6,
+      "grog": -0.8
+    },
+    "night": {
+      "brawl": 0.02,
+      "drinks": 1.7,
+      "prefs": {
+        "grog": 1.0,
+        "ale": 1.0,
+        "spirits": 1.0,
+        "tonic": 0.8
+      }
+    },
+    "diffuses": "church"
+  },
+  {
+    "id": "circs",
+    "name": "Circs",
+    "city": "providence",
+    "weight": 0.15,
+    "nightWeight": 0.12,
+    "spend": 1.2,
+    "patience": 1.1,
+    "brawl": 0.002,
+    "theft": 0.001,
+    "tip": 0.15,
+    "drinks": 1.0,
+    "prefs": {
+      "tonic": 1.0,
+      "spirits": 0.9,
+      "stout": 0.5
+    }
+  },
+  {
+    "id": "sextons",
+    "name": "Sextons",
+    "city": "providence",
+    "weight": 0.18,
+    "nightWeight": 0.2,
+    "spend": 0.9,
+    "patience": 0.9,
+    "brawl": 0.006,
+    "theft": 0.025,
+    "tip": 0.05,
+    "drinks": 1.1,
+    "prefs": {
+      "ale": 0.9,
+      "grog": 0.6,
+      "cider": 0.6
+    }
+  },
+  {
+    "id": "pilgrims",
+    "name": "Pilgrims",
+    "city": "providence",
+    "weight": 0.13,
+    "nightWeight": 0.1,
+    "spend": 1.1,
+    "patience": 1.0,
+    "brawl": 0.002,
+    "theft": 0.003,
+    "tip": 0.12,
+    "drinks": 0.9,
+    "prefs": {
+      "wine": 0.9,
+      "ale": 0.7,
+      "cider": 0.8
+    }
+  },
+  {
+    "id": "kalifarts",
+    "name": "Kalifarts",
+    "city": "providence",
+    "weight": 0.04,
+    "nightWeight": 0.08,
+    "spend": 2.2,
+    "patience": 0.8,
+    "brawl": 0.0,
+    "theft": 0.0,
+    "tip": 0.45,
+    "drinks": 1.2,
+    "prefs": {
+      "tonic": 1.3,
+      "spirits": 1.0,
+      "wine": 1.0
+    },
+    "vip": true
+  },
+  {
+    "id": "merchants",
+    "name": "Merchants",
+    "city": "roto",
+    "weight": 0.34,
+    "nightWeight": 0.24,
+    "spend": 1.4,
+    "patience": 0.8,
+    "brawl": 0.003,
+    "theft": 0.008,
+    "tip": 0.1,
+    "drinks": 1.0,
+    "prefs": {
+      "wine": 1.1,
+      "spirits": 1.0,
+      "tonic": 0.6
+    }
+  },
+  {
+    "id": "stallhands",
+    "name": "Stall-hands",
+    "city": "roto",
+    "weight": 0.28,
+    "nightWeight": 0.2,
+    "spend": 0.9,
+    "patience": 0.9,
+    "brawl": 0.01,
+    "theft": 0.015,
+    "tip": 0.04,
+    "drinks": 1.1,
+    "prefs": {
+      "ale": 0.8,
+      "grog": 0.9,
+      "cider": 0.6
+    }
+  },
+  {
+    "id": "rotoPirates",
+    "name": "Fence Pirates",
+    "city": "roto",
+    "weight": 0.2,
+    "nightWeight": 0.24,
+    "spend": 1.2,
+    "patience": 0.7,
+    "brawl": 0.025,
+    "theft": 0.01,
+    "tip": 0.2,
+    "drinks": 1.4,
+    "prefs": {
+      "grog": 1.2,
+      "spirits": 0.9
+    }
+  },
+  {
+    "id": "smugglers",
+    "name": "Smugglers",
+    "city": "roto",
+    "weight": 0.1,
+    "nightWeight": 0.24,
+    "spend": 1.2,
+    "patience": 0.8,
+    "brawl": 0.01,
+    "theft": 0.04,
+    "tip": 0.1,
+    "drinks": 1.1,
+    "prefs": {
+      "spirits": 1.2,
+      "tonic": 0.8,
+      "wine": 0.6
+    }
+  },
+  {
+    "id": "magnates",
+    "name": "Spirit-realm Magnates",
+    "city": "roto",
+    "weight": 0.04,
+    "nightWeight": 0.06,
+    "spend": 2.4,
+    "patience": 0.8,
+    "brawl": 0.0,
+    "theft": 0.0,
+    "tip": 0.3,
+    "drinks": 1.2,
+    "prefs": {
+      "wine": 1.3,
+      "spirits": 1.1
+    },
+    "vip": true
+  }
 ]
