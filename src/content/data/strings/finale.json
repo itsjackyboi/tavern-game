@@ -1,13 +1,18 @@
 {
-  "placeholder": true,
+  "placeholder": false,
+  "titles": {
+    "monopoly": "State sanctioned monopoly!",
+    "sponsor": "The Drunken Trials are back!",
+    "lost": "Another company was chosen",
+    "bankrupt": "Bankrupt"
+  },
   "monopoly": [
-    "[PLACEHOLDER — monopoly finale. No company in the Isles comes close to yours.]",
-    "[PLACEHOLDER — Thatcher Sr. names your company sponsor of the reinstated Drunken Trials by default.]"
+    "Congratulations, {company} has been chosen as the official brewer, distiller and distributor for all alcoholic beverages in the entire isles!",
+    "You have proven yourself as a true entrebrewneur and the isles thank you for your wonderful products!"
   ],
   "sponsor": [
-    "[PLACEHOLDER — Year 463. Mayor Thomas Thatcher Sr. restores the Drunken Trials.]",
-    "[PLACEHOLDER — Your company, the biggest in all four cities, is named sponsor.]",
-    "[PLACEHOLDER — The Long Thirst is ending.]"
+    "The Drunken Trials are back after 51 long, dry years! Brought to you exclusively by {company}!",
+    "“The only drink I'd trust to choose a king comes from {company}, that's for sure!”"
   ],
   "lost": [
     "[PLACEHOLDER — Year 463. The Trials return, but another company is named sponsor.]"

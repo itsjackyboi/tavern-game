@@ -63,8 +63,46 @@ function perceivedTop(w: World, co: Company, city: CityId): { cat: Category; thr
   return best;
 }
 
+const TIER_LEVEL = { green: 1, seasoned: 2, master: 3 } as const;
+/** How clearly each informant level hears things, before rival secrecy. */
+const LEVEL_BASE = [0.32, 0.6, 0.8, 1.0];
+
+/**
+ * The player's informant level covering a city: 0 none, 1 green, 2 seasoned,
+ * 3 master. An informant in another of your taverns counts one level lower.
+ */
+export function intelLevel(w: World, city: CityId): { level: number; competence: number } {
+  let here = 0;
+  let elsewhere = 0;
+  let competence = 0;
+  for (const t of playerTaverns(w)) {
+    if (t.status === 'closed') continue;
+    for (const s of staffAt(w, t.id)) {
+      if (s.role !== 'intel') continue;
+      const lvl = TIER_LEVEL[s.tier];
+      if (t.city === city && lvl >= here) { here = lvl; competence = Math.max(competence, s.competence); }
+      elsewhere = Math.max(elsewhere, lvl);
+    }
+  }
+  return { level: Math.max(here, elsewhere - 1), competence };
+}
+
 /** How clearly the player learns of a rival action: 0 (nothing) to 1 (exact). */
 function fidelity(w: World, co: Company, city: CityId): number {
+  const { level, competence } = intelLevel(w, city);
+  const mine = playerTaverns(w).find((t) => t.city === city);
+  // Without an informant you only overhear what happens under your own roof.
+  if (level === 0 && !mine) return 0;
+  const gossip = mine ? mine.regulars.length * 0.02 : 0;
+  return clamp(LEVEL_BASE[level]! + 0.1 * competence + gossip - 0.6 * (co.rival?.secrecy ?? 0), 0, 1);
+}
+
+/**
+ * Whether a rival move against you surfaces as a decision in time to react.
+ * This is gameplay, not news: it doesn't depend on informants (they only
+ * change what the feed tells you), so hiring one never makes rivals gentler.
+ */
+function awareness(w: World, co: Company, city: CityId): number {
   const mine = playerTaverns(w).find((t) => t.city === city);
   let intel = 0;
   if (mine) {
@@ -74,11 +112,43 @@ function fidelity(w: World, co: Company, city: CityId): number {
   return clamp(0.78 - (co.rival?.secrecy ?? 0) + intel, 0, 1);
 }
 
+/** Puts a rival move in the feed as clearly as your informants allow; returns how aware of it you are. */
 function telegraph(w: World, c: Content, co: Company, city: CityId, group: string, vars: Record<string, string>): number {
   const f = fidelity(w, co, city);
   if (f >= 0.5) rumor(w, c, group, city, { rival: co.name, ...vars }, f >= 0.75 ? 'intel' : 'rumor');
-  else if (f >= 0.25) rumor(w, c, 'vague', city);
-  return f;
+  else if (f >= 0.25 && chance(w, 'log', 0.35)) rumor(w, c, 'vague', city);
+  return awareness(w, co, city);
+}
+
+/**
+ * Season rollover: seasoned and master informants file a report on the rivals
+ * in the cities they cover. Master reports include money and intentions.
+ */
+function intelReports(w: World, c: Content): void {
+  const seen = new Set<string>();
+  for (const city of CITY_IDS) {
+    const { level } = intelLevel(w, city);
+    if (level < 2) continue;
+    const rivals = [...new Set(Object.values(w.taverns).filter((t) => t.city === city && t.status !== 'closed' && t.companyId !== w.playerId).map((t) => t.companyId))]
+      .map((id) => w.companies[id]!)
+      .filter((co) => co.rival && !seen.has(co.id))
+      .sort((a, b) => Number(b.rival!.isArch) - Number(a.rival!.isArch) || b.cv - a.cv)
+      .slice(0, level >= 3 ? 3 : 2);
+    for (const co of rivals) {
+      seen.add(co.id);
+      const b = co.rival!;
+      const n = companyTaverns(w, co).filter((t) => t.status !== 'closed').length;
+      if (level >= 3) {
+        const cash = Math.max(0, Math.round(co.cash / 50) * 50);
+        const plan = b.tier >= 2 && co.cash >= c.rivalTuning.archRival.expandCash * (b.isArch ? 1 : 1.4) ? ', saving to open another house'
+          : b.mood === 'desperate' ? ', desperate enough for dirty tricks'
+          : b.tier >= 1 && b.aggression > 0.6 ? ', spoiling for a fight' : '';
+        log(w, 'intel', `Informant: ${co.name} holds about ${cash} Duckets, ${n} tavern${n === 1 ? '' : 's'}, ${b.mood}${plan}.`, city);
+      } else {
+        log(w, 'intel', `Informant: ${co.name} seems ${b.mood} these days.`, city);
+      }
+    }
+  }
 }
 
 function actTier(w: World, c: Content, co: Company): 0 | 1 | 2 {
@@ -263,6 +333,7 @@ function updateMood(w: World, c: Content, co: Company): void {
 
 /** Season rollover: rivals with negative cash too long collapse or get swallowed. */
 export function seasonRivals(w: World, c: Content): void {
+  intelReports(w, c);
   for (const co of Object.values(w.companies)) {
     if (!co.rival) continue;
     const taverns = companyTaverns(w, co);

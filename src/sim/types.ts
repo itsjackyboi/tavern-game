@@ -371,6 +371,8 @@ export interface RunState {
 }
 
 export interface EventState {
+  /** Seasons closed so far (the UI announces each one once). Optional for older saves. */
+  seasonsClosed?: number;
   crisesFired: string[];
   lastCrisisShift: number;
   holiday: { id: string; shift: number } | null;

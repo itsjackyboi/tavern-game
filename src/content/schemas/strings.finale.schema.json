@@ -5,6 +5,30 @@
     "placeholder": {
       "type": "boolean"
     },
+    "titles": {
+      "type": "object",
+      "properties": {
+        "monopoly": {
+          "type": "string"
+        },
+        "sponsor": {
+          "type": "string"
+        },
+        "lost": {
+          "type": "string"
+        },
+        "bankrupt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "monopoly",
+        "sponsor",
+        "lost",
+        "bankrupt"
+      ],
+      "additionalProperties": false
+    },
     "monopoly": {
       "minItems": 1,
       "type": "array",
@@ -39,6 +63,7 @@
   },
   "required": [
     "placeholder",
+    "titles",
     "monopoly",
     "sponsor",
     "lost",

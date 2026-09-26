@@ -49,7 +49,8 @@ test('letter → play → tavern floor', async ({ page }) => {
   await page.getByTestId('letter-envelope').click();
   const letter = page.getByTestId('letter-open');
   await expect(letter).toBeVisible();
-  await expect(letter).toContainText('PLACEHOLDER');
+  await expect(letter).toContainText('Gregor Ashford');
+  await expect(letter).not.toContainText('PLACEHOLDER');
   await page.screenshot({ path: `${SHOTS}/letter.png`, animations: 'disabled' });
   await page.getByTestId('letter-close').click();
 
@@ -136,7 +137,9 @@ test('monopoly win → end screen → leaderboard (mock board)', async ({ page }
     window.__game!.step(4000);
   });
   await expect(page.getByTestId('end-screen')).toBeVisible();
-  await expect(page.getByTestId('end-screen')).toContainText('Monopoly!');
+  await expect(page.getByTestId('end-screen')).toContainText('State sanctioned monopoly!');
+  await expect(page.getByTestId('end-screen')).toContainText('has been chosen as the official brewer');
+  await expect(page.getByTestId('end-stats')).toContainText('Company Value');
   expect(await page.evaluate(() => window.__game!.status())).toBe('won');
 
   await page.getByTestId('lb-name').fill('Tester');
@@ -145,7 +148,7 @@ test('monopoly win → end screen → leaderboard (mock board)', async ({ page }
   await page.screenshot({ path: `${SHOTS}/end-monopoly.png`, animations: 'disabled' });
 
   // A win unlocks NG+ on the title screen.
-  await page.getByRole('button', { name: 'New run' }).click();
+  await page.getByTestId('return-menu').click();
   await expect(page.getByText('NG+')).toBeVisible();
 
   await page.getByTestId('open-leaderboard').click();
@@ -198,9 +201,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.2');
+  await expect(page.getByTestId('version')).toHaveText('v1.3');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.2');
+  await expect(page.getByTestId('version')).toHaveText('v1.3');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {

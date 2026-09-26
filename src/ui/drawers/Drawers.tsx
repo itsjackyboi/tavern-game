@@ -537,7 +537,7 @@ function HelpDrawer() {
         <h3>The screen</h3>
         <ul class="small">
           <li><b>Top:</b> year and season, day/night, run clock, Duckets, Company Value and rank, the monopoly bar, and your sister taverns.</li>
-          <li><b>Left:</b> your tavern's taps, staff and local rivals, then the news of the Isles.</li>
+          <li><b>Left:</b> your tavern's taps, staff and local rivals, then <b>Word around the Isles</b>: news and intel on your competition. Without an informant you only hear gossip; hire a Drifter Informant (seasoned or master for more) to learn what rivals are doing, and get a report on them each season.</li>
           <li><b>Right:</b> every company's Company Value, yours highlighted; decisions waiting for you at the bottom.</li>
           <li><b>Decisions:</b> each choice lists its effects; the bar and seconds show the time left; the “if you wait” option happens if you don't choose. A receipt then shows what happened.</li>
           <li><b>Bottom of the board:</b> money in (blue) and out (orange) with the reason, and red banners that stay until a problem is fixed (money, dry taps). The Ledger (F) has the full account.</li>

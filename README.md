@@ -28,6 +28,19 @@ The whole game is playable end to end:
 
 The letter and finale text are still clearly marked placeholders.
 
+### v1.3
+- **Letter and win screens:**
+  - The real opening letter from Gregor Ashford.
+  - The State-sanctioned monopoly and Drunken Trials win screens, with your company's name, total time, Company Value and Return to menu.
+  - The loss and bankruptcy screens still use placeholder text.
+- **Word around the Isles:**
+  - Bigger, with tags (Intel / Rumour / News / Alert) and fresh lines glowing.
+  - Rival intel depends on your informants: none (only vague gossip in your own city), green, seasoned or master.
+  - Seasoned and master informants file a report on local rivals each season; master reports include their purses and plans.
+  - An informant covers its own city fully and your other cities one level lower.
+  - Rivals don't go easier on you without an informant; you just hear less.
+- **Fix:** a season's profit was announced twice (again when the Holiday Keg ended). Each season is now announced once, and a year summary is added.
+
 ### v1.2
 - **Where the money goes:**
   - Every Duckets movement is filed under a reason.

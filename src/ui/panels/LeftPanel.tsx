@@ -2,6 +2,7 @@ import type { GameController } from '../../app/controller.ts';
 import { drinkCss } from '../../art/themes.ts';
 import { drinkOf, kegCost, player, playerTaverns, staffAt } from '../../sim/lookup.ts';
 import type { Tavern } from '../../sim/types.ts';
+import { intelLevel } from '../../sim/rivals.ts';
 import { hover, uiFrame } from '../bus.ts';
 import { money } from '../describe.ts';
 
@@ -136,22 +137,43 @@ function Shipments({ ctrl }: { ctrl: GameController }) {
   );
 }
 
-/** The Isles' news, newest first. Hovering something on the floor shows its details here instead. */
+const KIND_TAG: Record<string, string> = { intel: 'Intel', rumor: 'Rumour', news: 'News', alert: 'Alert', event: 'Event', wind: 'Winds' };
+const LEVEL_NAME = ['No informant', 'Green informant', 'Seasoned informant', 'Master informant'];
+const LEVEL_NOTE = [
+  'You only overhear gossip in your own taverns. Hire a Drifter Informant (Staff, S) to learn what rivals are up to.',
+  'Rivals’ moves reach you as rumours, often unclear.',
+  'Clear reports on rivals’ moves, and a report on local rivals each season.',
+  'Near-certain reports, and each season the rivals’ purses and plans.',
+];
+
+/**
+ * Word around the Isles: news and intel on the competition, newest first.
+ * How much you hear about rivals depends on your informants. Hovering
+ * something on the floor shows its details here instead.
+ */
 function EventFeed({ ctrl }: { ctrl: GameController }) {
   void uiFrame.value; // reads another signal (hover), so it must subscribe to frames itself
-  const recent = ctrl.world.log.slice(-6).reverse();
+  const w = ctrl.world;
+  const t = w.taverns[w.focus.tavernId];
+  const { level } = t ? intelLevel(w, t.city) : { level: 0 };
+  const recent = w.log.slice(-8).reverse();
   return (
-    <section class="panel-block feed" data-testid="ticker">
-      <h3>Word around the Isles</h3>
-      {hover.value ? (
-        <div class="hover-line">{hover.value}</div>
-      ) : (
-        recent.map((l, i) => (
-          <div key={`${l.tick}-${i}`} class={`tick-line kind-${l.kind}`} style={{ opacity: 1 - i * 0.12 }}>
+    <section class={`panel-block feed intel-${level}`} data-testid="ticker">
+      <h3>
+        Word around the Isles
+        <span class={`intel-badge lvl-${level}`} title={LEVEL_NOTE[level]}>{LEVEL_NAME[level]}</span>
+      </h3>
+      {level < 3 && <p class="intel-note">{LEVEL_NOTE[level]}</p>}
+      {hover.value && <div class="hover-line">{hover.value}</div>}
+      <div class="feed-lines">
+        {recent.length === 0 && <div class="tick-line muted">Quiet, for now.</div>}
+        {recent.map((l, i) => (
+          <div key={`${l.tick}-${l.text}`} class={`tick-line kind-${l.kind} ${w.tick - l.tick < 200 ? 'fresh' : ''}`} style={{ opacity: Math.max(0.45, 1 - i * 0.08) }}>
+            <span class={`feed-tag tag-${l.kind}`}>{KIND_TAG[l.kind] ?? l.kind}</span>
             {l.text}
           </div>
-        ))
-      )}
+        ))}
+      </div>
     </section>
   );
 }

@@ -90,7 +90,7 @@ const STEPS: Step[] = [
   },
   {
     title: 'The Isles map',
-    text: () => 'Press Tab (or the button bottom-left) to see the Isles: the four cities, your taverns and your rivals. Press Tab again to come back to the floor.',
+    text: () => 'Press Tab (or the button bottom-left) to see the Isles: the four cities, your taverns and your rivals. Press Tab again to come back. Word around the Isles (left) carries news of your rivals; informants on your staff hear far more.',
     spot: 'view-toggle',
     done: (ctrl, p) => p.sawWorld && ctrl.world.focus.view === 'floor',
   },

@@ -81,6 +81,7 @@ export function stepWorld(w: World, c: Content, cmds: readonly Command[]): Comma
       const asks = seasonStaff(w, c);
       seasonRivals(w, c);
       closeSeason(w, c);
+      w.events.seasonsClosed = (w.events.seasonsClosed ?? 0) + 1;
       spoilKegs(w, c);
       raiseRequests(w, c, asks);
       cultureWinds(w, c, cal.shiftIndex);

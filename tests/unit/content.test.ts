@@ -39,7 +39,10 @@ describe('content', () => {
     expect(problems.some((p) => p.includes('mayors'))).toBe(true);
   });
 
-  it('the letter is still marked as placeholder copy', () => {
-    expect(loadContent().letter.placeholder).toBe(true);
+  it('the letter and the win screens carry the real copy', () => {
+    const c = loadContent();
+    expect(c.letter.placeholder).toBe(false);
+    for (const p of [...c.letter.paragraphs, ...c.finale.monopoly, ...c.finale.sponsor]) expect(p).not.toContain('PLACEHOLDER');
+    expect(c.finale.monopoly.join(' ')).toContain('{company}');
   });
 });

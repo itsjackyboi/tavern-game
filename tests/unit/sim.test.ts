@@ -13,6 +13,7 @@ import { calendarAt, endTick, ticksPerYear } from '../../src/sim/time.ts';
 import type { World } from '../../src/sim/types.ts';
 import { createWorld, migrateWorld } from '../../src/sim/world.ts';
 import { spawnPrompt } from '../../src/sim/prompts.ts';
+import { intelLevel, seasonRivals } from '../../src/sim/rivals.ts';
 
 const c = loadContent();
 const fresh = (seed = 't', city: (typeof CITY_IDS)[number] = 'aleforge') => createWorld({ seed, homeCity: city }, c);
@@ -164,6 +165,44 @@ describe('where the money goes', () => {
     expect(m.prompts.outcomes).toEqual([]);
     expect(m.meta.v).toBe(3);
     run(m, 50);
+  });
+});
+
+describe('calendar bookkeeping', () => {
+  it('each season closes exactly once a year; the end of the Holiday Keg closes the year, not another season', () => {
+    const w = fresh('seasons');
+    run(w, ticksPerYear(c.time) + 5);
+    expect(w.events.seasonsClosed).toBe(3);
+    expect(player(w).yearHistory).toHaveLength(1);
+  });
+});
+
+describe('intel', () => {
+  const rivalLines = (w: World) => w.log.filter((l) => l.kind === 'intel' || /Informant:/.test(l.text));
+  it('without an informant you hear nothing specific about rivals', () => {
+    const w = fresh('nointel');
+    run(w, ticksPerYear(c.time) * 2, new Bot(PROFILES.average!));
+    expect(w.log.filter((l) => l.kind === 'intel')).toHaveLength(0);
+  });
+
+  it('a master informant brings seasonal reports with the rivals’ purses', () => {
+    const w = fresh('master');
+    const t = playerTaverns(w)[0]!;
+    player(w).cash = 5000;
+    stepWorld(w, c, [{ type: 'hire', tavernId: t.id, archetype: 'informant', tier: 'master' }]);
+    expect(intelLevel(w, t.city).level).toBe(3);
+    seasonRivals(w, c);
+    const reports = rivalLines(w).filter((l) => /Informant: .* holds about \d+ Duckets/.test(l.text));
+    expect(reports.length).toBeGreaterThan(0);
+  });
+
+  it('an informant elsewhere counts one level lower', () => {
+    const w = fresh('elsewhere');
+    const t = playerTaverns(w)[0]!;
+    player(w).cash = 5000;
+    stepWorld(w, c, [{ type: 'hire', tavernId: t.id, archetype: 'informant', tier: 'seasoned' }]);
+    const other = c.cities.find((x) => x.id !== t.city)!.id;
+    expect(intelLevel(w, other).level).toBe(1);
   });
 });
 

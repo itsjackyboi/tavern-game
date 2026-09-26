@@ -1,12 +1,12 @@
 {
-  "placeholder": true,
+  "placeholder": false,
   "sealLabel": "Read your letter before you begin",
-  "salutation": "[PLACEHOLDER — salutation]",
+  "salutation": "Greetings!",
   "paragraphs": [
-    "[PLACEHOLDER — letter paragraph 1. The owner will supply the real letter text. Edit src/content/data/strings/letter.json and set \"placeholder\" to false.]",
-    "[PLACEHOLDER — letter paragraph 2.]",
-    "[PLACEHOLDER — letter paragraph 3.]"
+    "Welcome to the Pintland Isles! Home of the finest brew anyone e'er drank. So you want to found a tavern do ya? Good business in these parts, but also rife with competition innit.",
+    "Will you become the largest brewer in the land? Perhaps yours will be the new name of beer itself.",
+    "Pick a town to start your pour and build a tavern that stands the field sobriety test of time."
   ],
-  "signature": "[PLACEHOLDER — signature]",
+  "signature": "Sincerely, Gregor Ashford",
   "closeLabel": "Fold the letter"
 }

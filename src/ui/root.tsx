@@ -102,20 +102,27 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
     if (ctrl.debug || import.meta.env.DEV) installTestHooks(ctrl);
     let winRecorded = ctrl.world.run.status === 'won';
     let bellWas = ctrl.world.floor?.lastCallRung ?? false;
-    let segWas = ctrl.world.events.lastSegment;
+    let seasonsWas = ctrl.world.events.seasonsClosed ?? 0;
+    let yearsWas = ctrl.world.companies[ctrl.world.playerId]?.yearHistory.length ?? 0;
     const unsub = ctrl.subscribe(() => {
       views.current?.setView(ctrl.world.focus.view);
       const bell = ctrl.world.floor?.lastCallRung ?? false;
       if (bell && !bellWas) toast('Doors closed: no more patrons tonight. Serve the last orders.', 'good');
       bellWas = bell;
-      // A season closed: say how it went.
-      if (ctrl.world.events.lastSegment !== segWas) {
-        segWas = ctrl.world.events.lastSegment;
-        const me = ctrl.world.companies[ctrl.world.playerId];
-        if (me && ctrl.world.tick > 40) {
+      // A season (and at the Holiday Keg's end, a year) closed: say how it went, once.
+      const me = ctrl.world.companies[ctrl.world.playerId];
+      const seasons = ctrl.world.events.seasonsClosed ?? 0;
+      if (seasons !== seasonsWas) {
+        seasonsWas = seasons;
+        if (me) {
           const p = Math.round(me.seasonProfit);
-          toast(`Season closed: ${p >= 0 ? '+' : '−'}${Math.abs(p).toLocaleString()} Duckets profit`, p >= 0 ? 'good' : 'info');
+          toast(`Season closed: ${p >= 0 ? 'profit +' : 'loss −'}${Math.abs(p).toLocaleString()} Duckets`, p >= 0 ? 'good' : 'info');
         }
+      }
+      if (me && me.yearHistory.length !== yearsWas) {
+        yearsWas = me.yearHistory.length;
+        const y = me.yearHistory[me.yearHistory.length - 1];
+        if (y) toast(`Year ${y.year} closed: ${y.profit >= 0 ? 'profit +' : 'loss −'}${Math.abs(Math.round(y.profit)).toLocaleString()} Duckets (see the Ledger)`, y.profit >= 0 ? 'good' : 'info');
       }
       if (!winRecorded && ctrl.world.run.status === 'won') {
         winRecorded = true;

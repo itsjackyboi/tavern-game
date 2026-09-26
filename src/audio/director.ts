@@ -10,6 +10,7 @@ import { audio } from './engine.ts';
 export function bindAudio(ctrl: GameController): () => void {
   const offSound = onSound((k) => audio.play(k));
   let lastUid = 0;
+  let lastIntelTick = ctrl.world.tick;
   let lastAlerts = 0;
   const tick = () => {
     const w = ctrl.world;
@@ -32,6 +33,11 @@ export function bindAudio(ctrl: GameController): () => void {
       if (lastUid > 0) audio.play('vip');
       lastUid = newest;
     }
+    // Fresh intel from an informant: a soft chime.
+    const intel = w.log.filter((l) => l.kind === 'intel').length;
+    const newestIntel = w.log.length ? w.log[w.log.length - 1]!.tick : 0;
+    if (intel > 0 && newestIntel > lastIntelTick && w.log[w.log.length - 1]!.kind === 'intel') audio.play('greet');
+    lastIntelTick = newestIntel;
     const alerts = w.log.filter((l) => l.kind === 'alert').length;
     if (alerts > lastAlerts) audio.play('alert');
     lastAlerts = alerts;
