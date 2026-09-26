@@ -5,9 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Last Call — a Long Thirst tavern RTS set in the Pintland Isles." />
     <title>Last Call</title>
+    <!-- Inline so the page is dark and says something even if the game's files fail to load. -->
+    <style>
+      html, body { margin: 0; height: 100%; background: #120d0a; color: #f3e6c8; }
+      #boot { height: 100%; display: grid; place-items: center; text-align: center; font: 18px ui-monospace, monospace; padding: 16px; box-sizing: border-box; }
+      #boot-error { color: #ff8a7a; white-space: pre-wrap; max-width: 640px; margin-top: 12px; }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div id="boot">
+        <div>
+          Loading Last Call…
+          <div id="boot-error"></div>
+          <noscript>Last Call needs JavaScript turned on.</noscript>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Shows start-up errors on the page instead of leaving it blank.
+      (function () {
+        function show(msg) {
+          var el = document.getElementById('boot-error');
+          if (el) el.textContent = 'The game failed to start:\n' + msg + '\n\nPlease send this message to the developer.';
+        }
+        window.addEventListener('error', function (e) { show(e.message || String(e)); });
+        window.addEventListener('unhandledrejection', function (e) { show(String(e.reason && e.reason.message || e.reason)); });
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
