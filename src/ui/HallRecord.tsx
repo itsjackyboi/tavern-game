@@ -1,17 +1,24 @@
-import type { GameController } from '../app/controller.ts';
-import { recordOpen, sound } from './bus.ts';
+import { useEffect, useState } from 'preact/hooks';
+import type { Content } from '../content/schema.ts';
+import { sound } from './bus.ts';
 
 /**
  * A torn page from the Hoegaarden Hall of Records, tucked in the bottom-left
- * of the board. Click the scrap to read it (the game waits while you do).
+ * of the title screen so new players know where (and when) they are.
  */
-export function HallRecord({ ctrl }: { ctrl: GameController }) {
-  const r = ctrl.content.records;
-  const open = recordOpen.value;
+export function HallRecord({ content }: { content: Content }) {
+  const r = content.records;
+  const [open, setOpen] = useState(false);
   const toggle = () => {
-    recordOpen.value = !recordOpen.value;
+    setOpen((o) => !o);
     sound('ui');
   };
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
   if (!open) {
     return (
       <button class="record-tab" onClick={toggle} title={`${r.source}: ${r.title}`} data-testid="record-tab">
@@ -27,7 +34,6 @@ export function HallRecord({ ctrl }: { ctrl: GameController }) {
         <h2 class="record-title">{r.title}</h2>
         {r.paragraphs.map((p, i) => <p key={i} class={`record-p ${i === 0 ? 'first' : ''}`}>{p}</p>)}
         <p class="record-signoff">{r.signoff}</p>
-        <p class="record-paused">⏸ The game waits while you read. Click outside the page or press Esc to carry on.</p>
       </article>
     </div>
   );

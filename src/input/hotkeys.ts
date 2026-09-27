@@ -1,7 +1,7 @@
 import type { GameController } from '../app/controller.ts';
 import type { Command } from '../sim/commands.ts';
 import { playerTaverns } from '../sim/lookup.ts';
-import { drawer, recordOpen, sound, type DrawerId } from '../ui/bus.ts';
+import { drawer, sound, type DrawerId } from '../ui/bus.ts';
 import { visibleCards } from '../ui/panels/Cards.tsx';
 
 // One global keyboard manager on window, so hotkeys work whichever layer
@@ -45,10 +45,6 @@ export function installHotkeys(ctrl: GameController, onViewChange?: () => void):
       e.preventDefault();
       if (e.key === 'Escape' && drawer.value) {
         drawer.value = null;
-        return;
-      }
-      if (recordOpen.value) {
-        recordOpen.value = false;
         return;
       }
       if (ctrl.paused) ctrl.resume();

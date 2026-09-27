@@ -28,6 +28,9 @@ The whole game is playable end to end:
 
 All end-screen text is final.
 
+### v1.17
+- **The Long Thirst page** moved to the bottom-left of the **title screen**, so players get the context before they start. It ends with "Only time will tell when a Liquor King will return to the throne."
+
 ### v1.16
 - **The Long Thirst:** a torn page from the Hoegaarden Hall of Records sits in the bottom-left corner of the board. Click it to read a short record of how the Isles lost their Liquor Kings: Ofkra abolished the Drunken Trials in 412, and Aleforge has been left to its mayors since. The game waits while you read (Esc or a click outside closes it). The text lives in `src/content/data/strings/records.json`.
 

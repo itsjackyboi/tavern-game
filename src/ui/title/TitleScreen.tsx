@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
+import { HallRecord } from '../HallRecord.tsx';
 import type { SaveFile } from '../../app/save.ts';
 import { PALETTES } from '../../art/palettes.ts';
 import type { CityId, Content } from '../../content/schema.ts';
@@ -84,6 +85,7 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
 
   return (
     <main class="title-screen">
+      <HallRecord content={content} />
       <h1 class="title-logo">Last Call</h1>
       <p class="title-sub">The Long Thirst · Year {content.time.startYear}</p>
 

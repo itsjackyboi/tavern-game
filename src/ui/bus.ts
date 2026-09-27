@@ -9,8 +9,6 @@ export const drawer = signal<DrawerId>(null);
 export const selectedCity = signal<CityId | null>(null);
 /** Which of your taverns the Staff drawer is managing (null = the one you're in). */
 export const staffTavern = signal<string | null>(null);
-/** The Hall of Records page (bottom-left) is open. */
-export const recordOpen = signal(false);
 /** One row per tavern for the Season report card (null = hidden). */
 export interface SeasonReportRow { tavernId: string; name: string; town: string; net: number; repDelta: number; served: number; walkouts: number; verdict: string; bad: boolean }
 export const seasonReport = signal<{ id: number; rows: SeasonReportRow[] } | null>(null);

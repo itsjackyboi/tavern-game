@@ -1058,9 +1058,9 @@ body[data-tut='drawers'] .bottom-bar .btn:not(.view-toggle):not(.bell) { animati
 .end-stats b.gap-behind { color: #a3261c; }
 .end-stats b.gap-ahead { color: #2f6a24; }
 
-/* v1.16: a torn page from the Hoegaarden Hall of Records (bottom-left of the board) */
+/* v1.16: a torn page from the Hoegaarden Hall of Records (bottom-left of the title screen) */
 .record-tab {
-  position: absolute; left: 10px; bottom: 10px; z-index: 6;
+  position: fixed; left: 14px; bottom: 14px; z-index: 30; font-size: 17px !important;
   font-family: Georgia, 'Times New Roman', serif; font-size: 15px; font-style: italic;
   color: #3b2410; padding: 7px 14px 9px;
   background: radial-gradient(circle at 20% 30%, rgba(120, 80, 30, 0.18), transparent 40%), linear-gradient(170deg, #efdcae, #d9bf85);
@@ -1071,7 +1071,7 @@ body[data-tut='drawers'] .bottom-bar .btn:not(.view-toggle):not(.bell) { animati
 }
 .record-tab:hover { transform: rotate(-1deg) scale(1.05); }
 .record-tab-icon { font-style: normal; }
-.record-wrap { position: absolute; inset: 0; z-index: 14; background: rgba(10, 6, 3, 0.55); display: flex; align-items: flex-end; justify-content: flex-start; padding: 14px; }
+.record-wrap { position: fixed; inset: 0; z-index: 40; background: rgba(10, 6, 3, 0.55); display: flex; align-items: flex-end; justify-content: flex-start; padding: 14px; }
 .record-page {
   position: relative; width: min(470px, 100%); max-height: 100%; overflow-y: auto;
   font-family: Georgia, 'Times New Roman', serif; color: #33200e; font-size: 16px; line-height: 1.5;
@@ -1095,4 +1095,3 @@ body[data-tut='drawers'] .bottom-bar .btn:not(.view-toggle):not(.bell) { animati
 .record-p { margin: 0 0 10px; text-align: justify; }
 .record-p.first::first-letter { float: left; font-size: 3.1em; line-height: 0.85; padding: 4px 6px 0 0; color: #7a2c10; }
 .record-signoff { margin: 12px 0 6px; text-align: right; font-style: italic; color: #5a3a18; }
-.record-paused { margin: 10px 0 0; font-family: var(--font-mini), sans-serif; font-size: 11px; color: #7a5e3a; text-align: center; }

@@ -21,7 +21,7 @@ function toggleFullscreen(): void {
 export function PauseVeil({ ctrl, onExit }: { ctrl: GameController; onExit: () => void }) {
   const [leaving, setLeaving] = useState(false);
   const v = vm.value;
-  if (!v?.paused || v.paused === 'help' || v.paused === 'read') return null;
+  if (!v?.paused || v.paused === 'help') return null;
   const saves = !ctrl.debug && !ctrl.tutorial;
   return (
     <div class="pause-veil" role="dialog" aria-label="Paused" data-testid="pause-veil">
