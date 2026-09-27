@@ -10,7 +10,7 @@ import { startOutbox } from '../leaderboard/outbox.ts';
 import type { GameViews } from '../views/PhaserGame.ts';
 import { drinkCss } from '../art/themes.ts';
 import { drinkOf, player, playerTaverns, seasonTicks } from '../sim/lookup.ts';
-import { drawer, emitCommand, seasonReport, sound, staffTavern, toast, uiFrame } from './bus.ts';
+import { drawer, emitCommand, recordOpen, seasonReport, sound, staffTavern, toast, uiFrame } from './bus.ts';
 import { RESULT_TEXT } from './describe.ts';
 import { Drawers } from './drawers/Drawers.tsx';
 import { EndScreen } from './EndScreen.tsx';
@@ -25,6 +25,7 @@ import { PauseVeil } from './PauseVeil.tsx';
 import { TitleScreen, type TitleChoice } from './title/TitleScreen.tsx';
 import { Toasts } from './Toasts.tsx';
 import { SeasonReport } from './SeasonReport.tsx';
+import { HallRecord } from './HallRecord.tsx';
 import { lastSeasonNet, seasonVerdict, townName } from './tavernHealth.ts';
 import { Tutorial } from './tutorial/Tutorial.tsx';
 import { bindViewModel, vm } from './vm.ts';
@@ -106,6 +107,10 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
     const unbindAudio = bindAudio(ctrl);
     const unbindMoney = bindMoneyFeed(ctrl);
     // Reading How to play pauses the game; closing it picks up where you left off.
+    const unbindRecord = recordOpen.subscribe((open) => {
+      if (open && !ctrl.paused) ctrl.pause('read');
+      else if (!open && ctrl.paused === 'read') ctrl.resume();
+    });
     const unbindHelp = drawer.subscribe((d) => {
       if (d !== 'staff') staffTavern.value = null;
       if (d === 'help' && !ctrl.paused) ctrl.pause('help');
@@ -200,6 +205,8 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
       unbindAudio();
       unbindMoney();
       unbindHelp();
+      unbindRecord();
+      recordOpen.value = false;
       unsub();
       views.current?.destroy();
       drawer.value = null;
@@ -218,6 +225,7 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
           <Alerts />
           <Toasts />
           <SeasonReport ctrl={ctrl} />
+          <HallRecord ctrl={ctrl} />
           <Drawers ctrl={ctrl} />
           {ctrl.tutorial && <Tutorial ctrl={ctrl} onExit={onExit} />}
           <PauseVeil ctrl={ctrl} onExit={onExit} />

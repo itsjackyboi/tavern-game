@@ -28,6 +28,9 @@ The whole game is playable end to end:
 
 All end-screen text is final.
 
+### v1.16
+- **The Long Thirst:** a torn page from the Hoegaarden Hall of Records sits in the bottom-left corner of the board. Click it to read a short record of how the Isles lost their Liquor Kings: Ofkra abolished the Drunken Trials in 412, and Aleforge has been left to its mayors since. The game waits while you read (Esc or a click outside closes it). The text lives in `src/content/data/strings/records.json`.
+
 ### v1.15
 - **Losing screen:** if you had the bigger Company Value but still lost, it says which towns you weren't established in. The sponsor has to be established in all four.
 

@@ -258,6 +258,23 @@ test('end screens: the lost screen names the winner and the gap; bankruptcy has 
   await page.screenshot({ path: `${SHOTS}/end-bankrupt.png`, animations: 'disabled' });
 });
 
+test('the Hall of Records page opens from the bottom-left and the game waits while you read', async ({ page }) => {
+  await startRun(page, 'debug&seed=record');
+  await page.screenshot({ path: `${SHOTS}/record-tab.png`, animations: 'disabled' });
+  await page.getByTestId('record-tab').click();
+  const rec = page.getByTestId('record');
+  await expect(rec).toContainText('Of the Long Thirst');
+  await expect(rec).toContainText('Scipium Ofkra');
+  await expect(page.getByTestId('pause-veil')).toBeHidden();
+  const t0 = await page.evaluate(() => window.__game!.tick());
+  await page.waitForTimeout(400);
+  expect(await page.evaluate(() => window.__game!.tick())).toBe(t0);
+  await page.screenshot({ path: `${SHOTS}/record-open.png`, animations: 'disabled' });
+  await page.keyboard.press('Escape');
+  await expect(rec).toBeHidden();
+  await page.waitForFunction((t) => window.__game!.tick() > t, t0);
+});
+
 test('map view, drawers and the sim keep running across views', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -391,9 +408,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.15');
+  await expect(page.getByTestId('version')).toHaveText('v1.16');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.15');
+  await expect(page.getByTestId('version')).toHaveText('v1.16');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {

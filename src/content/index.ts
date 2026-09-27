@@ -22,10 +22,11 @@ import rumors from './data/strings/rumors.json';
 import winds from './data/strings/winds.json';
 import finale from './data/strings/finale.json';
 import tips from './data/strings/tips.json';
+import records from './data/strings/records.json';
 
 export const RAW_CONTENT = {
   time, economy, demand, floor, rivalTuning, events, cities, mayors, ingredients, drinks, segments, staff,
-  upgrades, rivals, prompts, modifiers, crises, holidays, letter, rumors, winds, finale, tips,
+  upgrades, rivals, prompts, modifiers, crises, holidays, letter, rumors, winds, finale, tips, records,
 };
 
 let cached: Content | null = null;

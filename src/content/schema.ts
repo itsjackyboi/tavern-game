@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Content schemas. Every object is strict, so unknown keys are rejected.
 // There are deliberately NO free-text description fields: UI descriptions are
 // generated from stats, which keeps lore prose out of live play (docs/PLAN.md §3).
-// Prose lives only in the files listed in PROSE_FILES (letter, rumours, winds, finale, tips).
+// Prose lives only in the files listed in PROSE_FILES (letter, rumours, winds, finale, tips, records).
 
 export const CityId = z.enum(['aleforge', 'shanty', 'providence', 'roto']);
 export type CityId = z.infer<typeof CityId>;
@@ -481,6 +481,14 @@ export const Finale = z.strictObject({
   freeplayNote: z.string(),
 });
 export const Tips = z.array(z.string().min(1).max(90)).min(3);
+/** A torn page from the Hoegaarden Hall of Records, shown as a note in the corner of the game. */
+export const Records = z.strictObject({
+  tabLabel: z.string().min(1).max(30),
+  source: z.string().min(1).max(90),
+  title: z.string().min(1).max(60),
+  paragraphs: z.array(z.string().min(1)).min(1).max(6),
+  signoff: z.string(),
+});
 
 export const ContentSchema = z.strictObject({
   time: TimeTuning,
@@ -506,6 +514,7 @@ export const ContentSchema = z.strictObject({
   winds: Winds,
   finale: Finale,
   tips: Tips,
+  records: Records,
 });
 export type Content = z.infer<typeof ContentSchema>;
 
@@ -534,7 +543,8 @@ export const FILE_SCHEMAS = {
   'strings/winds.json': ['winds', Winds],
   'strings/finale.json': ['finale', Finale],
   'strings/tips.json': ['tips', Tips],
+  'strings/records.json': ['records', Records],
 } as const satisfies Record<string, readonly [keyof Content, z.ZodType]>;
 
 /** Files allowed to contain prose. Everything else is stats and names only. */
-export const PROSE_FILES = new Set<string>(['strings/letter.json', 'strings/rumors.json', 'strings/winds.json', 'strings/finale.json', 'strings/tips.json']);
+export const PROSE_FILES = new Set<string>(['strings/letter.json', 'strings/rumors.json', 'strings/winds.json', 'strings/finale.json', 'strings/tips.json', 'strings/records.json']);

@@ -14,8 +14,8 @@ import { clearSave, contentHash, writeSave, writeSaveSync, type SaveFile } from 
 //  - the ranked run clock, which is sim time (ticks x 50 ms);
 //  - autosave (one continuous slot).
 
-/** 'help': paused while the How to play guide is open (no veil, so it can be read). */
-export type PauseReason = 'manual' | 'hidden' | 'blur' | 'help';
+/** 'help' / 'read': paused while How to play or the Hall of Records page is open (no veil, so it can be read). */
+export type PauseReason = 'manual' | 'hidden' | 'blur' | 'help' | 'read';
 
 export interface RunClock {
   /** Ranked clock: sim time only. Stops whenever the game is paused. */

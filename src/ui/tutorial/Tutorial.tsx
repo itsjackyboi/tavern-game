@@ -132,7 +132,7 @@ export function Tutorial({ ctrl, onExit }: { ctrl: GameController; onExit: () =>
   const s = STEPS[step];
   const p = prog.current;
   if (ctrl.world.focus.view === 'world') p.sawWorld = true;
-  if (ctrl.paused && ctrl.paused !== 'help') p.sawPause = true;
+  if (ctrl.paused && ctrl.paused !== 'help' && ctrl.paused !== 'read') p.sawPause = true;
   if (drawer.value) p.sawDrawer = true;
 
   const next = () => {

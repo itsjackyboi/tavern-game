@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "tabLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 30
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 90
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60
+    },
+    "paragraphs": {
+      "minItems": 1,
+      "maxItems": 6,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "signoff": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "tabLabel",
+    "source",
+    "title",
+    "paragraphs",
+    "signoff"
+  ],
+  "additionalProperties": false
+}

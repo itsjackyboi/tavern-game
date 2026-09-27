@@ -137,6 +137,12 @@
         "src/content/data/strings/tips.json"
       ],
       "url": "./src/content/schemas/strings.tips.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/strings/records.json"
+      ],
+      "url": "./src/content/schemas/strings.records.schema.json"
     }
   ]
 }
