@@ -244,6 +244,13 @@ test('end screens: the lost screen names the winner and the gap; bankruptcy has 
   await expect(end.locator('.placeholder-banner')).toHaveCount(0);
   await page.screenshot({ path: `${SHOTS}/end-lost.png`, animations: 'disabled' });
 
+  // Bigger than everyone but not established in all four towns: the note says so.
+  await startRun(page, 'debug&seed=ends3');
+  await page.evaluate(() => { window.__game!.grant(60000); window.__game!.step(25); window.__game!.end('lost'); });
+  await expect(page.getByTestId('lost-why')).toContainText('was chosen instead');
+  await expect(page.getByTestId('lost-why')).toContainText("weren't established in");
+  await page.screenshot({ path: `${SHOTS}/end-lost-bigger.png`, animations: 'disabled' });
+
   await startRun(page, 'debug&seed=ends2');
   await page.evaluate(() => window.__game!.end('bankrupt'));
   await expect(page.getByTestId('end-screen')).toContainText('The creditors came knocking');
@@ -384,9 +391,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.14');
+  await expect(page.getByTestId('version')).toHaveText('v1.15');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.14');
+  await expect(page.getByTestId('version')).toHaveText('v1.15');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {

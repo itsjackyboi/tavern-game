@@ -1,6 +1,8 @@
 import type { GameController } from '../app/controller.ts';
+import { CITY_IDS } from '../content/schema.ts';
 import { league } from '../sim/company.ts';
-import { player, playerTaverns } from '../sim/lookup.ts';
+import { cityOf, player, playerTaverns } from '../sim/lookup.ts';
+import { establishedIn } from '../sim/network.ts';
 import { formatClock } from '../sim/time.ts';
 import { money } from './describe.ts';
 import { RunRecordStatus } from './leaderboard/LeaderboardPanel.tsx';
@@ -35,7 +37,7 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
           {lines.map((l, i) => <p key={i} style={{ animationDelay: `${0.4 + i * 1.1}s` }}>{l}</p>)}
         </div>
         {r.status === 'lost' && rival && (
-          <p class="lost-why" data-testid="lost-why">{rival.cv > cv ? `${rival.name} was the bigger company.` : `${rival.name} was chosen instead.`}</p>
+          <p class="lost-why" data-testid="lost-why">{rival.cv > cv ? `${rival.name} was the bigger company.` : notEstablished(ctrl, rival.name)}</p>
         )}
         <div class="end-stats" data-testid="end-stats">
           <div><span>Total time</span><b>{formatClock(ctrl.clock.simMs)}</b></div>
@@ -60,4 +62,12 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
       </div>
     </div>
   );
+}
+
+/** You were bigger but still lost: the sponsor must be established in all four towns. */
+function notEstablished(ctrl: GameController, winner: string): string {
+  const est = establishedIn(ctrl.world, ctrl.world.playerId);
+  const missing = CITY_IDS.filter((c) => !est.has(c)).map((c) => cityOf(ctrl.content, c).name);
+  const where = missing.length ? ` You weren't established in ${missing.join(', ').replace(/, ([^,]*)$/, ' and $1')}` : ' You weren\'t established in every town';
+  return `${winner} was chosen instead.${where}, and the sponsor must be established in all four towns (a struggling tavern doesn't count).`;
 }

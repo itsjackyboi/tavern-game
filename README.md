@@ -28,6 +28,9 @@ The whole game is playable end to end:
 
 All end-screen text is final.
 
+### v1.15
+- **Losing screen:** if you had the bigger Company Value but still lost, it says which towns you weren't established in. The sponsor has to be established in all four.
+
 ### v1.14
 - **Losing screen:**
   - It says "{winner} was the bigger company." (the line about not being established is gone).
