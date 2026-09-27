@@ -28,6 +28,14 @@ The whole game is playable end to end:
 
 The letter and finale text are still clearly marked placeholders.
 
+### v1.10
+- **Right panel layout locked**, top to bottom:
+  1. Inbox, at a fixed size, shown even when empty
+  2. Company Value
+  3. Your taverns
+  4. A fixed area where decisions appear
+- Nothing shifts when requests or decisions arrive.
+
 ### v1.9: running several taverns
 - **Your taverns** (right panel, under Company Value) shows each tavern's status, reputation (with trend), profit this season, and its staff as icons.
   - A row **flashes red with a chime** when there's a problem there: a dry tap with nothing coming, nobody to serve, struggling, shut by a crisis, or reputation falling fast.

@@ -9,13 +9,13 @@ import { money } from '../describe.ts';
 import { STATUS_LABEL, openReport, seasonNet, staffIcons, tavernIssues, townName } from '../tavernHealth.ts';
 import { Card, inboxItems, visibleCards } from './Cards.tsx';
 
-/** Pinned in its own strip under the scroll area, so it never pushes Company Value down. */
+/** Always at the top with a fixed height (blank when empty), so nothing below it ever shifts. */
 function Inbox({ ctrl }: { ctrl: GameController }) {
   const items = inboxItems(ctrl);
-  if (!items.length) return null;
   return (
-    <section class="panel-block inbox inbox-strip" data-testid="inbox">
-      <h3>Inbox <span class="badge">{items.length}</span></h3>
+    <section class={`panel-block inbox inbox-strip ${items.length ? 'has-items' : ''}`} data-testid="inbox">
+      <h3>Inbox {items.length > 0 && <span class="badge">{items.length}</span>}</h3>
+      {items.length === 0 && <p class="small muted inbox-empty">Nothing waiting.</p>}
       {items.map((p) => <Card key={p.uid} ctrl={ctrl} p={p} hotkeys={false} />)}
     </section>
   );
@@ -33,8 +33,24 @@ function League({ ctrl }: { ctrl: GameController }) {
   const top = Math.max(1, lg[0]?.cv ?? 1);
   const myRank = lg.findIndex((co) => co.isPlayer);
   const meRow = useRef<HTMLDivElement>(null);
-  // Keep your own row in view when your rank changes.
-  useEffect(() => { meRow.current?.scrollIntoView({ block: 'nearest' }); }, [myRank]);
+  // Keep your own row in view when your rank or the panel's size changes (not
+  // every frame, so you can still scroll the list yourself).
+  const nTaverns = playerTaverns(w).length;
+  useEffect(() => {
+    const show = () => {
+      const row = meRow.current;
+      const box = row?.closest('.right-scroll');
+      if (!row || !box) return;
+      const r = row.getBoundingClientRect();
+      const b = box.getBoundingClientRect();
+      const head = box.querySelector('.league h3')?.getBoundingClientRect().height ?? 0;
+      if (r.bottom > b.bottom) box.scrollTop += r.bottom - b.bottom;
+      else if (r.top < b.top + head) box.scrollTop -= b.top + head - r.top;
+    };
+    show();
+    window.addEventListener('resize', show);
+    return () => window.removeEventListener('resize', show);
+  }, [myRank, nTaverns]);
   return (
     <section class="panel-block league" data-testid="league">
       <h3>Company Value <span class="muted">{lg.length} companies</span></h3>
@@ -146,8 +162,9 @@ function Decisions({ ctrl }: { ctrl: GameController }) {
   const cards = all.slice(0, 2);
   const extra = all.length - cards.length;
   return (
-    <section class="decisions" data-testid="cards">
+    <section class={`decisions ${cards.length ? 'has-cards' : ''}`} data-testid="cards">
       {cards.length > 0 && <h3>Decisions</h3>}
+      {cards.length === 0 && <p class="small muted decisions-empty">Decisions appear here.</p>}
       {cards.map((p, i) => <Card key={p.uid} ctrl={ctrl} p={p} hotkeys={i === 0} />)}
       {extra > 0 && <div class="more-cards">+{extra} more waiting</div>}
     </section>
@@ -159,6 +176,7 @@ export function RightPanel({ ctrl }: { ctrl: GameController }) {
   const world = ctrl.world.focus.view === 'world';
   return (
     <aside class="right-panel">
+      <Inbox ctrl={ctrl} />
       <div class="right-scroll">
         <League ctrl={ctrl} />
         {world && <Ladder ctrl={ctrl} />}
@@ -166,7 +184,6 @@ export function RightPanel({ ctrl }: { ctrl: GameController }) {
       </div>
       <YourTaverns ctrl={ctrl} />
       <div class="right-spacer" />
-      <Inbox ctrl={ctrl} />
       <Decisions ctrl={ctrl} />
     </aside>
   );
