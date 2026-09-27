@@ -70,6 +70,13 @@ export function playerTaverns(w: World): Tavern[] {
   return Object.values(w.taverns).filter((t) => t.companyId === w.playerId && t.status !== 'closed');
 }
 
+/** Your first tavern, the one you started with (it stays the flagship for the whole run). */
+export function isFlagship(w: World, t: Tavern): boolean {
+  if (t.companyId !== w.playerId) return false;
+  for (const x of Object.values(w.taverns)) if (x.companyId === w.playerId) return x.id === t.id;
+  return false;
+}
+
 export function openTaverns(w: World, city?: CityId): Tavern[] {
   return Object.values(w.taverns).filter(
     (t) => t.status !== 'closed' && t.status !== 'building' && (city === undefined || t.city === city),

@@ -28,6 +28,12 @@ The whole game is playable end to end:
 
 The letter and finale text are still clearly marked placeholders.
 
+### v1.11: the pace keeps building
+- **The flagship keeps its pace:** while you tend a sister, your household keeps the flagship's bar going and its service never slips. You come back to the same crowd.
+- **Sisters build up:** a new sister starts at about half your flagship's pace and builds up to it over its first two seasons (struggling taverns lose the lift).
+- **Word of mouth:** every tavern you have open brings 6% more patrons to all of them, so the game gets busier as you grow.
+- **Balance:** skilled bots won 8 of 8 runs and average bots 7 of 8, with monopolies at about 59–66 minutes (before: skilled 7 of 8, average 3 of 4).
+
 ### v1.10
 - **Right panel layout locked**, top to bottom:
   1. Inbox, at a fixed size, shown even when empty

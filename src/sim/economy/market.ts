@@ -1,7 +1,7 @@
 import { CITY_IDS, type CityId, type Content, type IngredientId, type Segment } from '../../content/schema.ts';
 import {
-  availableDrinks, cityOf, prefOf, clamp, drinkOf, drinkQuality, idx, isOpenNow, modsFor, seats, servingPrice, tavernAppeal,
-  type ModTotals,
+  availableDrinks, cityOf, prefOf, clamp, drinkOf, drinkQuality, idx, isFlagship, isOpenNow, modsFor, playerTaverns, seasonTicks, seats,
+  servingPrice, tavernAppeal, type ModTotals,
 } from '../lookup.ts';
 import { rand } from '../rng.ts';
 import { calNow, type Calendar } from '../time.ts';
@@ -106,6 +106,41 @@ export function updateDemand(w: World, c: Content): void {
       });
     }
   }
+  applyPace(w, c);
+}
+
+// Pace as you grow (the game should get busier, not quieter, with each tavern):
+//  - word of mouth: every other tavern you have open adds arrivals at all of them;
+//  - a new sister builds up to the flagship's pace over its first seasons
+//    (unless it's struggling, which loses the lift).
+export const PACE_PER_TAVERN = 0.06;
+export const PACE_RAMP_START = 0.45;
+export const PACE_RAMP_SEASONS = 2;
+
+function scaleDemand(t: Tavern, k: number): void {
+  if (k === 1 || t.demand.rate <= 0) return;
+  t.demand.rate *= k;
+  for (const s of Object.keys(t.demand.segRates)) t.demand.segRates[s]! *= k;
+}
+
+/** How far a sister has built up toward the flagship's pace (PACE_RAMP_START → 1). */
+export function sisterRamp(w: World, c: Content, t: Tavern): number {
+  const open = Math.max(0, w.tick - t.openTick) / (seasonTicks(c) * PACE_RAMP_SEASONS);
+  return clamp(PACE_RAMP_START + (1 - PACE_RAMP_START) * open, PACE_RAMP_START, 1);
+}
+
+export function applyPace(w: World, c: Content): void {
+  const mine = playerTaverns(w).filter((t) => t.status !== 'building' && isOpenNow(w, t));
+  if (!mine.length) return;
+  const flag = mine.find((t) => isFlagship(w, t));
+  const flagRate = flag?.demand.rate ?? 0;
+  for (const t of mine) {
+    if (t === flag || t.status === 'struggling' || t.demand.rate <= 0) continue;
+    const target = flagRate * sisterRamp(w, c, t);
+    if (t.demand.rate < target) scaleDemand(t, target / t.demand.rate);
+  }
+  const buzz = 1 + PACE_PER_TAVERN * (mine.length - 1);
+  for (const t of mine) scaleDemand(t, buzz);
 }
 
 /** Ingredient price random walks (1 Hz). Roto is the most volatile; shocks elsewhere echo there. */

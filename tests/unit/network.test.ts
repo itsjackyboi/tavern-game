@@ -3,6 +3,8 @@ import { loadContent } from '../../src/content/index.ts';
 import { hashValue } from '../../src/sim/hash.ts';
 import { player, playerTaverns, staffAt } from '../../src/sim/lookup.ts';
 import { closeTavern } from '../../src/sim/network.ts';
+import { serviceCapacity } from '../../src/sim/aggregate.ts';
+import { PACE_PER_TAVERN, PACE_RAMP_START, sisterRamp, updateDemand } from '../../src/sim/economy/market.ts';
 import { stepWorld } from '../../src/sim/step.ts';
 import type { Command } from '../../src/sim/commands.ts';
 import type { Tavern, World } from '../../src/sim/types.ts';
@@ -101,5 +103,37 @@ describe('season report data', () => {
     const { w, sis } = withSister('rep');
     run(w, 1400);
     expect(sis.repAtSeasonStart).toBeTypeOf('number');
+  });
+});
+
+describe('pace as you grow', () => {
+  it('the flagship keeps its attention (and a stand-in at the bar) while you tend a sister', () => {
+    const { w, home, sis } = withSister('pace-flag');
+    run(w, 1, [{ type: 'focus', tavernId: sis.id }]);
+    run(w, 1500);
+    expect(home.attention).toBe(1);
+    expect(serviceCapacity(w, c, home)).toBeGreaterThan(0.2);
+  });
+
+  it('a new sister builds up toward the flagship’s pace, and more taverns mean more patrons', () => {
+    const { w, home, sis } = withSister('pace-ramp');
+    // Freshly opened: at least the starting share of the flagship's pace.
+    updateDemand(w, c);
+    if (sis.status !== 'struggling' && sis.demand.rate > 0) {
+      expect(sis.demand.rate).toBeGreaterThanOrEqual(home.demand.rate * sisterRamp(w, c, sis) - 1e-9);
+      expect(sisterRamp(w, c, sis)).toBeGreaterThanOrEqual(PACE_RAMP_START);
+    }
+    expect(sisterRamp(w, c, sis)).toBeLessThan(1);
+    // Word of mouth: the flagship draws more with a sister open than it would alone.
+    const withSis = home.demand.rate;
+    const saved = sis.status;
+    sis.status = 'closed';
+    updateDemand(w, c);
+    const alone = home.demand.rate;
+    sis.status = saved;
+    expect(withSis).toBeCloseTo(alone * (1 + PACE_PER_TAVERN), 6);
+    // Two seasons later the ramp is complete.
+    run(w, 2 * 1300 + 200);
+    expect(sisterRamp(w, c, sis)).toBe(1);
   });
 });

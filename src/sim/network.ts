@@ -2,7 +2,7 @@ import { CITY_IDS, type CityId, type Content } from '../content/schema.ts';
 import { league, loanCap } from './company.ts';
 import { spend } from './economy/ledger.ts';
 import { log } from './log.ts';
-import { cityOf, clamp, player, playerTaverns, seasonTicks, upgradeCount } from './lookup.ts';
+import { cityOf, clamp, isFlagship, player, playerTaverns, seasonTicks, upgradeCount } from './lookup.ts';
 import { makeStaff, makeTavern, startMenu } from './world.ts';
 import { calNow, endTick, calTick } from './time.ts';
 import type { Tavern, World } from './types.ts';
@@ -126,7 +126,8 @@ export function stepLifecycle(w: World, c: Content): void {
     if (co.isPlayer) {
       if (w.tick % REP_SAMPLE_TICKS === 1) t.repTrail = [...(t.repTrail ?? []), Math.round(t.rep * 10) / 10].slice(-REP_TRAIL_LEN);
       const isFocus = w.focus.tavernId === t.id;
-      if (isFocus) t.attention = 1;
+      // The flagship never slips: your household runs it while you're away.
+      if (isFocus || isFlagship(w, t)) t.attention = 1;
       else {
         const mgr = t.managerId ? w.staff[t.managerId] : null;
         const decay = (1 / (len * 3)) * (1.25 - (mgr?.competence ?? 0));

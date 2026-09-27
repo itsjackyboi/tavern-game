@@ -2,7 +2,7 @@ import type { Content } from '../content/schema.ts';
 import { applyVisitRep, recordSale, servingSatisfaction, spend } from './economy/ledger.ts';
 import {
   availableDrinks, cityOf, prefOf, clamp, drinkOf, drinkQuality, idx, isOpenNow, managerOf, modsFor, seats, servingPrice,
-  staffAt, tavernUpgradeSum,
+  isFlagship, staffAt, tavernUpgradeSum,
 } from './lookup.ts';
 import { calNow } from './time.ts';
 import type { Staff, Tavern, World } from './types.ts';
@@ -19,6 +19,9 @@ function staffEff(c: Content, s: Staff): number {
   return (0.6 + 0.4 * s.competence) * (0.7 + 0.3 * s.morale) * (1 - 0.3 * s.fatigue) * c.floor.delegationEff;
 }
 
+/** The innkeeper's household, standing in behind the flagship's bar while you're away. */
+const STAND_IN = { competence: 0.7, morale: 1, fatigue: 0 } as Staff;
+
 /** Servings per second this tavern's staff can deliver with nobody from the company on the floor. */
 export function serviceCapacity(w: World, c: Content, t: Tavern): number {
   const staff = staffAt(w, t.id);
@@ -28,12 +31,17 @@ export function serviceCapacity(w: World, c: Content, t: Tavern): number {
     if (s.role === 'bar') bar += staffEff(c, s) / (SERVE_CYCLE * 0.8);
     else if (s.role === 'floor') floor += staffEff(c, s) / SERVE_CYCLE;
   }
+  // Away from the flagship, your household keeps the bar going in your place,
+  // so the tavern you built keeps its pace while you tend your sisters.
+  const co0 = w.companies[t.companyId]!;
+  const flagship = co0.isPlayer && isFlagship(w, t);
+  if (flagship) bar += staffEff(c, STAND_IN) / (SERVE_CYCLE * 0.8);
   // Runners serve when there's no bar staff; otherwise they free the bar from seating and clearing.
   let mu = bar > 0 ? bar * (floor > 0 ? 1 : 0.72) + floor * 0.35 : floor * 0.8;
   if (!staff.some((s) => s.role === 'cellar')) mu *= 0.93;
   const mgr = managerOf(w, t);
   const co = w.companies[t.companyId]!;
-  mu *= mgr ? 0.8 + 0.2 * mgr.competence : 0.75;
+  mu *= mgr ? 0.8 + 0.2 * mgr.competence : flagship ? 0.92 : 0.75;
   if (co.isPlayer) mu *= 0.6 + 0.4 * t.attention;
   return Math.max(mu, 0.02);
 }

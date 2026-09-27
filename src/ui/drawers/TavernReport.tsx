@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import type { GameController } from '../../app/controller.ts';
 import { drinkCss } from '../../art/themes.ts';
-import { drinkOf, kegCost, player, playerTaverns, seasonTicks, staffAt } from '../../sim/lookup.ts';
+import { drinkOf, isFlagship, kegCost, player, playerTaverns, seasonTicks, staffAt } from '../../sim/lookup.ts';
 import { FOUND_MIN_REP } from '../../sim/network.ts';
 import { kegsAtSea } from '../../sim/shipping.ts';
 import type { Tavern } from '../../sim/types.ts';
@@ -187,7 +187,8 @@ export function TavernReport({ ctrl, t }: { ctrl: GameController; t: Tavern }) {
                 <span class="mini-bar fatigue"><span style={{ width: `${s.fatigue * 100}%` }} /></span>
               </div>
             ))}
-            {!here && (
+            {!here && isFlagship(w, t) && <p class="small muted">Your flagship: your household keeps the bar going while you're away.</p>}
+            {!here && !isFlagship(w, t) && (
               <div class="tr-attn" title="While you're away a tavern slowly serves fewer people. A visit resets it; a better manager slows the decline.">
                 <span>Attention</span>
                 <span class="bar"><span class="fill" style={{ width: `${t.attention * 100}%` }} /></span>

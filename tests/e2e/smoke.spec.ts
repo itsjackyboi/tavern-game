@@ -347,9 +347,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.10');
+  await expect(page.getByTestId('version')).toHaveText('v1.11');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.10');
+  await expect(page.getByTestId('version')).toHaveText('v1.11');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {
