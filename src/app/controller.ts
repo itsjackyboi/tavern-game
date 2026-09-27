@@ -157,7 +157,7 @@ export class GameController {
   pause(reason: PauseReason): void {
     if (this.pauseReason) return;
     this.pauseReason = reason;
-    this.pauses += 1;
+    if (!READING_PAUSES.has(reason)) this.pauses += 1;
     if (reason === 'hidden' && this.autosave) void this.save();
     this.emit();
   }

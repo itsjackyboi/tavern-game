@@ -177,6 +177,7 @@ function MenuDrawer({ ctrl }: { ctrl: GameController }) {
           </div>
         );
       })}
+      <SalesPanel ctrl={ctrl} />
       <section class="panel-block">
         <h3>Known recipes</h3>
         {me.unlocked.filter((id) => !onMenu.includes(id)).map((id) => {
@@ -285,7 +286,6 @@ function SalesPanel({ ctrl }: { ctrl: GameController }) {
         );
       })}
       {total === 0 && <p class="small muted">Nothing sold yet this season.</p>}
-      <p class="small muted">Change prices in Menu (M).</p>
     </section>
   );
 }
@@ -308,7 +308,6 @@ function ResearchDrawer({ ctrl }: { ctrl: GameController }) {
   const tried = key && w.research.tried.includes(key);
   return (
     <Shell title="Brewing bench">
-      <SalesPanel ctrl={ctrl} />
       <h3 class="bench-title">Try a new recipe</h3>
       <p class="small muted">Combine two ingredients to try for a new recipe. Each attempt costs {c.economy.researchCost}◉. Spiritweed only comes from Veilwalker vows (you hold {me.spiritweed}).</p>
       <div class="ing-grid">

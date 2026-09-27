@@ -1,4 +1,4 @@
-import type { GameController } from '../app/controller.ts';
+import { READING_PAUSES, type GameController } from '../app/controller.ts';
 import { idx } from '../sim/lookup.ts';
 import { calNow } from '../sim/time.ts';
 import { onSound } from '../ui/bus.ts';
@@ -26,11 +26,14 @@ export function bindAudio(ctrl: GameController): () => void {
       if (t.city === 'providence') song = cal.isNight ? 'providence-night' : 'providence-day';
       else song = t.city;
     }
-    if (ctrl.paused) song = null;
+    // Only a real pause (Esc/P) or leaving the tab stops the music; reading a
+    // tutorial lesson, a menu guide or How to play keeps it going.
+    const silent = ctrl.paused !== null && !READING_PAUSES.has(ctrl.paused);
+    if (silent) song = null;
     audio.setSong(song);
     const tense = w.prompts.active.some((p) => (idx(c).prompt.get(p.defId)?.tension ?? 0) >= 2);
     audio.setDuck(tense || w.floor?.incidents.length !== 0 && w.focus.view === 'floor' && (w.floor?.incidents.length ?? 0) > 1);
-    audio.setAmbience(ctrl.paused ? 'title' : w.focus.view, w.floor?.patrons.length ?? 0);
+    audio.setAmbience(silent ? 'title' : w.focus.view, w.floor?.patrons.length ?? 0);
     // A new decision arrives: a two-note chime so it isn't missed.
     const newest = w.prompts.nextUid;
     if (newest > lastUid) {

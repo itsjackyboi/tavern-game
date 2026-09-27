@@ -412,9 +412,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.18');
+  await expect(page.getByTestId('version')).toHaveText('v1.19');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.18');
+  await expect(page.getByTestId('version')).toHaveText('v1.19');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {
@@ -553,9 +553,12 @@ test('the ledger shows totals by reason and a year-by-year chart', async ({ page
   await expect(page.getByTestId('ledger-totals')).toContainText('Rent');
   await expect(page.getByTestId('profit-chart').locator('path').first()).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/ledger.png`, animations: 'disabled' });
-  await page.keyboard.press('k');
+  await page.keyboard.press('m');
+  await expect(page.getByTestId('drawer')).toContainText('Menu & prices');
   await expect(page.getByTestId('sales')).toBeVisible();
-  await page.screenshot({ path: `${SHOTS}/brew-sales.png`, animations: 'disabled' });
+  await page.screenshot({ path: `${SHOTS}/menu-sales.png`, animations: 'disabled' });
+  await page.keyboard.press('k');
+  await expect(page.getByTestId('sales')).toHaveCount(0);
 });
 
 test('a new brew chimes and says so; a dud batch is just crossed off', async ({ page }) => {

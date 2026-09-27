@@ -36,6 +36,7 @@ export const GUIDES: Record<string, Guide> = {
       ['Price slider', 'From 60% to 180% of the list price. Next to it: the price of one pour, what a keg costs you, and your margin (profit on each pour).'],
       ['Tags', '“contraband” sells but draws the wardens; “night only” sells after dark only.'],
       ['Cellar and +keg buttons', 'Kegs waiting in the cellar, and buttons to order more. Orders arrive after a short wait.'],
+      ['Selling', 'For each drink on tap: its share of orders, how many of today’s patrons like it, and whether its price feels cheap, fair, steep or very steep. Adjust the price sliders above to match.'],
       ['Known recipes', 'Drinks you can pour but aren’t: add one when a tap is free.'],
       ['Restock policy', 'Auto-order keeps this many kegs of each drink in the cellar. It never borrows money.'],
     ],
@@ -51,11 +52,10 @@ export const GUIDES: Record<string, Guide> = {
   },
   research: {
     title: 'Brewing bench',
-    intro: 'Discover new recipes, and see how your drinks are selling.',
+    intro: 'Discover new recipes.',
     items: [
       ['Ingredients', 'Pick two and brew. Each attempt costs Duckets. A pairing that works gives a new recipe; one that doesn’t is crossed off.'],
       ['Your recipes', 'Everything you can pour. New discoveries are marked NEW.'],
-      ['Selling', 'For each drink on tap: its share of orders, how many of today’s patrons like it, and whether its price feels cheap, fair, steep or very steep.'],
       ['Spiritweed', 'A rare ingredient that only comes from Veilwalker vows.'],
     ],
   },

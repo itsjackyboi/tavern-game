@@ -28,6 +28,10 @@ The whole game is playable end to end:
 
 All end-screen text is final.
 
+### v1.19
+- **Music keeps playing** while a tutorial lesson, a Beginner menu guide or How to play is open. Only a real pause (Esc / P) or leaving the tab stops it. Those reading pauses also aren't counted as pauses in the run record.
+- **"Selling at …" moved to Menu (M)**, under the price sliders: share of orders, who likes each drink and how its price feels, all on the page where you set prices.
+
 ### v1.18
 - **Tutorial:**
   - It runs with 5× timers, so patrons and decisions wait much longer.
