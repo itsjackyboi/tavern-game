@@ -26,7 +26,10 @@ export type Command =
   | { type: 'answer'; uid: number; option: number }
   | { type: 'loan'; amount: number }
   | { type: 'repay'; amount: number }
-  | { type: 'freeplay' };
+  | { type: 'freeplay' }
+  | { type: 'transferStaff'; staffId: string; tavernId: string }
+  | { type: 'addSupplyLine'; fromId: string; toId: string; drinkId: string; keepAt: number; insured: boolean }
+  | { type: 'removeSupplyLine'; id: string };
 
 export interface TimedCommand {
   tick: number;

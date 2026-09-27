@@ -5,7 +5,7 @@ import { drawer, sound, uiFrame, type DrawerId } from '../bus.ts';
 import { vm } from '../vm.ts';
 
 const BUTTONS: Array<[Exclude<DrawerId, null | 'city'>, string, string]> = [
-  ['staff', 'Staff', 'S'], ['menu', 'Menu', 'M'], ['upgrades', 'Build', 'U'], ['research', 'Brew', 'K'], ['finance', 'Ledger', 'F'], ['help', 'Help', 'H'],
+  ['staff', 'Staff', 'S'], ['menu', 'Menu', 'M'], ['upgrades', 'Build', 'U'], ['research', 'Brew', 'K'], ['finance', 'Ledger', 'F'], ['network', 'Taverns', 'N'], ['help', 'Help', 'H'],
 ];
 
 export function BottomBar({ ctrl }: { ctrl: GameController }) {

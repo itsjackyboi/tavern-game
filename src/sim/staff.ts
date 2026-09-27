@@ -94,3 +94,26 @@ export function seasonStaff(w: World, c: Content): Array<{ staff: Staff; tavern:
   }
   return asks;
 }
+
+/** Travel fee for moving a staff member to another of your taverns. */
+export const TRANSFER_FEE = 15;
+
+export type TransferResult = 'ok' | 'bad' | 'same' | 'full' | 'cash';
+
+/** Moves a staff member (not a manager) to another of the company's open taverns. */
+export function transferStaff(w: World, c: Content, staffId: string, tavernId: string): TransferResult {
+  const s = w.staff[staffId];
+  const to = w.taverns[tavernId];
+  if (!s || !to || s.archetype === 'manager') return 'bad';
+  const from = w.taverns[s.tavernId];
+  if (!from || from.companyId !== to.companyId || to.status === 'closed' || to.status === 'building') return 'bad';
+  if (from.id === to.id) return 'same';
+  if (staffAt(w, to.id).length >= c.staff.maxStaffPerTavern) return 'full';
+  const co = w.companies[to.companyId]!;
+  if (co.cash < TRANSFER_FEE) return 'cash';
+  spend(co, TRANSFER_FEE, 'wages', 'Staff travel', `${s.name}: ${from.name} → ${to.name}`);
+  s.tavernId = to.id;
+  s.morale = clamp(s.morale - 0.05, 0, 1);
+  if (w.floor && (w.floor.tavernId === from.id || w.floor.tavernId === to.id)) syncFloor(w, c);
+  return 'ok';
+}

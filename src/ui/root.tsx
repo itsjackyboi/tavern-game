@@ -9,8 +9,8 @@ import { installHotkeys } from '../input/hotkeys.ts';
 import { startOutbox } from '../leaderboard/outbox.ts';
 import type { GameViews } from '../views/PhaserGame.ts';
 import { drinkCss } from '../art/themes.ts';
-import { drinkOf, player } from '../sim/lookup.ts';
-import { drawer, emitCommand, sound, toast, uiFrame } from './bus.ts';
+import { drinkOf, player, playerTaverns, seasonTicks } from '../sim/lookup.ts';
+import { drawer, emitCommand, seasonReport, sound, staffTavern, toast, uiFrame } from './bus.ts';
 import { RESULT_TEXT } from './describe.ts';
 import { Drawers } from './drawers/Drawers.tsx';
 import { EndScreen } from './EndScreen.tsx';
@@ -24,6 +24,8 @@ import { RightPanel } from './panels/RightPanel.tsx';
 import { PauseVeil } from './PauseVeil.tsx';
 import { TitleScreen, type TitleChoice } from './title/TitleScreen.tsx';
 import { Toasts } from './Toasts.tsx';
+import { SeasonReport } from './SeasonReport.tsx';
+import { lastSeasonNet, seasonVerdict, townName } from './tavernHealth.ts';
 import { Tutorial } from './tutorial/Tutorial.tsx';
 import { bindViewModel, vm } from './vm.ts';
 
@@ -105,6 +107,7 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
     const unbindMoney = bindMoneyFeed(ctrl);
     // Reading How to play pauses the game; closing it picks up where you left off.
     const unbindHelp = drawer.subscribe((d) => {
+      if (d !== 'staff') staffTavern.value = null;
       if (d === 'help' && !ctrl.paused) ctrl.pause('help');
       else if (d !== 'help' && ctrl.paused === 'help') ctrl.resume();
     });
@@ -126,6 +129,19 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
       const seasons = ctrl.world.events.seasonsClosed ?? 0;
       if (seasons !== seasonsWas) {
         seasonsWas = seasons;
+        const open = playerTaverns(ctrl.world).filter((t) => t.status !== 'closed' && t.status !== 'building' && t.lastKpi);
+        if (open.length >= 2 && !ctrl.tutorial) {
+          seasonReport.value = {
+            id: seasons,
+            rows: open.map((t) => {
+              const v = seasonVerdict(t, ctrl.world, seasonTicks(ctrl.content));
+              return {
+                tavernId: t.id, name: t.name, town: townName(ctrl.content, t), net: lastSeasonNet(t) ?? 0, repDelta: t.lastRepDelta ?? 0,
+                served: t.lastKpi!.served, walkouts: t.lastKpi!.walkouts, verdict: v.text, bad: v.bad,
+              };
+            }),
+          };
+        }
         if (me) {
           const p = Math.round(me.seasonProfit);
           toast(`Season closed: ${p >= 0 ? 'profit +' : 'loss −'}${Math.abs(p).toLocaleString()} Duckets`, p >= 0 ? 'good' : 'info');
@@ -201,6 +217,7 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
           <div class="board-canvas" ref={host} data-testid="board" />
           <Alerts />
           <Toasts />
+          <SeasonReport ctrl={ctrl} />
           <Drawers ctrl={ctrl} />
           {ctrl.tutorial && <Tutorial ctrl={ctrl} onExit={onExit} />}
           <PauseVeil ctrl={ctrl} onExit={onExit} />

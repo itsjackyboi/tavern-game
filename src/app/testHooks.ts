@@ -1,4 +1,5 @@
 import { spawnPrompt } from '../sim/prompts.ts';
+import type { CityId } from '../content/schema.ts';
 import type { GameController } from './controller.ts';
 
 // Exposed on window.__game only for ?debug runs (which are unranked) and dev builds.
@@ -22,6 +23,13 @@ export interface TestHooks {
   phase(): string;
   /** Debug only: brings in a decision by id. */
   prompt(id: string): void;
+  /** Debug only: founds a sister in a town and steps until it opens; returns its id. */
+  sister(city: string): string;
+  /** Debug only: empties a tavern's taps, cellar and orders, and turns off auto-restock. */
+  dry(tavernId: string): void;
+  /** Summary of a tavern for assertions. */
+  tavern(id: string): { staff: number; cellar: Record<string, number>; orders: number; shipmentsTo: number; supplyLines: number } | null;
+  focusId(): string;
   floor(): {
     patrons: Array<{ id: number; state: string; x: number; y: number }>;
     tables: Array<{ id: number; x: number; y: number; dirty: boolean; free: boolean }>;
@@ -59,6 +67,37 @@ export function installTestHooks(ctrl: GameController): void {
       spawnPrompt(ctrl.world, ctrl.content, id, { tavernId: ctrl.world.focus.tavernId, vars: { rival: 'The Gulf Tapworks' } });
       ctrl.step(1);
     },
+    sister: (city) => {
+      const w = ctrl.world;
+      const me = w.companies[w.playerId]!;
+      me.cash += 6000;
+      for (const t of Object.values(w.taverns)) if (t.companyId === w.playerId) t.rep = Math.max(t.rep, 60);
+      ctrl.dispatch({ type: 'found', city: city as CityId });
+      ctrl.step(1340);
+      return Object.values(ctrl.world.taverns).find((t) => t.companyId === w.playerId && t.city === city)?.id ?? '';
+    },
+    dry: (id) => {
+      const t = ctrl.world.taverns[id];
+      if (!t) return;
+      t.autoRestock = false;
+      t.orders = [];
+      for (const k of Object.keys(t.cellar)) t.cellar[k] = 0;
+      for (const k of Object.keys(t.tapLevels)) t.tapLevels[k] = 0;
+      ctrl.step(1);
+    },
+    tavern: (id) => {
+      const w = ctrl.world;
+      const t = w.taverns[id];
+      if (!t) return null;
+      return {
+        staff: Object.values(w.staff).filter((s) => s.tavernId === id && s.role !== 'manage').length,
+        cellar: { ...t.cellar },
+        orders: t.orders.reduce((n, o) => n + o.kegs, 0),
+        shipmentsTo: w.shipments.filter((s) => s.toId === id).length,
+        supplyLines: (w.supplyLines ?? []).filter((l) => l.toId === id).length,
+      };
+    },
+    focusId: () => ctrl.world.focus.tavernId,
     floor: () => {
       const f = ctrl.world.floor;
       if (!f) return null;

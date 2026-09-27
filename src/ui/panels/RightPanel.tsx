@@ -2,16 +2,19 @@ import type { GameController } from '../../app/controller.ts';
 import type { InstitutionId } from '../../content/schema.ts';
 import { useEffect, useRef } from 'preact/hooks';
 import { companyTaverns, league } from '../../sim/company.ts';
-import { establishedSisters } from '../../sim/network.ts';
+import { playerTaverns } from '../../sim/lookup.ts';
+import { establishedSisters, repTrend } from '../../sim/network.ts';
 import { uiFrame } from '../bus.ts';
 import { money } from '../describe.ts';
+import { STATUS_LABEL, openReport, seasonNet, staffIcons, tavernIssues, townName } from '../tavernHealth.ts';
 import { Card, inboxItems, visibleCards } from './Cards.tsx';
 
+/** Pinned in its own strip under the scroll area, so it never pushes Company Value down. */
 function Inbox({ ctrl }: { ctrl: GameController }) {
   const items = inboxItems(ctrl);
   if (!items.length) return null;
   return (
-    <section class="panel-block inbox">
+    <section class="panel-block inbox inbox-strip" data-testid="inbox">
       <h3>Inbox <span class="badge">{items.length}</span></h3>
       {items.map((p) => <Card key={p.uid} ctrl={ctrl} p={p} hotkeys={false} />)}
     </section>
@@ -35,6 +38,7 @@ function League({ ctrl }: { ctrl: GameController }) {
   return (
     <section class="panel-block league" data-testid="league">
       <h3>Company Value <span class="muted">{lg.length} companies</span></h3>
+      <div class="league-rows">
       {lg.map((co, i) => (
         <div class={`league-row ${co.isPlayer ? 'me' : ''} ${co.rival?.isArch ? 'arch' : ''}`} key={co.id} ref={co.isPlayer ? meRow : undefined}>
           <span class="lg-rank">{i + 1}</span>
@@ -43,6 +47,55 @@ function League({ ctrl }: { ctrl: GameController }) {
           <span class="lg-cv">{money(co.cv)}</span>
         </div>
       ))}
+      </div>
+    </section>
+  );
+}
+
+/** Every tavern you run: status, reputation, profit, staff, and what's wrong. Click for its report. */
+function YourTaverns({ ctrl }: { ctrl: GameController }) {
+  const w = ctrl.world;
+  const c = ctrl.content;
+  const ts = playerTaverns(w).filter((t) => t.status !== 'closed');
+  return (
+    <section class="panel-block your-taverns" data-testid="your-taverns">
+      <h3>Your taverns <span class="muted">click for a report</span></h3>
+      {ts.map((t, i) => {
+        const issues = tavernIssues(w, c, t);
+        const problem = issues.some((x) => x.level === 'problem');
+        const here = w.focus.tavernId === t.id;
+        const net = seasonNet(t);
+        const trend = repTrend(t);
+        const top = issues[0];
+        const building = t.status === 'building';
+        return (
+          <div
+            key={t.id}
+            class={`yt-row ${here ? 'here' : ''} ${problem ? 'problem' : issues.length ? 'watch' : ''}`}
+            role="button"
+            tabIndex={0}
+            onClick={() => openReport(t)}
+            onKeyDown={(e) => { if (e.key === 'Enter') openReport(t); }}
+            title={issues.map((x) => `${x.text}: ${x.fix}`).join('\n') || `${t.name}: all well`}
+            data-testid="yt-row"
+          >
+            <div class="yt-line">
+              <span class="yt-name">{townName(c, t)}{here && <span class="yt-here"> · here</span>}</span>
+              <span class={`yt-status st-${t.status}`}>{STATUS_LABEL[t.status]}</span>
+              {!building && <span class="yt-rep" title="Reputation (trend over the last minute)">★{Math.round(t.rep)}<span class={trend >= 0.3 ? 'up' : trend <= -0.3 ? 'down' : 'flat'}>{trend >= 0.3 ? '▲' : trend <= -0.3 ? '▼' : ''}</span></span>}
+              {!building && <span class={`yt-profit ${net >= 0 ? 'up' : 'down'}`} title="Profit this season so far (rent and wages are paid at season end)">{net >= 0 ? '+' : ''}{money(net)}◉</span>}
+              {!here && !building && (
+                <button class="btn btn-tiny yt-go" title={`Go there (Ctrl+${i + 1})`} onClick={(e) => { e.stopPropagation(); ctrl.dispatch({ type: 'focus', tavernId: t.id }); }}>⇥</button>
+              )}
+            </div>
+            <div class="yt-line yt-sub">
+              <span class="yt-staff" title="Staff (✎ manager)">{building ? '' : staffIcons(w, t) || 'no staff'}</span>
+              {building && <span class="yt-issue">opens in {Math.max(0, Math.ceil((t.openTick - w.tick) / 20))}s</span>}
+              {top && <span class={`yt-issue ${top.level}`}>{top.level === 'problem' ? '⚠ ' : ''}{top.text}{issues.length > 1 ? ` (+${issues.length - 1})` : ''}</span>}
+            </div>
+          </div>
+        );
+      })}
     </section>
   );
 }
@@ -107,11 +160,13 @@ export function RightPanel({ ctrl }: { ctrl: GameController }) {
   return (
     <aside class="right-panel">
       <div class="right-scroll">
-        <Inbox ctrl={ctrl} />
         <League ctrl={ctrl} />
         {world && <Ladder ctrl={ctrl} />}
         {world && <Institutions ctrl={ctrl} />}
       </div>
+      <YourTaverns ctrl={ctrl} />
+      <div class="right-spacer" />
+      <Inbox ctrl={ctrl} />
       <Decisions ctrl={ctrl} />
     </aside>
   );

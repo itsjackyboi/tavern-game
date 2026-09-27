@@ -138,6 +138,8 @@ class Engine {
       // A new recipe: a rising ta-da that lands on a bell.
       discover: () => { this.arp([523, 659, 784, 1047], 0.09, 'triangle', 0.11); window.setTimeout(() => this.ctx && this.bell(1568, 0.3), 380); },
       alert: () => this.arp([880, 660], 0.09, 'square', 0.08),
+      // Trouble at one of your taverns: two falling bells, then a low third.
+      trouble: () => { this.bell(1175, 0.35); window.setTimeout(() => this.ctx && this.bell(880, 0.35), 200); window.setTimeout(() => this.ctx && this.bell(698, 0.3), 400); },
     };
     (map[kind] ?? map.ui!)();
   }

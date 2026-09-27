@@ -2,6 +2,7 @@ import type { GameController } from '../app/controller.ts';
 import { idx } from '../sim/lookup.ts';
 import { calNow } from '../sim/time.ts';
 import { onSound } from '../ui/bus.ts';
+import { problemKeys } from '../ui/tavernHealth.ts';
 import { audio } from './engine.ts';
 
 // Chooses the music and ambience for the current view, ducks under tense
@@ -12,6 +13,9 @@ export function bindAudio(ctrl: GameController): () => void {
   let lastUid = 0;
   let lastIntelTick = ctrl.world.tick;
   let lastAlerts = 0;
+  // Trouble at a tavern: chime once per new problem, at most every 4 s.
+  let knownProblems = new Set(problemKeys(ctrl.world, ctrl.content));
+  let lastTrouble = 0;
   const tick = () => {
     const w = ctrl.world;
     const c = ctrl.content;
@@ -41,6 +45,13 @@ export function bindAudio(ctrl: GameController): () => void {
     const alerts = w.log.filter((l) => l.kind === 'alert').length;
     if (alerts > lastAlerts) audio.play('alert');
     lastAlerts = alerts;
+    const probs = new Set(problemKeys(w, c));
+    const fresh = [...probs].some((k) => !knownProblems.has(k));
+    knownProblems = probs;
+    if (fresh && !ctrl.paused && performance.now() - lastTrouble > 4000) {
+      lastTrouble = performance.now();
+      audio.play('trouble');
+    }
   };
   const timer = window.setInterval(tick, 250);
   tick();

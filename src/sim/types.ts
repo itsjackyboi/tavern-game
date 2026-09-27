@@ -52,6 +52,10 @@ export interface Tavern {
   rep: number;
   /** Player taverns: reputation sampled every 5 s, oldest first (last minute). */
   repTrail?: number[];
+  /** Reputation when the current season began (for the season report). */
+  repAtSeasonStart?: number;
+  /** How much reputation moved over the last full season. */
+  lastRepDelta?: number;
   managerId: Id | null;
   attention: number;
   closedUntil: number;
@@ -228,6 +232,19 @@ export interface Shipment {
   insured: boolean;
   value: number;
   lost: boolean;
+}
+
+/** Keep a tavern stocked with one drink from another of your taverns, by sea. */
+export interface SupplyLine {
+  id: Id;
+  fromId: Id;
+  toId: Id;
+  drinkId: string;
+  /** Top the destination up to this many kegs (cellar + at sea). */
+  keepAt: number;
+  insured: boolean;
+  /** Kegs bought at the source for this line and not yet shipped. */
+  bought: number;
 }
 
 export interface LogEntry {
@@ -413,6 +430,8 @@ export interface World {
   modifiers: ActiveModifier[];
   prompts: { active: ActivePrompt[]; pending: PendingPrompt[]; nextUid: number; answered: number; missed: number; outcomes: PromptOutcome[]; outcomeSeq: number };
   shipments: Shipment[];
+  /** Standing supply lines between the player's taverns (optional for older saves). */
+  supplyLines?: SupplyLine[];
   floor: FloorState | null;
   log: LogEntry[];
   fx: FxEvent[];

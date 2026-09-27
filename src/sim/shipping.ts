@@ -1,10 +1,11 @@
 import type { CityId, Content } from '../content/schema.ts';
 import { spend, track } from './economy/ledger.ts';
 import { log, rumor } from './log.ts';
-import { cityOf, clamp, kegCost, modsFor, newId, player, upgradeCount } from './lookup.ts';
+import { cityOf, clamp, drinkOf, kegCost, modsFor, newId, player, upgradeCount } from './lookup.ts';
 import { chance } from './rng.ts';
 import { calNow } from './time.ts';
-import type { World } from './types.ts';
+import { orderKegs } from './economy/orders.ts';
+import type { SupplyLine, World } from './types.ts';
 
 // Moving kegs between your own taverns: arbitrage across price boards, at the
 // mercy of Stormtide seas and pirates (who never touch Roto's cargo).
@@ -77,5 +78,70 @@ export function stepShipping(w: World, c: Content): void {
     to.cellar[s.drinkId] = (to.cellar[s.drinkId] ?? 0) + s.kegs;
     if (!to.menu.some((m) => m.drinkId === s.drinkId) && to.menu.length < to.taps) to.menu.push({ drinkId: s.drinkId, price: 1 });
     log(w, 'news', `${s.kegs} keg${s.kegs > 1 ? 's' : ''} arrive at ${to.name}.`, to.city);
+  }
+}
+
+// Supply lines: standing orders to keep a sister stocked from another of your
+// taverns. Every 5 s each line tops its destination up to keepAt, shipping the
+// source's surplus, or buying at the source (never on credit) when it has none.
+
+export const SUPPLY_EVERY = 100;
+export const SUPPLY_BATCH = 3;
+
+export type SupplyResult = 'ok' | 'bad' | 'same' | 'drink' | 'dupe';
+
+export function addSupplyLine(w: World, fromId: string, toId: string, drinkId: string, keepAt: number, insured: boolean): SupplyResult {
+  const from = w.taverns[fromId];
+  const to = w.taverns[toId];
+  const me = player(w);
+  if (!from || !to || from.companyId !== me.id || to.companyId !== me.id || from.status === 'closed' || to.status === 'closed') return 'bad';
+  if (from.id === to.id) return 'same';
+  if (!me.unlocked.includes(drinkId)) return 'drink';
+  const lines = (w.supplyLines ??= []);
+  if (lines.some((l) => l.fromId === fromId && l.toId === toId && l.drinkId === drinkId)) return 'dupe';
+  lines.push({ id: newId(w, 'sl'), fromId, toId, drinkId, keepAt: clamp(Math.round(keepAt), 1, 12), insured, bought: 0 });
+  return 'ok';
+}
+
+export function removeSupplyLine(w: World, id: string): void {
+  if (w.supplyLines) w.supplyLines = w.supplyLines.filter((l) => l.id !== id);
+}
+
+/** Kegs of a drink already at sea toward a tavern. */
+export function kegsAtSea(w: World, toId: string, drinkId: string): number {
+  return w.shipments.filter((s) => s.toId === toId && s.drinkId === drinkId && !s.lost).reduce((n, s) => n + s.kegs, 0);
+}
+
+function runLine(w: World, c: Content, l: SupplyLine): void {
+  const from = w.taverns[l.fromId]!;
+  const to = w.taverns[l.toId]!;
+  const need = l.keepAt - (to.cellar[l.drinkId] ?? 0) - kegsAtSea(w, to.id, l.drinkId);
+  if (need <= 0) return;
+  const cellar = from.cellar[l.drinkId] ?? 0;
+  const surplus = cellar - (from.autoRestock ? from.restockTarget : 0);
+  const shippable = Math.min(cellar, Math.max(surplus, l.bought));
+  const n = Math.min(need, shippable, SUPPLY_BATCH);
+  if (n > 0) {
+    if (ship(w, c, from.id, to.id, l.drinkId, n, l.insured) === 'ok') l.bought = Math.max(0, l.bought - n);
+    return;
+  }
+  // Nothing spare at the source: buy there (one order at a time per drink), ship when it lands.
+  if (from.orders.some((o) => o.drinkId === l.drinkId)) return;
+  const buy = Math.min(need, SUPPLY_BATCH);
+  if (orderKegs(w, c, from, l.drinkId, buy, true) === 'ok') l.bought += buy;
+}
+
+export function stepSupply(w: World, c: Content): void {
+  if (!w.supplyLines?.length || w.tick % SUPPLY_EVERY !== 1) return;
+  for (const l of [...w.supplyLines]) {
+    const from = w.taverns[l.fromId];
+    const to = w.taverns[l.toId];
+    if (!from || !to || from.status === 'closed' || to.status === 'closed') {
+      removeSupplyLine(w, l.id);
+      log(w, 'alert', `A supply line of ${drinkOf(c, l.drinkId).name} was dropped: ${!from || from.status === 'closed' ? 'its source' : 'its destination'} has closed.`);
+      continue;
+    }
+    if (from.status === 'building' || to.status === 'building') continue;
+    runLine(w, c, l);
   }
 }

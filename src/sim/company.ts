@@ -94,6 +94,8 @@ export function closeSeason(w: World, c: Content): void {
     for (const t of companyTaverns(w, co)) {
       t.lastKpi = t.kpi;
       t.kpi = emptyKpi();
+      t.lastRepDelta = t.rep - (t.repAtSeasonStart ?? t.rep);
+      t.repAtSeasonStart = t.rep;
     }
   }
 }

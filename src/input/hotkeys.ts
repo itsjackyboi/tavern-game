@@ -7,7 +7,7 @@ import { visibleCards } from '../ui/panels/Cards.tsx';
 // One global keyboard manager on window, so hotkeys work whichever layer
 // (Phaser canvas or DOM) has focus.
 
-const DRAWER_KEYS: Record<string, Exclude<DrawerId, null>> = { s: 'staff', m: 'menu', u: 'upgrades', k: 'research', f: 'finance', h: 'help' };
+const DRAWER_KEYS: Record<string, Exclude<DrawerId, null>> = { s: 'staff', m: 'menu', u: 'upgrades', k: 'research', f: 'finance', n: 'network', h: 'help' };
 
 /** Keyboard floor shortcuts: the most urgent thing of each kind. */
 function quickFloor(ctrl: GameController, key: string): Command | null {

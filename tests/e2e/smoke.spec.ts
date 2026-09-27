@@ -138,6 +138,76 @@ test('home page: example names and a Timers picker that says what it changes', a
   expect(await page.evaluate(() => window.__game!.timerScale())).toBe(2);
 });
 
+test('Your taverns: list under Company Value, trouble flashes, reports, remote staff, supply lines, Network table', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await startRun(page, 'debug&seed=sisters');
+  const home = await page.evaluate(() => window.__game!.focusId());
+  const sis = await page.evaluate(() => window.__game!.sister('shanty'));
+  expect(sis).not.toBe('');
+
+  // The list sits under Company Value and shows both taverns.
+  const league = page.getByTestId('league');
+  const list = page.getByTestId('your-taverns');
+  await expect(list.getByTestId('yt-row')).toHaveCount(2);
+  expect((await league.boundingBox())!.y).toBeLessThan((await list.boundingBox())!.y);
+  const leagueY = (await league.boundingBox())!.y;
+  await expect(list).toContainText('Shanty Town');
+  await expect(list).toContainText('★');
+
+  // Dry the sister: its row flashes red and says why.
+  await page.evaluate((id) => window.__game!.dry(id), sis);
+  const sisRow = list.getByTestId('yt-row').filter({ hasText: 'Shanty Town' });
+  await expect(sisRow).toHaveClass(/problem/);
+  await expect(sisRow).toContainText('Out of');
+  await page.screenshot({ path: `${SHOTS}/your-taverns.png`, animations: 'disabled' });
+
+  // A request arriving doesn't push Company Value down (the inbox is pinned below).
+  await page.evaluate(() => window.__game!.step(400));
+  expect((await league.boundingBox())!.y).toBe(leagueY);
+
+  // Click the row: its report opens without going there; order a keg from it.
+  await sisRow.click();
+  const report = page.getByTestId('tavern-report');
+  await expect(report).toBeVisible();
+  await expect(report.getByTestId('tr-issue').first()).toBeVisible();
+  const before = (await page.evaluate((id) => window.__game!.tavern(id), sis))!.orders;
+  await report.getByTestId('tr-order').first().click();
+  await page.waitForFunction(([id, n]) => window.__game!.tavern(id as string)!.orders > (n as number), [sis, before]);
+  expect(await page.evaluate(() => window.__game!.focusId())).toBe(home);
+  await page.screenshot({ path: `${SHOTS}/tavern-report.png`, animations: 'disabled' });
+
+  // Supply line from the flagship.
+  await report.getByTestId('sl-add').click();
+  await page.waitForFunction((id) => window.__game!.tavern(id)!.supplyLines === 1, sis);
+
+  // Manage staff there, and move someone across.
+  await report.getByTestId('tr-staff').click();
+  await expect(page.getByTestId('drawer')).toContainText('Staff ·');
+  await expect(page.getByTestId('staff-picker')).toBeVisible();
+  const sisStaff = (await page.evaluate((id) => window.__game!.tavern(id), sis))!.staff;
+  const homeStaff = (await page.evaluate((id) => window.__game!.tavern(id), home))!.staff;
+  await page.getByTestId('move-staff').first().selectOption(home);
+  await page.waitForFunction(([id, n]) => window.__game!.tavern(id as string)!.staff === (n as number) - 1, [sis, sisStaff]);
+  expect((await page.evaluate((id) => window.__game!.tavern(id), home))!.staff).toBe(homeStaff + 1);
+  await page.keyboard.press('Escape');
+
+  // N: every tavern side by side, sortable.
+  await page.keyboard.press('n');
+  await expect(page.getByTestId('network-table').getByTestId('nw-row')).toHaveCount(2);
+  await page.getByTestId('nw-sort-town').click();
+  await expect(page.getByTestId('network-table').getByTestId('nw-row').first()).toContainText('Aleforge');
+  await page.screenshot({ path: `${SHOTS}/network.png`, animations: 'disabled' });
+  await page.keyboard.press('Escape');
+
+  // A season closes with two taverns open: the season report card.
+  await page.evaluate(() => window.__game!.step(1400));
+  await expect(page.getByTestId('season-report')).toBeVisible();
+  await expect(page.getByTestId('season-report')).toContainText('Shanty Town');
+  await page.screenshot({ path: `${SHOTS}/season-report.png`, animations: 'disabled' });
+  expect(errors).toEqual([]);
+});
+
 test('map view, drawers and the sim keep running across views', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -271,9 +341,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.8');
+  await expect(page.getByTestId('version')).toHaveText('v1.9');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.8');
+  await expect(page.getByTestId('version')).toHaveText('v1.9');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {

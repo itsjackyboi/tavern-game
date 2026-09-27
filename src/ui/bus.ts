@@ -3,10 +3,15 @@ import type { CityId } from '../content/schema.ts';
 
 // Tiny shared state between the Phaser views, the DOM UI and audio.
 
-export type DrawerId = 'staff' | 'menu' | 'upgrades' | 'research' | 'finance' | 'city' | 'help' | null;
+export type DrawerId = 'staff' | 'menu' | 'upgrades' | 'research' | 'finance' | 'city' | 'help' | 'network' | null;
 
 export const drawer = signal<DrawerId>(null);
 export const selectedCity = signal<CityId | null>(null);
+/** Which of your taverns the Staff drawer is managing (null = the one you're in). */
+export const staffTavern = signal<string | null>(null);
+/** One row per tavern for the Season report card (null = hidden). */
+export interface SeasonReportRow { tavernId: string; name: string; town: string; net: number; repDelta: number; served: number; walkouts: number; verdict: string; bad: boolean }
+export const seasonReport = signal<{ id: number; rows: SeasonReportRow[] } | null>(null);
 export interface Toast { id: number; text: string; kind: 'info' | 'error' | 'good'; count: number; color?: string }
 export const toasts = signal<Toast[]>([]);
 export const uiFrame = signal(0);

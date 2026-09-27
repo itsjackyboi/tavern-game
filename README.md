@@ -28,6 +28,25 @@ The whole game is playable end to end:
 
 The letter and finale text are still clearly marked placeholders.
 
+### v1.9: running several taverns
+- **Your taverns** (right panel, under Company Value) shows each tavern's status, reputation (with trend), profit this season, and its staff as icons.
+  - A row **flashes red with a chime** when there's a problem there: a dry tap with nothing coming, nobody to serve, struggling, shut by a crisis, or reputation falling fast.
+  - Amber rows are worth a look but aren't urgent.
+  - The tavern tabs top-left get a red dot too.
+- **Inbox pinned:** it has its own strip at the bottom, so requests never push Company Value down.
+- **Tavern report:** click a row, or a town you own on the Isles map, to see everything about a tavern without going there:
+  - what needs attention and how to fix it
+  - progress to Established
+  - reputation and trend
+  - this season's numbers and last season's profit
+  - taps and cellar, with +1 keg and auto-restock
+  - staff and attention
+  - its requests, answerable there
+- **Remote staff:** the Staff drawer (S) picks any of your taverns. Hire, train or fire there, or **move** someone between taverns for a 15◉ travel fee.
+- **Supply lines:** keep a tavern stocked with a drink from another of yours. Spare kegs go by sea; if there are none, they're bought at the source, never on credit.
+- **All your taverns (N):** every tavern side by side, sortable, with totals.
+- **Season report:** with two or more taverns, each season closes with a card per tavern showing profit, reputation change and its biggest problem.
+
 ### v1.8
 - **Intro letter:** it now sets the scene. It's Year 448, there has been no Liquor King for 36 years (since Ofkra), and Glendolph Galleyway runs Aleforge.
 - **Leaderboard test run:** a manual Actions workflow ("Leaderboard test run") sends one labelled test run to the sheet to check the connection.

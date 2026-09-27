@@ -11,8 +11,8 @@ import { player } from './lookup.ts';
 import { enterFreeplay, foundTavern, stepLifecycle, stepRun } from './network.ts';
 import { answerPrompt, stepPrompts } from './prompts.ts';
 import { seasonRivals, stepRivals } from './rivals.ts';
-import { ship, stepShipping } from './shipping.ts';
-import { fireStaff, giveRaise, hireManager, hireStaff, seasonStaff, trainStaff } from './staff.ts';
+import { addSupplyLine, removeSupplyLine, ship, stepShipping, stepSupply } from './shipping.ts';
+import { fireStaff, giveRaise, hireManager, hireStaff, seasonStaff, trainStaff, transferStaff } from './staff.ts';
 import { calNow, calTick, calendarAt, type Calendar } from './time.ts';
 import type { World } from './types.ts';
 import { cultureWinds, seasonUndercurrents, yearUndercurrents } from './undercurrents.ts';
@@ -55,6 +55,9 @@ export function applyCommand(w: World, c: Content, cmd: Command): string {
     case 'loan': return takeLoan(c, player(w), cmd.amount) ? 'ok' : 'cap';
     case 'repay': return repayLoan(player(w), cmd.amount) ? 'ok' : 'cash';
     case 'freeplay': enterFreeplay(w); return 'ok';
+    case 'transferStaff': return transferStaff(w, c, cmd.staffId, cmd.tavernId);
+    case 'addSupplyLine': return addSupplyLine(w, cmd.fromId, cmd.toId, cmd.drinkId, cmd.keepAt, cmd.insured);
+    case 'removeSupplyLine': removeSupplyLine(w, cmd.id); return 'ok';
     default: return 'bad';
   }
 }
@@ -137,6 +140,7 @@ export function stepWorld(w: World, c: Content, cmds: readonly Command[]): Comma
       stepAggregate(w, c, t);
     }
     stepShipping(w, c);
+    stepSupply(w, c);
     stepLifecycle(w, c);
     stepPrompts(w, c);
     stepRivals(w, c);

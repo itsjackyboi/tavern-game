@@ -12,11 +12,14 @@ import {
 import { FOUND_MIN_REP, canFound, foundingCost, lotsFree, networkRep } from '../../sim/network.ts';
 import { calNow } from '../../sim/time.ts';
 import { INSURANCE_RATE, lossChance, travelTicks } from '../../sim/shipping.ts';
-import { hireCost, trainCost } from '../../sim/staff.ts';
+import { TRANSFER_FEE, hireCost, trainCost } from '../../sim/staff.ts';
 import type { Tavern } from '../../sim/types.ts';
 import { audio } from '../../audio/engine.ts';
 import { ProfitChart } from '../ledger/ProfitChart.tsx';
-import { drawer, selectedCity, sound, uiFrame } from '../bus.ts';
+import { TavernReport } from './TavernReport.tsx';
+import { NetworkDrawer } from './NetworkDrawer.tsx';
+import { Shell } from './Shell.tsx';
+import { drawer, selectedCity, sound, staffTavern, uiFrame } from '../bus.ts';
 import { RESULT_TEXT, describeDrink, describeUpgrade, money, recipeText } from '../describe.ts';
 
 type StaffTier = Staff['tier'];
@@ -25,17 +28,6 @@ function focusTavern(ctrl: GameController): Tavern | undefined {
   return ctrl.world.taverns[ctrl.world.focus.tavernId];
 }
 
-function Shell({ title, children }: { title: string; children: preact.ComponentChildren }) {
-  return (
-    <div class="drawer" data-testid="drawer">
-      <div class="drawer-head">
-        <h2>{title}</h2>
-        <button class="btn btn-small" onClick={() => (drawer.value = null)} aria-label="Close">✕</button>
-      </div>
-      <div class="drawer-body">{children}</div>
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------- staff
 
@@ -44,15 +36,27 @@ const TIERS: StaffTier[] = ['green', 'seasoned', 'master'];
 function StaffDrawer({ ctrl }: { ctrl: GameController }) {
   void uiFrame.value; // components with local state must subscribe themselves to redraw live
   const [firing, setFiring] = useState<string | null>(null);
-  const t = focusTavern(ctrl);
+  const w = ctrl.world;
+  const mineOpen = playerTaverns(w).filter((x) => x.status !== 'closed' && x.status !== 'building');
+  const picked = staffTavern.value ? w.taverns[staffTavern.value] : undefined;
+  const t = picked && mineOpen.includes(picked) ? picked : focusTavern(ctrl);
   if (!t) return null;
   const c = ctrl.content;
-  const w = ctrl.world;
   const staff = staffAt(w, t.id);
   const mgr = t.managerId ? w.staff[t.managerId] : null;
   const isFlagship = playerTaverns(w)[0]?.id === t.id;
+  const others = mineOpen.filter((x) => x.id !== t.id);
   return (
     <Shell title={`Staff · ${t.name}`}>
+      {mineOpen.length > 1 && (
+        <div class="staff-picker" role="tablist" aria-label="Tavern" data-testid="staff-picker">
+          {mineOpen.map((x) => (
+            <button key={x.id} role="tab" aria-selected={x.id === t.id} class={`btn btn-small ${x.id === t.id ? 'on' : ''}`} onClick={() => (staffTavern.value = x.id)}>
+              {cityOf(c, x.city).name}{x.id === w.focus.tavernId ? ' (here)' : ''}
+            </button>
+          ))}
+        </div>
+      )}
       <table class="grid-table">
         <thead>
           <tr><th>Hire</th>{TIERS.map((tier) => <th key={tier}>{c.staff.tiers.find((x) => x.id === tier)!.name}</th>)}</tr>
@@ -99,6 +103,18 @@ function StaffDrawer({ ctrl }: { ctrl: GameController }) {
             <span class="small">{s.wage}◉</span>
             <button class="btn btn-tiny" onClick={() => ctrl.dispatch({ type: 'train', staffId: s.id })} title="Train: +6 competence">Train {trainCost(s)}</button>
             <button class="btn btn-tiny" onClick={() => ctrl.dispatch({ type: 'raise', staffId: s.id })} title="Raise: +15% wage, +morale">Raise</button>
+            {others.length > 0 && (
+              <select
+                class="move-select"
+                value=""
+                title={`Move to another of your taverns (${TRANSFER_FEE}◉ travel, a little morale)`}
+                onChange={(e) => { const to = (e.target as HTMLSelectElement).value; if (to) { ctrl.dispatch({ type: 'transferStaff', staffId: s.id, tavernId: to }); sound('hire'); } }}
+                data-testid="move-staff"
+              >
+                <option value="">Move to…</option>
+                {others.map((x) => <option key={x.id} value={x.id}>{cityOf(c, x.city).name} ({staffAt(w, x.id).length}/{c.staff.maxStaffPerTavern})</option>)}
+              </select>
+            )}
             <button
               class={`btn btn-tiny danger ${firing === s.id ? 'confirm' : ''}`}
               onClick={() => { if (firing === s.id) { ctrl.dispatch({ type: 'fire', staffId: s.id }); setFiring(null); } else setFiring(s.id); }}
@@ -425,14 +441,9 @@ function CityDrawer({ ctrl }: { ctrl: GameController }) {
   const fromDrinks = from ? Object.entries(from.cellar).filter(([, n]) => n > 0).map(([d]) => d) : [];
   const drink = fromDrinks.includes(shipDrink) ? shipDrink : fromDrinks[0];
   return (
-    <Shell title={def.name}>
+    <Shell title={mine ? `${mine.name} · ${def.name}` : def.name}>
       {mine ? (
-        <div class="panel-block">
-          <p><b>{mine.name}</b> · rep {Math.round(mine.rep)} · {mine.status}</p>
-          <button class="btn btn-primary" disabled={mine.status === 'building'} onClick={() => { ctrl.dispatch({ type: 'focus', tavernId: mine.id }); ctrl.dispatch({ type: 'setView', view: 'floor' }); drawer.value = null; }}>
-            Go to the floor
-          </button>
-        </div>
+        <TavernReport ctrl={ctrl} t={mine} />
       ) : (
         <div class="panel-block">
           <p>Found a sister tavern here: {money(foundingCost(w, c, city))}◉ · {lotsFree(w, c, city)} lot(s) free · needs network rep {FOUND_MIN_REP} (yours {Math.round(networkRep(w))})</p>
@@ -563,6 +574,10 @@ function HelpDrawer() {
           <li><b>Established:</b> after a season open with reputation 45 or more. Established taverns fill the ◆ pips at the top; the sponsorship needs one established in all four towns.</li>
           <li><b>Struggling</b> below 22 reputation (recovers at 30). A struggling tavern that falls under 6 while you're elsewhere closes.</li>
           <li>Taverns you're not watching slow down over time; a better manager slows that. Visit with the tavern tabs or Ctrl+1–4.</li>
+          <li><b>Keeping watch:</b> <b>Your taverns</b> (right, under Company Value) lists each tavern's status, reputation, profit this season and staff. A row <b>flashes red with a chime</b> when something's wrong there (a dry tap, nobody to serve, struggling, reputation falling fast). Click a row for its <b>report</b>: order kegs, answer its requests, manage its staff and set up supply lines without going there. <b>N</b> shows every tavern side by side.</li>
+          <li><b>Staff anywhere:</b> the Staff drawer (S) has a button for each of your taverns: hire, train or fire there, or <b>move</b> someone to another of your taverns (a small travel fee).</li>
+          <li><b>Supply lines:</b> from a tavern's report, keep it stocked with a drink from another of your taverns. Spare kegs are shipped by sea (same risks as any shipment), or bought at the source when it has none, never on credit.</li>
+          <li><b>Season report:</b> with two or more taverns, each season ends with a card showing how each one did and its biggest problem.</li>
         </ul>
       </section>
       <section class="panel-block">
@@ -581,7 +596,7 @@ function HelpDrawer() {
         <ul class="small">
           <li><b>Top:</b> year and season, day/night, run clock, Duckets, Company Value and rank, the monopoly bar, and your sister taverns.</li>
           <li><b>Left:</b> your tavern's taps, staff and local rivals, then <b>Word around the Isles</b>: news and intel on your competition. Without an informant you only hear gossip; hire a Drifter Informant (seasoned or master for more) to learn what rivals are doing, and get a report on them each season.</li>
-          <li><b>Right:</b> every company's Company Value, yours highlighted; decisions waiting for you at the bottom.</li>
+          <li><b>Right:</b> every company's Company Value (yours highlighted), then <b>Your taverns</b>; the inbox and decisions waiting for you sit at the bottom.</li>
           <li><b>Decisions:</b> each choice lists its effects; the bar and seconds show the time left; the “if you wait” option happens if you don't choose. A receipt then shows what happened.</li>
           <li><b>Bottom of the board:</b> money in (blue) and out (orange) with the reason, and red banners that stay until a problem is fixed (money, dry taps). The Ledger (F) has the full account.</li>
         </ul>
@@ -598,7 +613,7 @@ function HelpDrawer() {
       </section>
       <section class="panel-block">
         <h3>Keys</h3>
-        <p class="small"><kbd>Tab</kbd> floor/map · <kbd>P</kbd> pause · <kbd>1</kbd>–<kbd>3</kbd> answer the top card · <kbd>Q</kbd> serve the most urgent order · <kbd>W</kbd> seat the longest wait · <kbd>E</kbd> restock the emptiest tap · <kbd>C</kbd> clear a table · <kbd>B</kbd> bell · <kbd>S</kbd> staff · <kbd>M</kbd> menu · <kbd>U</kbd> build · <kbd>K</kbd> brew · <kbd>F</kbd> ledger · <kbd>Ctrl</kbd>+<kbd>1</kbd>–<kbd>4</kbd> switch tavern</p>
+        <p class="small"><kbd>Tab</kbd> floor/map · <kbd>P</kbd> pause · <kbd>1</kbd>–<kbd>3</kbd> answer the top card · <kbd>Q</kbd> serve the most urgent order · <kbd>W</kbd> seat the longest wait · <kbd>E</kbd> restock the emptiest tap · <kbd>C</kbd> clear a table · <kbd>B</kbd> bell · <kbd>S</kbd> staff · <kbd>M</kbd> menu · <kbd>U</kbd> build · <kbd>K</kbd> brew · <kbd>F</kbd> ledger · <kbd>N</kbd> all your taverns · <kbd>Ctrl</kbd>+<kbd>1</kbd>–<kbd>4</kbd> switch tavern</p>
       </section>
       <SoundSettings />
     </Shell>
@@ -615,6 +630,7 @@ export function Drawers({ ctrl }: { ctrl: GameController }) {
     case 'finance': return <FinanceDrawer ctrl={ctrl} />;
     case 'city': return <CityDrawer ctrl={ctrl} />;
     case 'help': return <HelpDrawer />;
+    case 'network': return <NetworkDrawer ctrl={ctrl} />;
     default: return null;
   }
 }
