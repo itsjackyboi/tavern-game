@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { HallRecord } from '../HallRecord.tsx';
+import { getMode, resetGuides, seenGuides, setMode, type PlayMode } from '../guideMode.ts';
 import type { SaveFile } from '../../app/save.ts';
 import { PALETTES } from '../../art/palettes.ts';
 import type { CityId, Content } from '../../content/schema.ts';
@@ -59,6 +60,9 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
   const [name, setName] = useState(prefs.name);
   const [innkeeper, setInnkeeper] = useState(savedName());
   const [assist, setAssist] = useState(prefs.assist);
+  const [mode, setModeState] = useState<PlayMode>(getMode());
+  const [guidesSeen, setGuidesSeen] = useState(() => seenGuides().size);
+  const pickMode = (m: PlayMode) => { setMode(m); setModeState(m); };
   const [confirmNew, setConfirmNew] = useState(false);
   const [ngPlus, setNgPlus] = useState(false);
   const [save, setSave] = useState<SaveFile | null>(null);
@@ -154,6 +158,14 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
             </button>
           ))}
         </div>
+        <div class="timer-pick" role="radiogroup" aria-label="Player">
+          <span class="timer-label">Player</span>
+          {(['beginner', 'experienced'] as const).map((m) => (
+            <button key={m} class={`timer-chip ${mode === m ? 'on' : ''}`} role="radio" aria-checked={mode === m} onClick={() => pickMode(m)} data-testid={`mode-${m}`}>
+              {m === 'beginner' ? 'Beginner' : 'Experienced'}
+            </button>
+          ))}
+        </div>
         {wins > 0 && (
           <label class="check" title="Rivals start sharper and richer, and hide their plans better">
             <input type="checkbox" checked={ngPlus} onChange={(e) => setNgPlus((e.target as HTMLInputElement).checked)} /> NG+
@@ -161,7 +173,18 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
         )}
       </div>
 
-      <p class="small timer-note" data-testid="timer-note">{(TIMER_OPTS.find((o) => o.value === assist) ?? TIMER_OPTS[0]!).note}</p>
+      <div class="title-notes">
+        <p class="small timer-note" data-testid="timer-note">{(TIMER_OPTS.find((o) => o.value === assist) ?? TIMER_OPTS[0]!).note}</p>
+        <p class="small mode-note" data-testid="mode-note">
+            {mode === 'beginner'
+              ? 'Beginner: the first time you open each menu, the game pauses and explains what’s on it. '
+              : 'Experienced: no menu guides. '}
+            This doesn’t change the difficulty; it only helps new players learn how to play.
+          {mode === 'beginner' && guidesSeen > 0 && (
+              <> <button class="link-btn" onClick={() => { resetGuides(); setGuidesSeen(0); }} data-testid="guides-reset">Show the menu guides again</button></>
+            )}
+          </p>
+      </div>
 
       <div class="title-actions">
         <button

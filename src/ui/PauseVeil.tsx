@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import type { GameController } from '../app/controller.ts';
+import { READING_PAUSES, type GameController } from '../app/controller.ts';
 import { playerTaverns } from '../sim/lookup.ts';
 import { drawer } from './bus.ts';
 import { SoundSettings } from './drawers/Drawers.tsx';
@@ -21,7 +21,7 @@ function toggleFullscreen(): void {
 export function PauseVeil({ ctrl, onExit }: { ctrl: GameController; onExit: () => void }) {
   const [leaving, setLeaving] = useState(false);
   const v = vm.value;
-  if (!v?.paused || v.paused === 'help') return null;
+  if (!v?.paused || READING_PAUSES.has(v.paused)) return null;
   const saves = !ctrl.debug && !ctrl.tutorial;
   return (
     <div class="pause-veil" role="dialog" aria-label="Paused" data-testid="pause-veil">

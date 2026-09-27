@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { GameController } from '../../app/controller.ts';
+import { READING_PAUSES, type GameController } from '../../app/controller.ts';
 import { BAR_ROW } from '../../sim/floor/layout.ts';
 import { idx } from '../../sim/lookup.ts';
 import { spawnPrompt } from '../../sim/prompts.ts';
@@ -124,6 +124,8 @@ export function Tutorial({ ctrl, onExit }: { ctrl: GameController; onExit: () =>
   void uiFrame.value;
   const [step, setStep] = useState(0);
   const [hidden, setHidden] = useState(false);
+  // Each new lesson pauses the game until it has been read.
+  const [reading, setReading] = useState(true);
   const prog = useRef<Progress>({ cmds: new Set(), sawWorld: false, sawPause: false, sawDrawer: false, since: performance.now() });
   const spawned = useRef(false);
 
@@ -132,7 +134,7 @@ export function Tutorial({ ctrl, onExit }: { ctrl: GameController; onExit: () =>
   const s = STEPS[step];
   const p = prog.current;
   if (ctrl.world.focus.view === 'world') p.sawWorld = true;
-  if (ctrl.paused && ctrl.paused !== 'help') p.sawPause = true;
+  if (ctrl.paused && !READING_PAUSES.has(ctrl.paused)) p.sawPause = true;
   if (drawer.value) p.sawDrawer = true;
 
   const next = () => {
@@ -142,11 +144,23 @@ export function Tutorial({ ctrl, onExit }: { ctrl: GameController; onExit: () =>
       try { localStorage.setItem(TUTORIAL_DONE_KEY, '1'); } catch { /* ignore */ }
     }
     setStep(Math.min(n, STEPS.length - 1));
+    setReading(true);
+  };
+
+  useEffect(() => {
+    if (reading && !hidden) {
+      if (!ctrl.paused) ctrl.pause('lesson');
+    } else if (ctrl.paused === 'lesson') ctrl.resume();
+  }, [reading, hidden, step]);
+  useEffect(() => () => { if (ctrl.paused === 'lesson') ctrl.resume(); }, []);
+  const gotIt = () => {
+    prog.current.since = performance.now();
+    setReading(false);
   };
 
   // Advance when the step's action has been done.
   useEffect(() => {
-    if (s && !hidden && !s.manual && s.done?.(ctrl, p)) next();
+    if (s && !hidden && !reading && !s.manual && s.done?.(ctrl, p)) next();
   });
 
   // Point at the step's target on the floor, and highlight its part of the screen.
@@ -176,11 +190,13 @@ export function Tutorial({ ctrl, onExit }: { ctrl: GameController; onExit: () =>
         <b>{s.title}</b>
       </div>
       <p class="coach-text">{s.text(ctrl)}</p>
+      {reading && !s.manual && <p class="coach-paused">⏸ Paused while you read.</p>}
       <div class="coach-actions">
+        {reading && !s.manual && <button class="btn btn-primary btn-small" onClick={gotIt} data-testid="tutorial-go">Got it, let me try</button>}
         {s.manual && !last && <button class="btn btn-primary btn-small" onClick={next} data-testid="tutorial-next">Next</button>}
-        {last && <button class="btn btn-primary btn-small" onClick={() => setHidden(true)}>Keep playing</button>}
+        {last && <button class="btn btn-primary btn-small" onClick={() => setHidden(true)} data-testid="tutorial-keep">Keep playing</button>}
         {last && <button class="btn btn-small" onClick={onExit}>Return to title</button>}
-        {!s.manual && <button class={`btn btn-small ${late ? 'btn-primary' : ''}`} onClick={next} data-testid="tutorial-skip">Skip step</button>}
+        {!s.manual && !reading && <button class={`btn btn-small ${late ? 'btn-primary' : ''}`} onClick={next} data-testid="tutorial-skip">Skip step</button>}
         {!last && <button class="btn btn-small" onClick={() => setHidden(true)} data-testid="tutorial-end">End tutorial</button>}
       </div>
     </div>

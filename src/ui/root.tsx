@@ -25,6 +25,7 @@ import { PauseVeil } from './PauseVeil.tsx';
 import { TitleScreen, type TitleChoice } from './title/TitleScreen.tsx';
 import { Toasts } from './Toasts.tsx';
 import { SeasonReport } from './SeasonReport.tsx';
+import { MenuGuide } from './MenuGuide.tsx';
 import { lastSeasonNet, seasonVerdict, townName } from './tavernHealth.ts';
 import { Tutorial } from './tutorial/Tutorial.tsx';
 import { bindViewModel, vm } from './vm.ts';
@@ -60,7 +61,7 @@ export function App({ content }: { content: Content }) {
     }
     if (choice.kind === 'tutorial') {
       // A fixed, gentle start. The tutorial never touches the saved run.
-      setCtrl(new GameController(content, { seed: 'tutorial', homeCity: 'aleforge', tavernName: choice.tavernName, playerName: choice.playerName, tutorial: true, debug: flags.debug }));
+      setCtrl(new GameController(content, { seed: 'tutorial', homeCity: 'aleforge', tavernName: choice.tavernName, playerName: choice.playerName, tutorial: true, timerScale: 5, debug: flags.debug }));
       return;
     }
     clearSave();
@@ -218,6 +219,7 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
           <Alerts />
           <Toasts />
           <SeasonReport ctrl={ctrl} />
+          <MenuGuide ctrl={ctrl} />
           <Drawers ctrl={ctrl} />
           {ctrl.tutorial && <Tutorial ctrl={ctrl} onExit={onExit} />}
           <PauseVeil ctrl={ctrl} onExit={onExit} />

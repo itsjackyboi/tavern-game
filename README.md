@@ -28,6 +28,16 @@ The whole game is playable end to end:
 
 All end-screen text is final.
 
+### v1.18
+- **Tutorial:**
+  - It runs with 5× timers, so patrons and decisions wait much longer.
+  - Each new lesson pauses the game until you press "Got it, let me try".
+- **Beginner / Experienced** (home screen, next to Timers):
+  - **Beginner:** the first time you open each menu (Staff, Menu, Build, Brew, Ledger, Taverns, a town, and the Isles map), the game pauses and a short guide explains what's on it and what each number measures.
+  - **Experienced:** plays as before.
+  - A note says it doesn't change the difficulty. "Show the menu guides again" resets them.
+- The home screen no longer squashes the letter on shorter windows.
+
 ### v1.17
 - **The Long Thirst page** moved to the bottom-left of the **title screen**, so players get the context before they start. It ends with "Only time will tell when a Liquor King will return to the throne."
 

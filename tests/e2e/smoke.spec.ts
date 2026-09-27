@@ -412,9 +412,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.17');
+  await expect(page.getByTestId('version')).toHaveText('v1.18');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.17');
+  await expect(page.getByTestId('version')).toHaveText('v1.18');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {
@@ -479,16 +479,69 @@ test('tutorial walks through the first steps', async ({ page }) => {
   const coach = page.getByTestId('tutorial');
   await expect(coach).toContainText('Welcome');
   await page.screenshot({ path: `${SHOTS}/tutorial-welcome.png`, animations: 'disabled' });
+  expect(await page.evaluate(() => window.__game!.timerScale())).toBe(5);
   await page.getByTestId('tutorial-next').click();
   await expect(coach).toContainText('Seat a patron');
+  // Each new lesson pauses the game until it's been read.
+  expect(await page.evaluate(() => window.__game!.paused())).toBe('lesson');
+  const t0 = await page.evaluate(() => window.__game!.tick());
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => window.__game!.tick())).toBe(t0);
+  await expect(page.getByTestId('pause-veil')).toBeHidden();
+  await page.screenshot({ path: `${SHOTS}/tutorial-lesson-paused.png`, animations: 'disabled' });
+  await page.getByTestId('tutorial-go').click();
+  await page.waitForFunction((t) => window.__game!.tick() > t, t0);
   await dragPatronToTable(page);
   await expect(coach).toContainText('Pour and serve');
+  expect(await page.evaluate(() => window.__game!.paused())).toBe('lesson');
   await page.screenshot({ path: `${SHOTS}/tutorial-serve.png`, animations: 'disabled' });
+  await page.getByTestId('tutorial-go').click();
   await page.getByTestId('tutorial-skip').click();
   await expect(coach).toContainText('Kegs and taps');
   await page.getByTestId('tutorial-end').click();
   await expect(coach).toBeHidden();
   expect(errors).toEqual([]);
+});
+
+test('beginner mode: the first time a menu opens, the game pauses and explains it (once)', async ({ page }) => {
+  await page.goto('/?debug&guides&seed=guides');
+  await expect(page.getByTestId('mode-note')).toContainText('doesn’t change the difficulty');
+  await page.getByTestId('mode-beginner').click();
+  await page.getByTestId('play').click();
+  await expect(page.locator('[data-testid="board"] canvas')).toBeVisible();
+  await page.waitForFunction(() => (window.__game?.tick() ?? 0) > 5);
+  await page.keyboard.press('s');
+  const guide = page.getByTestId('menu-guide');
+  await expect(guide).toContainText('Staff');
+  await expect(guide).toContainText('Competence');
+  expect(await page.evaluate(() => window.__game!.paused())).toBe('guide');
+  await page.screenshot({ path: `${SHOTS}/menu-guide-staff.png`, animations: 'disabled' });
+  await page.getByTestId('menu-guide-ok').click();
+  await expect(guide).toBeHidden();
+  expect(await page.evaluate(() => window.__game!.paused())).toBeNull();
+  // Second time: no guide.
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('s');
+  await expect(page.getByTestId('drawer')).toBeVisible();
+  await expect(guide).toBeHidden();
+  await page.keyboard.press('Escape');
+  // Another menu gets its own guide; closing the menu closes the guide too.
+  await page.keyboard.press('m');
+  await expect(guide).toContainText('Menu & prices');
+  await page.keyboard.press('Escape');
+  await expect(guide).toBeHidden();
+  expect(await page.evaluate(() => window.__game!.paused())).toBeNull();
+});
+
+test('experienced mode: no menu guides', async ({ page }) => {
+  await page.goto('/?debug&guides&seed=exp');
+  await page.getByTestId('mode-experienced').click();
+  await expect(page.getByTestId('mode-note')).toContainText('No menu guides'.replace('No', 'no'));
+  await page.getByTestId('play').click();
+  await page.waitForFunction(() => (window.__game?.tick() ?? 0) > 5);
+  await page.keyboard.press('s');
+  await expect(page.getByTestId('drawer')).toBeVisible();
+  await expect(page.getByTestId('menu-guide')).toHaveCount(0);
 });
 
 test('the ledger shows totals by reason and a year-by-year chart', async ({ page }) => {

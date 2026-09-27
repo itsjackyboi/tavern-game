@@ -14,8 +14,12 @@ import { clearSave, contentHash, writeSave, writeSaveSync, type SaveFile } from 
 //  - the ranked run clock, which is sim time (ticks x 50 ms);
 //  - autosave (one continuous slot).
 
-/** 'help': paused while the How to play guide is open (no veil, so it can be read). */
-export type PauseReason = 'manual' | 'hidden' | 'blur' | 'help';
+/**
+ * Pauses that leave the board visible (no veil) so the text can be read:
+ * 'help' (How to play), 'lesson' (a new tutorial step), 'guide' (a beginner's menu guide).
+ */
+export type PauseReason = 'manual' | 'hidden' | 'blur' | 'help' | 'lesson' | 'guide';
+export const READING_PAUSES: ReadonlySet<PauseReason> = new Set<PauseReason>(['help', 'lesson', 'guide']);
 
 export interface RunClock {
   /** Ranked clock: sim time only. Stops whenever the game is paused. */
