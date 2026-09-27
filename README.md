@@ -26,7 +26,13 @@ The whole game is playable end to end:
 - **Audio:** Kenney samples, procedural fallbacks, per-city chiptune, and ducking.
 - **Leaderboards:** top tens for Fastest Monopoly and Sponsored the Trials, in pre-release (v1.x) and official (v2.0+) eras. They are shared through a Google Sheet (setup: [`gas/README.md`](gas/README.md)).
 
-Only the bankruptcy screen's text is still a marked placeholder.
+All end-screen text is final.
+
+### v1.14
+- **Losing screen:**
+  - It says "{winner} was the bigger company." (the line about not being established is gone).
+  - It shows your Company Value next to the winner's, and the difference between them.
+- **Bankruptcy screen:** "The creditors came knocking and took everything, even the last drop of brew is gone." The game has no placeholder text left.
 
 ### v1.13
 - **Losing screen:** "Thomas Thatcher Sr. has a favorite brew...and its not yours." It then says the Trials are revived in 463 and **names the company chosen as sponsor**. The bankruptcy screen is the only placeholder left.

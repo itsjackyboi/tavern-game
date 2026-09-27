@@ -1,8 +1,6 @@
 import type { GameController } from '../app/controller.ts';
-import { CITY_IDS } from '../content/schema.ts';
 import { league } from '../sim/company.ts';
-import { cityOf, player, playerTaverns } from '../sim/lookup.ts';
-import { establishedIn } from '../sim/network.ts';
+import { player, playerTaverns } from '../sim/lookup.ts';
 import { formatClock } from '../sim/time.ts';
 import { money } from './describe.ts';
 import { RunRecordStatus } from './leaderboard/LeaderboardPanel.tsx';
@@ -21,7 +19,8 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
   const kind = r.status === 'won' ? (r.winType ?? 'sponsor') : r.status;
   const f = ctrl.content.finale;
   // The company Thomas Thatcher Sr. picked instead: the biggest one that isn't yours.
-  const winner = league(w).find((co) => !co.isPlayer)?.name ?? 'another company';
+  const rival = league(w).find((co) => !co.isPlayer);
+  const winner = rival?.name ?? 'another company';
   const fill = (l: string) => l.replace(/\{company\}/g, companyName(ctrl)).replace(/\{winner\}/g, winner);
   const lines = (kind === 'monopoly' ? f.monopoly : kind === 'sponsor' ? f.sponsor : kind === 'lost' ? f.lost : f.bankrupt).map(fill);
   const placeholder = lines.some((l) => l.includes('[PLACEHOLDER'));
@@ -35,10 +34,18 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
         <div class="finale">
           {lines.map((l, i) => <p key={i} style={{ animationDelay: `${0.4 + i * 1.1}s` }}>{l}</p>)}
         </div>
-        {r.status === 'lost' && <p class="lost-why" data-testid="lost-why">{lostReason(ctrl)}</p>}
+        {r.status === 'lost' && rival && (
+          <p class="lost-why" data-testid="lost-why">{rival.cv > cv ? `${rival.name} was the bigger company.` : `${rival.name} was chosen instead.`}</p>
+        )}
         <div class="end-stats" data-testid="end-stats">
           <div><span>Total time</span><b>{formatClock(ctrl.clock.simMs)}</b></div>
-          <div><span>Company Value</span><b>{money(cv)}</b></div>
+          <div><span>Your Company Value</span><b>{money(cv)}</b></div>
+          {r.status === 'lost' && rival && (
+            <>
+              <div><span>{rival.name}</span><b>{money(rival.cv)}</b></div>
+              <div data-testid="cv-gap"><span>Difference</span><b class={rival.cv > cv ? 'gap-behind' : 'gap-ahead'}>{rival.cv > cv ? '−' : '+'}{money(Math.abs(rival.cv - cv))}</b></div>
+            </>
+          )}
         </div>
         <RunRecordStatus ctrl={ctrl} />
         {!won && r.status === 'lost' && <p class="freeplay-note" data-testid="freeplay-note">{f.freeplayNote}</p>}
@@ -53,16 +60,4 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
       </div>
     </div>
   );
-}
-
-/** Why the sponsorship went elsewhere: the two conditions from the verdict. */
-function lostReason(ctrl: GameController): string {
-  const w = ctrl.world;
-  const est = establishedIn(w, w.playerId);
-  const missing = CITY_IDS.filter((c) => !est.has(c)).map((c) => cityOf(ctrl.content, c).name);
-  const top = league(w)[0];
-  const parts: string[] = [];
-  if (missing.length) parts.push(`You weren't established in ${missing.join(', ')} (a struggling or unbuilt tavern doesn't count).`);
-  if (top && !top.isPlayer) parts.push(`${top.name} had the larger Company Value (${money(top.cv)}).`);
-  return parts.join(' ') || 'The sponsorship went to another company.';
 }
