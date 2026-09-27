@@ -46,6 +46,7 @@ export function spawnPrompt(w: World, c: Content, defId: string, ctx: PromptCont
     defaultOverride: ctx.defaultOverride ?? null,
   };
   w.prompts.active.push(p);
+  (w.events.promptSeen ??= {})[defId] = w.tick;
   return p;
 }
 
@@ -191,7 +192,7 @@ export function answerPrompt(w: World, c: Content, uid: number, option: number, 
   }
   if (opt.hint) parts.push(opt.hint);
   applyEffects(w, c, opt.effects, p, payWithFavor, parts);
-  w.prompts.outcomes.push({ seq: ++w.prompts.outcomeSeq, title: promptTitle(c, p), option: opt.label, auto: viaTimeout, parts });
+  w.prompts.outcomes.push({ seq: ++w.prompts.outcomeSeq, title: promptTitle(c, p), option: opt.label, auto: viaTimeout, parts, city: (p.tavernId ? w.taverns[p.tavernId]?.city : null) ?? p.city ?? null });
   if (w.prompts.outcomes.length > 12) w.prompts.outcomes.shift();
   if (viaTimeout) w.prompts.missed += 1;
   else w.prompts.answered += 1;

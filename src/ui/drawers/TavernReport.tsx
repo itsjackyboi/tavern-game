@@ -9,6 +9,7 @@ import { drawer, sound, staffTavern, uiFrame } from '../bus.ts';
 import { money } from '../describe.ts';
 import { Card } from '../panels/Cards.tsx';
 import { RepSpark, trendOf } from '../RepTrend.tsx';
+import { townStyle } from '../townColors.ts';
 import { JOB_NAME, ROLE_ICON, STATUS_LABEL, TIER_NAME, sortStaff, lastSeasonNet, seasonNet, servicePct, tavernIssues, walkoutShare } from '../tavernHealth.ts';
 
 // A tavern's report: everything you need to keep it running without going there.
@@ -103,7 +104,7 @@ export function TavernReport({ ctrl, t }: { ctrl: GameController; t: Tavern }) {
     drawer.value = null;
   };
   return (
-    <div class="tavern-report" data-testid="tavern-report">
+    <div class="tavern-report" data-testid="tavern-report" style={townStyle(t.city)}>
       <div class="panel-block tr-head">
         <p>
           <b>{t.name}</b> · <span class={`yt-status st-${t.status}`}>{STATUS_LABEL[t.status]}</span>

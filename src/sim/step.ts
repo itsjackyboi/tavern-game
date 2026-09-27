@@ -10,7 +10,8 @@ import { applyFloorCommand, closeUp, patronsInside, stepFloor, type FloorCommand
 import { player } from './lookup.ts';
 import { enterFreeplay, foundTavern, stepLifecycle, stepRun } from './network.ts';
 import { answerPrompt, stepPrompts } from './prompts.ts';
-import { seasonRivals, stepRivals } from './rivals.ts';
+import { intelLevel, seasonRivals, stepRivals } from './rivals.ts';
+import { patronTalk } from './intel.ts';
 import { addSupplyLine, removeSupplyLine, ship, stepShipping, stepSupply } from './shipping.ts';
 import { fireStaff, giveRaise, hireManager, hireStaff, seasonStaff, trainStaff, transferStaff } from './staff.ts';
 import { calNow, calTick, calendarAt, type Calendar } from './time.ts';
@@ -144,6 +145,7 @@ export function stepWorld(w: World, c: Content, cmds: readonly Command[]): Comma
     stepLifecycle(w, c);
     stepPrompts(w, c);
     stepRivals(w, c);
+    patronTalk(w, c, (city) => intelLevel(w, city).level);
     updateCV(w, c);
     stepRun(w, c);
   }

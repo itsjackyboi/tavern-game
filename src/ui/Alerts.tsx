@@ -1,6 +1,7 @@
 import { money } from './describe.ts';
 import { moneyNotes, receipts, visibleNotes } from './moneyFeed.ts';
 import { vm } from './vm.ts';
+import { townStyle } from './townColors.ts';
 
 const MONEY: Record<'debt' | 'out' | 'low', string> = {
   debt: 'In debt: you owe more than you hold. Earn it back before the moneylenders lose patience.',
@@ -26,7 +27,7 @@ export function Alerts() {
       {recs.length > 0 && (
         <div class="receipts" data-testid="receipts">
           {recs.map((r) => (
-            <div class="receipt" key={r.id}>
+            <div class={`receipt ${r.city ? 'has-town' : ''}`} key={r.id} style={townStyle(r.city)}>
               <div class="receipt-head">
                 <span class="receipt-tag">{r.auto ? 'Decided for you (time ran out)' : 'Your decision'}</span>
                 <b>{r.title}</b> → {r.option}
@@ -42,7 +43,7 @@ export function Alerts() {
       {notes.length > 0 && (
         <div class="money-notes" data-testid="money-notes">
           {notes.map((n) => (
-            <div class={`money-note ${n.amount >= 0 ? 'in' : 'out'}`} key={n.id}>
+            <div class={`money-note ${n.amount >= 0 ? 'in' : 'out'} ${n.city ? 'has-town' : ''}`} key={n.id} style={townStyle(n.city)}>
               <span class="mn-amount">{n.amount >= 0 ? '+' : '−'}{money(Math.abs(n.amount))} ◉</span>
               <span class="mn-key">{n.key}</span>
               <span class="mn-detail">{n.detail}{n.count > 1 ? ` and ${n.count - 1} more` : ''}</span>

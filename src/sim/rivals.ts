@@ -5,6 +5,7 @@ import { log, rumor } from './log.ts';
 import {
   addModifier, cityOf, clamp, drinkOf, player, playerTaverns, seasonTicks, staffAt, upgradeCount,
 } from './lookup.ts';
+import { heardTier, intelLine, rivalVars } from './intel.ts';
 import { closeTavern, lotsFree, rivalFound } from './network.ts';
 import { spawnPrompt } from './prompts.ts';
 import { chance, pick, rand } from './rng.ts';
@@ -64,8 +65,6 @@ function perceivedTop(w: World, co: Company, city: CityId): { cat: Category; thr
 }
 
 const TIER_LEVEL = { green: 1, seasoned: 2, master: 3 } as const;
-/** How clearly each informant level hears things, before rival secrecy. */
-const LEVEL_BASE = [0.32, 0.6, 0.8, 1.0];
 
 /**
  * The player's informant level covering a city: 0 none, 1 green, 2 seasoned,
@@ -87,16 +86,6 @@ export function intelLevel(w: World, city: CityId): { level: number; competence:
   return { level: Math.max(here, elsewhere - 1), competence };
 }
 
-/** How clearly the player learns of a rival action: 0 (nothing) to 1 (exact). */
-function fidelity(w: World, co: Company, city: CityId): number {
-  const { level, competence } = intelLevel(w, city);
-  const mine = playerTaverns(w).find((t) => t.city === city);
-  // Without an informant you only overhear what happens under your own roof.
-  if (level === 0 && !mine) return 0;
-  const gossip = mine ? mine.regulars.length * 0.02 : 0;
-  return clamp(LEVEL_BASE[level]! + 0.1 * competence + gossip - 0.6 * (co.rival?.secrecy ?? 0), 0, 1);
-}
-
 /**
  * Whether a rival move against you surfaces as a decision in time to react.
  * This is gameplay, not news: it doesn't depend on informants (they only
@@ -112,11 +101,14 @@ function awareness(w: World, co: Company, city: CityId): number {
   return clamp(0.78 - (co.rival?.secrecy ?? 0) + intel, 0, 1);
 }
 
-/** Puts a rival move in the feed as clearly as your informants allow; returns how aware of it you are. */
-function telegraph(w: World, c: Content, co: Company, city: CityId, group: string, vars: Record<string, string>): number {
-  const f = fidelity(w, co, city);
-  if (f >= 0.5) rumor(w, c, group, city, { rival: co.name, ...vars }, f >= 0.75 ? 'intel' : 'rumor');
-  else if (f >= 0.25 && chance(w, 'log', 0.35)) rumor(w, c, 'vague', city);
+/**
+ * Puts a rival move in the feed as precisely as your informants allow (see
+ * sim/intel.ts): always what they did and what patrons prefer, with prices and
+ * qualities from better informants. Returns how aware of it you are.
+ */
+function telegraph(w: World, c: Content, co: Company, city: CityId, kind: string, rival: Tavern, category: Category | null, drinkId?: string): number {
+  const tier = heardTier(w, city, intelLevel(w, city).level, co.rival?.secrecy ?? 0);
+  if (tier !== null) intelLine(w, c, kind, tier, city, rivalVars(w, c, co, rival, category, drinkId));
   return awareness(w, co, city);
 }
 
@@ -143,13 +135,20 @@ function intelReports(w: World, c: Content): void {
         const plan = b.tier >= 2 && co.cash >= c.rivalTuning.archRival.expandCash * (b.isArch ? 1 : 1.4) ? ', saving to open another house'
           : b.mood === 'desperate' ? ', desperate enough for dirty tricks'
           : b.tier >= 1 && b.aggression > 0.6 ? ', spoiling for a fight' : '';
-        log(w, 'intel', `Informant: ${co.name} holds about ${cash} Duckets, ${n} tavern${n === 1 ? '' : 's'}, ${b.mood}${plan}.`, city);
+        log(w, 'intel', `Informant: ${co.name} holds about ${cash} Duckets, ${n} tavern${n === 1 ? '' : 's'}, ${b.mood}${plan}. ${MOOD_ADVICE[b.mood]}`, city);
       } else {
-        log(w, 'intel', `Informant: ${co.name} seems ${b.mood} these days.`, city);
+        log(w, 'intel', `Informant: ${co.name} seems ${b.mood} these days. ${MOOD_ADVICE[b.mood]}`, city);
       }
     }
   }
 }
+
+/** What a rival's mood means for you, for informant reports. */
+const MOOD_ADVICE: Record<string, string> = {
+  confident: 'Expect them to raise prices: yours can stay put.',
+  pressured: 'Expect them to cut prices or run promos soon.',
+  desperate: 'Expect dirty tricks: keep a bouncer and a cellarer on.',
+};
 
 function actTier(w: World, c: Content, co: Company): 0 | 1 | 2 {
   const year = calNow(w, c.time).year;
@@ -206,7 +205,7 @@ function act(w: World, c: Content, co: Company, a: Action): void {
           changed = true;
         }
       }
-      const f = telegraph(w, c, co, home.city, 'rivalUndercut', { category: top.cat });
+      const f = telegraph(w, c, co, home.city, 'undercut', home, top.cat);
       if (mine && mine.city === home.city && f >= 0.5 && chance(w, rng, c.events.rivalPromptChance)) {
         spawnPrompt(w, c, 'rival-undercut', { tavernId: mine.id, vars: { rival: home.name, category: top.cat } });
       }
@@ -222,27 +221,27 @@ function act(w: World, c: Content, co: Company, a: Action): void {
       home.menu.push({ drinkId: pickD.id, price: 0.95 });
       home.cellar[pickD.id] = (home.cellar[pickD.id] ?? 0) + 1;
       spend(co, 60, 'other');
-      telegraph(w, c, co, home.city, 'rivalQuality', {});
+      telegraph(w, c, co, home.city, 'copy', home, null, pickD.id);
       break;
     }
     case 'quality': {
       spend(co, 150, 'other');
       home.qualityBias = clamp(home.qualityBias + 3, -10, 18);
       home.rep = clamp(home.rep + 2, 0, 100);
-      telegraph(w, c, co, home.city, 'rivalQuality', {});
+      telegraph(w, c, co, home.city, 'quality', home, top.cat);
       break;
     }
     case 'promo': {
       spend(co, 60, 'other');
       addModifier(w, c, 'promo-night', 1, 'tavern', home.id);
       if (mine && mine.city === home.city) addModifier(w, c, 'rival-promo', 1, 'tavern', mine.id);
-      telegraph(w, c, co, home.city, 'rivalPromo', {});
+      telegraph(w, c, co, home.city, 'promo', home, null);
       break;
     }
     case 'sabotage': {
       if (!mine) break;
       spend(co, 70, 'other');
-      const f = telegraph(w, c, co, mine.city, 'rivalPlot', {});
+      const f = telegraph(w, c, co, mine.city, 'plot', home, null);
       const spoil = chance(w, rng, 0.4);
       if (f >= 0.6) spawnPrompt(w, c, spoil ? 'rival-spoil' : 'rival-thugs', { tavernId: mine.id, vars: { rival: co.name } });
       else addModifier(w, c, spoil ? 'spoiled-kegs' : 'thugs', 1, 'tavern', mine.id);
@@ -255,7 +254,7 @@ function act(w: World, c: Content, co: Company, a: Action): void {
       else if (mine.city === 'shanty') addModifier(w, c, 'windsunk-grudge', 1, 'tavern', mine.id);
       else if (mine.city === 'aleforge') spawnPrompt(w, c, 'shorelan-warning', { tavernId: mine.id, delaySeconds: 4 });
       else addModifier(w, c, 'bad-press', 1, 'tavern', mine.id);
-      telegraph(w, c, co, mine.city, 'rivalPlot', {});
+      telegraph(w, c, co, mine.city, 'plot', home, null);
       break;
     }
     case 'poach': {
@@ -274,7 +273,7 @@ function act(w: World, c: Content, co: Company, a: Action): void {
       const city = targets[0];
       if (!city) break;
       const name = co.rival?.isArch ? `${co.name} ${cityOf(c, city).name}` : `${co.name} ${pick(w, rng, ['Annex', 'Second House', 'Wharf'])}`;
-      telegraph(w, c, co, city, 'rivalExpand', {});
+      telegraph(w, c, co, city, 'expand', { ...home, city } as Tavern, null);
       const t = rivalFound(w, c, co.id, city, name);
       if (t) rumor(w, c, 'rivalOpened', city, { rival: name }, 'news');
       break;

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'preact/hooks';
 import { HallRecord } from '../HallRecord.tsx';
+import { TOWN_COLOR } from '../townColors.ts';
 import { getMode, resetGuides, seenGuides, setMode, type PlayMode } from '../guideMode.ts';
 import type { SaveFile } from '../../app/save.ts';
-import { PALETTES } from '../../art/palettes.ts';
 import type { CityId, Content } from '../../content/schema.ts';
 import { cityOf } from '../../sim/lookup.ts';
 import { savedName, saveName } from '../../leaderboard/outbox.ts';
@@ -130,7 +130,7 @@ export function TitleScreen({ content, onPlay, loadSave }: { content: Content; o
           <button
             key={c.id}
             class={`city-chip ${city === c.id ? 'city-chip-on' : ''}`}
-            style={{ '--accent': PALETTES[c.palette]?.accent ?? '#ccc' }}
+            style={{ '--accent': TOWN_COLOR[c.id] }}
             aria-pressed={city === c.id}
             onClick={() => setCity(c.id)}
             data-testid={`city-${c.id}`}

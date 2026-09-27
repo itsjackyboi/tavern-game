@@ -405,6 +405,17 @@ export const Prompt = z.strictObject({
   icon: z.string().max(4),
   options: z.array(PromptOption).min(2).max(4),
   defaultOption: z.number().int().min(0),
+  /**
+   * Drawn at random from a pool: 'floor' (the tavern you're in), 'manager'
+   * (a sister's manager, to the inbox) or 'company' (the inbox). Optional
+   * town and season filters; weight defaults to 1.
+   */
+  pool: z.strictObject({
+    kind: z.enum(['floor', 'manager', 'company']),
+    weight: z.number().positive().optional(),
+    cities: z.array(CityId).optional(),
+    seasons: z.array(z.enum(['stormtide', 'goldsun', 'veilfrost'])).optional(),
+  }).optional(),
 });
 export type Prompt = z.infer<typeof Prompt>;
 export const Prompts = z.array(Prompt).min(10);
@@ -481,6 +492,12 @@ export const Finale = z.strictObject({
   freeplayNote: z.string(),
 });
 export const Tips = z.array(z.string().min(1).max(90)).min(3);
+/**
+ * What you hear about rivals and patrons, by informant level: index 0 is what
+ * you overhear with no informant, then green, seasoned, master. Each level is a
+ * list of variants. Every line must be something you can act on.
+ */
+export const Intel = z.record(z.string(), z.array(z.array(z.string().min(1).max(200)).min(1)).length(4));
 /** A torn page from the Hoegaarden Hall of Records, shown as a note in the corner of the game. */
 export const Records = z.strictObject({
   tabLabel: z.string().min(1).max(30),
@@ -515,6 +532,7 @@ export const ContentSchema = z.strictObject({
   finale: Finale,
   tips: Tips,
   records: Records,
+  intel: Intel,
 });
 export type Content = z.infer<typeof ContentSchema>;
 
@@ -544,7 +562,8 @@ export const FILE_SCHEMAS = {
   'strings/finale.json': ['finale', Finale],
   'strings/tips.json': ['tips', Tips],
   'strings/records.json': ['records', Records],
+  'strings/intel.json': ['intel', Intel],
 } as const satisfies Record<string, readonly [keyof Content, z.ZodType]>;
 
 /** Files allowed to contain prose. Everything else is stats and names only. */
-export const PROSE_FILES = new Set<string>(['strings/letter.json', 'strings/rumors.json', 'strings/winds.json', 'strings/finale.json', 'strings/tips.json', 'strings/records.json']);
+export const PROSE_FILES = new Set<string>(['strings/letter.json', 'strings/rumors.json', 'strings/winds.json', 'strings/finale.json', 'strings/tips.json', 'strings/records.json', 'strings/intel.json']);

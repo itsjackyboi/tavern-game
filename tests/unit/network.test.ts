@@ -156,3 +156,45 @@ describe('switching taverns', () => {
     expect(sis.agg.queue ?? 0).toBeGreaterThan(0);
   });
 });
+
+describe('decisions and rumours', () => {
+  it('draws many different decisions and never repeats one within three seasons', () => {
+    const w = createWorld({ seed: 'variety', homeCity: 'aleforge' }, c);
+    const seen: Array<[string, number]> = [];
+    let last = new Set<number>();
+    for (let i = 0; i < 1300 * 9; i++) {
+      stepWorld(w, c, []);
+      for (const p of w.prompts.active) {
+        if (last.has(p.uid)) continue;
+        seen.push([p.defId, w.tick]);
+      }
+      last = new Set(w.prompts.active.map((p) => p.uid));
+      // answer nothing: let them time out
+    }
+    const pooled = seen.filter(([id]) => c.prompts.find((p) => p.id === id)?.pool?.kind === 'floor');
+    expect(new Set(pooled.map(([id]) => id)).size).toBeGreaterThanOrEqual(6);
+    const lastAt = new Map<string, number>();
+    for (const [id, at] of pooled) {
+      const prev = lastAt.get(id);
+      if (prev !== undefined) expect(at - prev).toBeGreaterThanOrEqual(3 * 1300);
+      lastAt.set(id, at);
+    }
+  });
+
+  it('every rival and patron report has text for all four informant levels', () => {
+    for (const kind of ['undercut', 'quality', 'promo', 'copy', 'plot', 'expand', 'talkBetter', 'talkCheaper', 'talkWanted', 'talkDear', 'talkWaits']) {
+      expect(c.intel[kind], kind).toHaveLength(4);
+      for (const tier of c.intel[kind]!) expect(tier.length).toBeGreaterThan(0);
+    }
+    // No flavour-only rumour groups remain.
+    for (const gone of ['vague', 'prophecy', 'general']) expect(c.rumors[gone]).toBeUndefined();
+  });
+
+  it('patrons talk about what they want, with numbers once you have an informant', () => {
+    const w = createWorld({ seed: 'talk', homeCity: 'aleforge' }, c);
+    run(w, 1300 * 3);
+    const lines = w.log.filter((l) => l.city === 'aleforge' && (l.kind === 'rumor' || l.kind === 'intel'));
+    expect(lines.length).toBeGreaterThan(0);
+    expect(lines.some((l) => /[{}]/.test(l.text))).toBe(false);
+  });
+});

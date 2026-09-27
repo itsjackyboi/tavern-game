@@ -384,7 +384,7 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--gold); }
 .intel-badge.lvl-3 { background: var(--gold); color: #1b1108; }
 .intel-note { font-size: 14px; color: var(--muted); margin: 0 0 4px; line-height: 1.15; }
 .feed .hover-line { font-size: 16px; color: var(--parchment); background: #3b2618; padding: 3px 6px; border-radius: 3px; margin: 2px 0 4px; }
-.decisions { flex: 0 0 40%; overflow-y: auto; padding: 6px 8px 10px; border-top: 2px solid #3c2a1c; }
+.decisions { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 6px 8px 10px; border-top: 2px solid #3c2a1c; }
 .decisions.has-cards { border-top: 3px solid var(--gold); background: #2a1c10; box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.5); }
 .decisions-empty { margin: 4px 0; opacity: 0.6; }
 .decisions h3 { margin: 0 0 6px; font-weight: normal; font-size: 22px; color: var(--gold); animation: blink 1.4s steps(2) 3; }
@@ -1038,8 +1038,8 @@ body[data-tut='drawers'] .bottom-bar .btn:not(.view-toggle):not(.bell) { animati
 .nw-table td { padding: 3px 4px; border-bottom: 1px solid #2c1f14; white-space: nowrap; }
 .nw-table tbody tr { cursor: pointer; }
 .nw-table tbody tr:hover { background: #2e2014; }
-.nw-table tr.problem td:first-child { border-left: 3px solid #e0524a; }
-.nw-table tr.watch td:first-child { border-left: 3px solid #b88a2e; }
+.nw-table tr.problem td:last-child { color: #ff8a7a; }
+.nw-table tr.watch td:last-child { color: #f0c060; }
 .nw-table tfoot td { color: var(--parchment); border-top: 2px solid #3c2a1c; }
 .nw-issue { max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
 .drawer.drawer-wide { width: min(760px, 100%); }
@@ -1125,3 +1125,43 @@ body[data-tut='drawers'] .bottom-bar .btn:not(.view-toggle):not(.bell) { animati
 .title-notes .timer-note { margin: 0 auto; min-height: 0; }
 .title-screen { gap: 13px; }
 .title-screen > .envelope { min-height: 124px; }
+
+/* v1.20: right column = Company Value, Your taverns, Decisions; inbox pops out of the board */
+.right-scroll { flex: 0 0 40%; max-height: none; }
+.your-taverns { max-height: 30%; }
+.inbox-pop {
+  position: absolute; right: 10px; bottom: 10px; z-index: 8; width: min(380px, calc(100% - 20px)); max-height: 62%;
+  display: flex; flex-direction: column; background: #2a1c10; border: 3px solid var(--gold); border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7); animation: inbox-in 0.3s ease-out;
+}
+@keyframes inbox-in { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+.inbox-pop-head { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-bottom: 2px solid #3c2a1c; font-size: 19px; color: var(--gold); }
+.inbox-pop-head .muted { flex: 1; }
+.inbox-pop-body { overflow-y: auto; padding: 6px 8px; scrollbar-width: thin; scrollbar-color: #5e3d28 transparent; }
+.inbox-pop-body .card { margin-bottom: 6px; }
+.inbox-tab {
+  position: absolute; right: 10px; bottom: 10px; z-index: 8; font: inherit; font-size: 18px; color: var(--parchment);
+  background: #3b2618; border: 3px solid var(--gold); border-radius: 4px; padding: 4px 12px; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); animation: blink 1.4s steps(2) 3;
+}
+/* With a drawer open the inbox folds to its tab, left of the drawer. */
+.board:has(.drawer) .inbox-tab { right: calc(min(520px, 100%) + 10px); }
+/* Receipts and money notes make room for the inbox pop-out on the right. */
+.board:has(.inbox-pop) .board-bottom { right: min(400px, 55%); }
+.inbox-pop, .inbox-tab { z-index: 10; }
+
+/* v1.20: town colours (var(--town)) on everything that belongs to a town */
+.town-chip { display: inline-block; font-family: var(--font-mini); font-size: 10px; text-transform: uppercase; padding: 0 4px; margin-right: 6px; border-radius: 2px; background: var(--town, #3b2a1c); color: #140d08; vertical-align: 2px; white-space: nowrap; }
+.tavern-tab { border-left: 6px solid var(--town, #3f2b1c); }
+.tavern-tab .tt-city { color: var(--town, var(--text)); }
+.yt-row { border-left: 6px solid var(--town, #3f2b1c); }
+.yt-row .yt-name { color: var(--town, var(--parchment)); }
+.feed .tick-line.has-town { border-left-color: var(--town); }
+.card.has-town { border-left-color: var(--town) !important; }
+.card .card-where.town-chip { margin-left: auto; font-size: 11px; padding: 1px 5px; }
+.receipt.has-town { border-left: 6px solid var(--town); }
+.money-note.has-town { border-left: 6px solid var(--town); }
+.sr-row { border-left: 6px solid var(--town, #3f2b1c) !important; }
+.sr-row .sr-town { color: var(--town, var(--parchment)); }
+.nw-table tr.has-town td:first-child { box-shadow: inset 5px 0 0 var(--town); padding-left: 9px; color: var(--town); }
+.tavern-report .tr-head { border-left: 6px solid var(--town, transparent); padding-left: 8px; }

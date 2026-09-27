@@ -8,6 +8,7 @@ import { money } from '../describe.ts';
 import { trendOf } from '../RepTrend.tsx';
 import { STATUS_LABEL, lastSeasonNet, openReport, seasonNet, servicePct, staffIcons, tavernIssues, townName, walkoutShare } from '../tavernHealth.ts';
 import { Shell } from './Shell.tsx';
+import { townStyle } from '../townColors.ts';
 
 // Every tavern you run, side by side. Click a column to sort, a row for its report.
 
@@ -76,7 +77,7 @@ export function NetworkDrawer({ ctrl }: { ctrl: GameController }) {
             const building = t.status === 'building';
             const here = w.focus.tavernId === t.id;
             return (
-              <tr key={t.id} class={problem ? 'problem' : issues.length ? 'watch' : ''} onClick={() => openReport(t)} data-testid="nw-row">
+              <tr key={t.id} class={`${problem ? 'problem' : issues.length ? 'watch' : ''} has-town`} style={townStyle(t.city)} onClick={() => openReport(t)} data-testid="nw-row">
                 <td>{townName(c, t)}{here ? ' ·here' : ''}<br /><span class={`yt-status st-${t.status}`}>{STATUS_LABEL[t.status]}</span></td>
                 <td>{building ? '—' : <>{Math.round(t.rep)} <span class={tr.dir === 'up' ? 'up' : tr.dir === 'down' ? 'down' : 'muted'}>{tr.dir === 'up' ? '▲' : tr.dir === 'down' ? '▼' : ''}</span></>}</td>
                 <td class={seasonNet(t) >= 0 ? 'up' : 'down'}>{building ? '—' : `${seasonNet(t) >= 0 ? '+' : ''}${money(seasonNet(t))}`}</td>

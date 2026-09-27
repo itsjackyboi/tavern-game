@@ -1,7 +1,7 @@
 import { CITY_IDS, type CityId, type Content, type IngredientId } from '../content/schema.ts';
 import { priceShock } from './economy/market.ts';
 import { log, rumor } from './log.ts';
-import { addModifier, cityOf, idx, player, playerTaverns, seasonTicks } from './lookup.ts';
+import { addModifier, cityOf, idx, player, playerTaverns, seasonTicks, staffAt } from './lookup.ts';
 import { applyEffects, managerProposal, spawnPrompt } from './prompts.ts';
 import { chance, pick, rand } from './rng.ts';
 import type { Calendar } from './time.ts';
@@ -12,6 +12,44 @@ import type { Staff, Tavern, World } from './types.ts';
 function rivalNameIn(w: World, city: CityId | null): string {
   const rivals = Object.values(w.taverns).filter((t) => t.status !== 'closed' && t.companyId !== w.playerId && (!city || t.city === city));
   return rivals.length ? pick(w, 'events', rivals).name : 'A rival';
+}
+
+/** A decision isn't drawn again until this many seasons after it was last shown. */
+export const NO_REPEAT_SEASONS = 3;
+
+/** Whether a decision is free to come up again (not shown recently, not already waiting). */
+function freshPrompt(w: World, c: Content, defId: string, seasons = NO_REPEAT_SEASONS): boolean {
+  const at = w.events.promptSeen?.[defId];
+  if (at !== undefined && w.tick - at < seasons * seasonTicks(c)) return false;
+  return !w.prompts.pending.some((p) => p.defId === defId) && !w.prompts.active.some((p) => p.defId === defId);
+}
+
+/** Draws one decision from a pool for a town and season, never one shown in the last few seasons. */
+function drawFromPool(w: World, c: Content, kind: 'floor' | 'manager' | 'company', city: CityId | null, cal: Calendar, t?: Tavern): { id: string; vars: Record<string, string> } | null {
+  const hasRival = !city || Object.values(w.taverns).some((x) => x.city === city && x.status !== 'closed' && x.companyId !== w.playerId);
+  const staff = t ? staffAt(w, t.id) : [];
+  const cands = c.prompts.filter((p) => {
+    const pool = p.pool;
+    if (!pool || pool.kind !== kind) return false;
+    if (city && pool.cities && !pool.cities.includes(city)) return false;
+    if (pool.seasons && (cal.segment === 'holidayKeg' || !pool.seasons.includes(cal.segment))) return false;
+    const text = p.title + (p.line ?? '');
+    if (text.includes('{rival}') && !hasRival) return false;
+    if (text.includes('{staff}') && !staff.length) return false;
+    return freshPrompt(w, c, p.id);
+  });
+  if (!cands.length) return null;
+  const total = cands.reduce((s, p) => s + (p.pool?.weight ?? 1), 0);
+  let r = rand(w, 'events') * total;
+  let chosen = cands[cands.length - 1]!;
+  for (const p of cands) {
+    r -= p.pool?.weight ?? 1;
+    if (r <= 0) { chosen = p; break; }
+  }
+  const vars: Record<string, string> = {};
+  if ((chosen.title + (chosen.line ?? '')).includes('{rival}')) vars.rival = rivalNameIn(w, city);
+  if (staff.length) vars.staff = pick(w, 'events', staff).name;
+  return { id: chosen.id, vars };
 }
 
 function lookup(w: World, key: string): number {
@@ -145,7 +183,6 @@ export function onSegmentStart(w: World, c: Content, cal: Calendar): void {
     const name = c.ingredients.find((i) => i.id === ing)!.name;
     rumor(w, c, up ? 'priceSpike' : 'priceDrop', city, { ingredient: name });
   }
-  if (chance(w, 'log', 0.35)) rumor(w, c, chance(w, 'log', 0.3) ? 'prophecy' : 'general', null);
 
   const ev = c.events;
   for (const t of playerTaverns(w)) {
@@ -160,11 +197,27 @@ export function onSegmentStart(w: World, c: Content, cal: Calendar): void {
     if (t.city === 'aleforge' && cal.segment === 'goldsun' && chance(w, 'events', 0.5)) {
       spawnPrompt(w, c, 'hall-contest', { tavernId: t.id, delaySeconds: 10 + rand(w, 'events') * 20 });
     }
-    if (chance(w, 'events', 0.12)) spawnPrompt(w, c, 'bad-keg', { tavernId: t.id, delaySeconds: 10 + rand(w, 'events') * 40 });
+    if (chance(w, 'events', 0.12) && freshPrompt(w, c, 'bad-keg', 2)) spawnPrompt(w, c, 'bad-keg', { tavernId: t.id, delaySeconds: 10 + rand(w, 'events') * 40 });
     const isSister = t.id !== playerTaverns(w)[0]?.id;
     if (isSister && t.managerId && chance(w, 'events', ev.managerProposalChance)) {
-      managerProposal(w, c, t, pick(w, 'events', ['mgr-promo', 'mgr-prices', 'mgr-bulk']));
+      const d = drawFromPool(w, c, 'manager', t.city, cal, t);
+      if (d) managerProposal(w, c, t, d.id);
     }
+  }
+  // Everyday happenings at the tavern you're in: one most seasons, sometimes two,
+  // drawn from a big pool with nothing repeating for a few seasons.
+  const here = w.taverns[w.focus.tavernId];
+  if (here && here.status !== 'building' && here.companyId === w.playerId) {
+    const n = (chance(w, 'events', 0.85) ? 1 : 0) + (chance(w, 'events', 0.4) ? 1 : 0);
+    for (let i = 0; i < n; i++) {
+      const d = drawFromPool(w, c, 'floor', here.city, cal, here);
+      if (d) spawnPrompt(w, c, d.id, { tavernId: here.id, vars: d.vars, delaySeconds: 8 + rand(w, 'events') * 45 });
+    }
+  }
+  // Now and then an offer for the whole company lands in the inbox.
+  if (cal.yearIndex >= 1 && chance(w, 'events', 0.2)) {
+    const d = drawFromPool(w, c, 'company', null, cal);
+    if (d) spawnPrompt(w, c, d.id, { vars: d.vars, delaySeconds: 5 + rand(w, 'events') * 30 });
   }
   if (cal.segment === 'veilfrost' && chance(w, 'events', ev.vowChance)) {
     const t = pick(w, 'events', playerTaverns(w));
@@ -186,7 +239,7 @@ export function onSegmentStart(w: World, c: Content, cal: Calendar): void {
 export function onLastCall(w: World, c: Content): void {
   const t = w.taverns[w.focus.tavernId];
   if (!t || !w.floor) return;
-  if (chance(w, 'events', 0.22)) spawnPrompt(w, c, 'vip-last-round', { tavernId: t.id });
+  if (chance(w, 'events', 0.22) && freshPrompt(w, c, 'vip-last-round', 1)) spawnPrompt(w, c, 'vip-last-round', { tavernId: t.id });
 }
 
 /** Staff whose morale collapsed ask for a raise. */

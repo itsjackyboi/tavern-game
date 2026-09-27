@@ -1,12 +1,14 @@
 import { signal } from '@preact/signals';
 import type { GameController } from '../app/controller.ts';
+import type { CityId } from '../content/schema.ts';
 import { sound } from './bus.ts';
+import { townInText } from './townColors.ts';
 
 // Watches the player's money trail and decision receipts, and turns them into
 // short notes along the bottom of the board: how much, and why.
 
-export interface MoneyNote { id: number; key: string; detail: string; amount: number; count: number; at: number }
-export interface Receipt { id: number; title: string; option: string; auto: boolean; parts: string[]; at: number }
+export interface MoneyNote { id: number; key: string; detail: string; amount: number; count: number; at: number; city: CityId | null }
+export interface Receipt { id: number; title: string; option: string; auto: boolean; parts: string[]; at: number; city: CityId | null }
 
 export const moneyNotes = signal<MoneyNote[]>([]);
 /** Notes big enough to show (small trickles still add up in the ledger). */
@@ -48,7 +50,7 @@ export function bindMoneyFeed(ctrl: GameController): () => void {
           const merged = { ...same, amount: same.amount + e.amount, count: same.count + (same.detail === e.detail ? 0 : 1), at: now };
           notes = notes.map((n) => (n.id === same.id ? merged : n));
         } else {
-          notes.push({ id: ++noteId, key: e.key, detail: e.detail, amount: e.amount, count: 1, at: now });
+          notes.push({ id: ++noteId, key: e.key, detail: e.detail, amount: e.amount, count: 1, at: now, city: townInText(ctrl.world, e.detail) });
         }
       }
       moneyNotes.value = notes.slice(-8);
@@ -58,7 +60,7 @@ export function bindMoneyFeed(ctrl: GameController): () => void {
       const fresh = out.filter((o) => o.seq > lastOutcome);
       lastOutcome = ctrl.world.prompts.outcomeSeq;
       if (fresh.length) {
-        receipts.value = [...receipts.value, ...fresh.map((o) => ({ id: o.seq, title: o.title, option: o.option, auto: o.auto, parts: o.parts, at: now }))].slice(-2);
+        receipts.value = [...receipts.value, ...fresh.map((o) => ({ id: o.seq, title: o.title, option: o.option, auto: o.auto, parts: o.parts, at: now, city: o.city ?? townInText(ctrl.world, o.title) }))].slice(-2);
         if (fresh.some((o) => o.auto)) sound('alert');
       }
     }

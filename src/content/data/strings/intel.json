@@ -1,0 +1,189 @@
+{
+  "undercut": [
+    [
+      "Patrons say {category} is cheaper at {rival} than at yours.",
+      "{Crowd} have noticed {rival}'s {category} costs less."
+    ],
+    [
+      "{rival} has cut its {category} prices, and some of your patrons are following.",
+      "{rival} is pricing {category} low to win your crowd; check your {category} price (Menu)."
+    ],
+    [
+      "{rival} cut {category} to about {theirPrice}◉ a pour ({yours}). Patrons who drink {category} are switching.",
+      "{rival} now sells {category} at about {theirPrice}◉ ({yours}). Match it, or win them with something they don't pour."
+    ],
+    [
+      "{rival} cut {category} to {theirPrice}◉ ({yours}) and can hold it {hold}. Patrons who drink {category} are switching to them."
+    ]
+  ],
+  "quality": [
+    [
+      "Patrons say the pours at {rival} are better than yours these days.",
+      "Word in {city} is that {rival}'s drinks got better."
+    ],
+    [
+      "{rival} brought in new stills: their {category} is better than yours now.",
+      "{rival} has improved its {category}; {crowd} have noticed."
+    ],
+    [
+      "{rival}'s {category} is about Q{theirQ} ({yourQ}). {cityNote}",
+      "{rival} raised its {category} to about Q{theirQ} ({yourQ}). {cityNote}"
+    ],
+    [
+      "{rival}'s {category} is Q{theirQ} ({yourQ}). {cityNote} A better recipe (Brew) or a quality upgrade (Build) would put you back ahead."
+    ]
+  ],
+  "promo": [
+    [
+      "Handbills for a promo night at {rival} are all over {city}: expect a quieter night.",
+      "{city} patrons are talking about cheap pours at {rival} tonight."
+    ],
+    [
+      "{rival} is running a promo night this season and will draw some of your crowd.",
+      "{rival} is throwing a promo in {city}; a promo of your own would answer it."
+    ],
+    [
+      "{rival}'s promo night will pull roughly a tenth of {crowd} this season. Your manager can run a promo too.",
+      "{rival} spent on a promo in {city}; it lasts the season and costs you some patrons."
+    ],
+    [
+      "{rival}'s promo runs until the season ends and cost them 60◉; they can't afford another for a while. Wait it out, or answer it with your own."
+    ]
+  ],
+  "copy": [
+    [
+      "{rival} is pouring {drink} now, just like you.",
+      "Your regulars say {rival} has started serving {drink}."
+    ],
+    [
+      "{rival} copied your {drink}; some of your patrons may try theirs.",
+      "{rival} has put {drink} on tap to take your crowd for it."
+    ],
+    [
+      "{rival} pours {drink} now at about {theirPrice}◉ ({yours}). Keep yours better or cheaper.",
+      "{rival} copied your {drink} ({theirPrice}◉ a pour; {yours}). A fresh recipe of your own would set you apart."
+    ],
+    [
+      "{rival} pours {drink} at {theirPrice}◉ ({yours}); their cask is Q{theirQ} ({yourQ}). {verdict}"
+    ]
+  ],
+  "plot": [
+    [
+      "Someone in {city} is asking questions about your cellar door. A bouncer or cellarer would help.",
+      "A stranger was watching your {city} tavern all night. Keep a bouncer on."
+    ],
+    [
+      "{rival} is paying someone to cause you trouble in {city}. A bouncer stops brawls; a cellarer guards the kegs.",
+      "Word is {rival} wants your {city} tavern to have a bad season. Guard the door and the cellar."
+    ],
+    [
+      "{rival} has paid for trouble at your {city} tavern this season. A bouncer and a cellarer would blunt it.",
+      "{rival} spent Duckets to hurt your {city} tavern; expect brawls or spoiled kegs. Staff up the door and cellar."
+    ],
+    [
+      "{rival} paid about 70◉ to have your {city} tavern sabotaged this season. A bouncer stops the brawls; a cellarer catches spoiled kegs."
+    ]
+  ],
+  "expand": [
+    [
+      "Surveyors are walking the lanes of {city}; someone is opening a new house there.",
+      "A lot in {city} has been bought. Someone will open a tavern there soon."
+    ],
+    [
+      "{rival} is eyeing a lot in {city}. Only {lots} lot(s) are left there.",
+      "{rival} wants to open in {city}; lots there are limited ({lots} left)."
+    ],
+    [
+      "{rival} will open in {city} soon, leaving {lots} lot(s). Found there first if you want one.",
+      "{rival} is about to take a lot in {city} ({lots} left). If you want a tavern there, move now."
+    ],
+    [
+      "{rival} holds about {cash}◉ and will open in {city} this season; {lots} lot(s) left. Found there first, or expect a new rival."
+    ]
+  ],
+  "talkBetter": [
+    [
+      "Patrons at {tavern} say the {category} at {rival} is better than yours.",
+      "{Crowd} keep comparing your {category} to {rival}'s, and yours loses."
+    ],
+    [
+      "Patrons at {tavern} say {rival}'s {category} is better. Your informant agrees.",
+      "{rival}'s {category} is winning over {crowd}."
+    ],
+    [
+      "{rival}'s {category} is about Q{theirQ} ({yourQ}). {cityNote}",
+      "Patrons prefer {rival}'s {category}: about Q{theirQ} ({yourQ})."
+    ],
+    [
+      "{rival}'s {category} is Q{theirQ} ({yourQ}). {cityNote} A better recipe or a quality upgrade would win them back."
+    ]
+  ],
+  "talkCheaper": [
+    [
+      "Patrons at {tavern} say {category} is cheaper at {rival}.",
+      "{Crowd} grumble that {rival} charges less for {category}."
+    ],
+    [
+      "{rival} charges less for {category} than you, and your patrons have noticed.",
+      "Patrons at {tavern} say they get more {category} for their Duckets at {rival}."
+    ],
+    [
+      "{rival} sells {category} at about {theirPrice}◉ ({yours}).",
+      "{category} at {rival} is about {theirPrice}◉ a pour ({yours})."
+    ],
+    [
+      "{rival} sells {category} at {theirPrice}◉ ({yours}) and can hold that price {hold}."
+    ]
+  ],
+  "talkWanted": [
+    [
+      "{segment} in {city} keep asking for {category}, and you don't pour any.",
+      "{segment} at {tavern} ask for {category}; put some on tap (Menu) or discover a recipe (Brew)."
+    ],
+    [
+      "{segment} in {city} want {category} and you don't pour any. They're drinking it elsewhere.",
+      "{segment} are a good share of {city}'s crowd and they want {category}."
+    ],
+    [
+      "{segment} make up about {share}% of {city}'s patrons today, and they want {category}. You pour none.",
+      "About {share}% of {city}'s patrons are {segment}, and they ask for {category}."
+    ],
+    [
+      "About {share}% of {city}'s patrons are {segment} and want {category}; nobody pours it well there yet. A {category} on tap would win them."
+    ]
+  ],
+  "talkDear": [
+    [
+      "Patrons at {tavern} grumble that {drink} is too dear.",
+      "Regulars at {tavern} say {drink} costs too much; lower its price in Menu."
+    ],
+    [
+      "Patrons at {tavern} say {drink} is too dear for what it is.",
+      "{drink} at {tavern} feels steep to your patrons; they're ordering less of it."
+    ],
+    [
+      "{drink} at {tavern} is {price}◉ a pour; patrons would pay about {fair}◉.",
+      "Your {drink} at {tavern} ({price}◉) feels steep; around {fair}◉ would keep them ordering."
+    ],
+    [
+      "{drink} at {tavern} is {price}◉; about {fair}◉ is what your crowd will pay without grumbling."
+    ]
+  ],
+  "talkWaits": [
+    [
+      "Patrons at {tavern} say they gave up waiting to be served.",
+      "People are walking out of {tavern} before they get a drink. More staff or seats would keep them."
+    ],
+    [
+      "Patrons are walking out of {tavern} before they're served ({walk}% this season).",
+      "Too many patrons leave {tavern} unserved ({walk}%). Hire servers or add tables."
+    ],
+    [
+      "{walk}% of visitors left {tavern} unserved this season. Servers seat and clear; bartenders pour.",
+      "{walk}% of {tavern}'s patrons walked out. More hands or more tables would keep them."
+    ],
+    [
+      "{walk}% of visitors left {tavern} unserved. Another server and bartender would win most of them back."
+    ]
+  ]
+}

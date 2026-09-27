@@ -1,22 +1,53 @@
 import type { GameController } from '../../app/controller.ts';
 import type { InstitutionId } from '../../content/schema.ts';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { companyTaverns, league } from '../../sim/company.ts';
 import { playerTaverns } from '../../sim/lookup.ts';
 import { establishedSisters, repTrend } from '../../sim/network.ts';
-import { uiFrame } from '../bus.ts';
+import { drawer, sound, uiFrame } from '../bus.ts';
 import { money } from '../describe.ts';
+import { townStyle } from '../townColors.ts';
 import { STATUS_LABEL, openReport, seasonNet, staffIcons, tavernIssues, townName } from '../tavernHealth.ts';
 import { Card, inboxItems, visibleCards } from './Cards.tsx';
 
-/** Always at the top with a fixed height (blank when empty), so nothing below it ever shifts. */
-function Inbox({ ctrl }: { ctrl: GameController }) {
+/**
+ * The inbox pops out of the bottom-right corner of the board: rarer but more
+ * important than decisions, so it gets a spot of its own. It opens by itself
+ * when a new request arrives, folds back to a tab, and is gone when empty.
+ */
+export function InboxPopout({ ctrl }: { ctrl: GameController }) {
+  void uiFrame.value; // has its own hooks, so it must subscribe itself to redraw live
   const items = inboxItems(ctrl);
+  const [open, setOpen] = useState(true);
+  const seen = useRef(new Set<number>());
+  const newest = items.reduce((m, p) => Math.max(m, p.uid), 0);
+  useEffect(() => {
+    const fresh = items.some((p) => !seen.current.has(p.uid));
+    for (const p of items) seen.current.add(p.uid);
+    if (fresh) {
+      setOpen(true);
+      sound('vip');
+    }
+  }, [newest, items.length]);
+  if (!items.length) return null;
+  // With a drawer open the inbox folds to its tab, so it never covers the drawer.
+  if (!open || drawer.value) {
+    return (
+      <button class="inbox-tab" onClick={() => { drawer.value = null; setOpen(true); }} data-testid="inbox-tab">
+        📨 Inbox <span class="badge">{items.length}</span>
+      </button>
+    );
+  }
   return (
-    <section class={`panel-block inbox inbox-strip ${items.length ? 'has-items' : ''}`} data-testid="inbox">
-      <h3>Inbox {items.length > 0 && <span class="badge">{items.length}</span>}</h3>
-      {items.length === 0 && <p class="small muted inbox-empty">Nothing waiting.</p>}
-      {items.map((p) => <Card key={p.uid} ctrl={ctrl} p={p} hotkeys={false} />)}
+    <section class="inbox-pop" data-testid="inbox" aria-label="Inbox">
+      <div class="inbox-pop-head">
+        <b>📨 Inbox</b> <span class="badge">{items.length}</span>
+        <span class="muted small">requests that need you</span>
+        <button class="btn btn-tiny" onClick={() => setOpen(false)} aria-label="Fold the inbox away" data-testid="inbox-fold">▾</button>
+      </div>
+      <div class="inbox-pop-body">
+        {items.map((p) => <Card key={p.uid} ctrl={ctrl} p={p} hotkeys={false} />)}
+      </div>
     </section>
   );
 }
@@ -88,6 +119,7 @@ function YourTaverns({ ctrl }: { ctrl: GameController }) {
           <div
             key={t.id}
             class={`yt-row ${here ? 'here' : ''} ${problem ? 'problem' : issues.length ? 'watch' : ''}`}
+            style={townStyle(t.city)}
             role="button"
             tabIndex={0}
             onClick={() => openReport(t)}
@@ -176,14 +208,12 @@ export function RightPanel({ ctrl }: { ctrl: GameController }) {
   const world = ctrl.world.focus.view === 'world';
   return (
     <aside class="right-panel">
-      <Inbox ctrl={ctrl} />
       <div class="right-scroll">
         <League ctrl={ctrl} />
         {world && <Ladder ctrl={ctrl} />}
         {world && <Institutions ctrl={ctrl} />}
       </div>
       <YourTaverns ctrl={ctrl} />
-      <div class="right-spacer" />
       <Decisions ctrl={ctrl} />
     </aside>
   );

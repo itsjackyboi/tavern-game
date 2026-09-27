@@ -197,6 +197,8 @@ export interface PromptOutcome {
   option: string;
   auto: boolean;
   parts: string[];
+  /** The town it concerned, if any (colours the receipt). */
+  city?: CityId | null;
 }
 
 export interface ActivePrompt {
@@ -403,6 +405,10 @@ export interface EventState {
   lastShift: number;
   lastYear: number;
   lastSegment: string;
+  /** When each decision was last shown (tick), for the no-repeat rule. Optional for older saves. */
+  promptSeen?: Record<string, number>;
+  /** When each patron-talk line was last said (tick), so the feed doesn't repeat itself. */
+  talkSeen?: Record<string, number>;
 }
 
 export interface World {

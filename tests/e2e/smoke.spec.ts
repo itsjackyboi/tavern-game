@@ -162,12 +162,20 @@ test('Your taverns: list under Company Value, trouble flashes, reports, remote s
   await expect(sisRow).toContainText('Out of');
   await page.screenshot({ path: `${SHOTS}/your-taverns.png`, animations: 'disabled' });
 
-  // The inbox sits above Company Value at a fixed size, shown even when empty:
-  // requests and decisions arriving never move Company Value or Your taverns.
+  // Requests pop out of the bottom-right corner of the board; the right column
+  // (Company Value, Your taverns, Decisions) never moves.
+  const listY = (await list.boundingBox())!.y;
+  await page.evaluate(() => window.__game!.prompt('mgr-promo'));
   const inbox = page.getByTestId('inbox');
   await expect(inbox).toBeVisible();
-  expect((await inbox.boundingBox())!.y).toBeLessThan(leagueY);
-  const listY = (await list.boundingBox())!.y;
+  const board = (await page.getByTestId('board').boundingBox())!;
+  const ib = (await inbox.boundingBox())!;
+  expect(ib.x + ib.width).toBeGreaterThan(board.x + board.width - 40);
+  await page.screenshot({ path: `${SHOTS}/inbox-pop.png`, animations: 'disabled' });
+  await page.getByTestId('inbox-fold').click();
+  await expect(page.getByTestId('inbox-tab')).toBeVisible();
+  await page.getByTestId('inbox-tab').click();
+  await expect(inbox).toBeVisible();
   await page.evaluate(() => window.__game!.step(400));
   expect((await league.boundingBox())!.y).toBe(leagueY);
   expect((await list.boundingBox())!.y).toBe(listY);
@@ -412,9 +420,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.19');
+  await expect(page.getByTestId('version')).toHaveText('v1.20');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.19');
+  await expect(page.getByTestId('version')).toHaveText('v1.20');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {

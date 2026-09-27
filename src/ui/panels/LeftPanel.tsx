@@ -7,6 +7,7 @@ import { RepSpark, trendOf } from '../RepTrend.tsx';
 import { intelLevel } from '../../sim/rivals.ts';
 import { hover, uiFrame } from '../bus.ts';
 import { money } from '../describe.ts';
+import { townStyle } from '../townColors.ts';
 import { JOB_NAME, ROLE_ICON, TIER_NAME, sortStaff, tavernIssues } from '../tavernHealth.ts';
 
 const STATUS: Record<string, string> = { building: 'building', establishing: 'establishing', established: '', struggling: 'struggling', closed: 'closed' };
@@ -19,6 +20,7 @@ function TavernTabs({ ctrl }: { ctrl: GameController }) {
         <button
           key={t.id}
           class={`tavern-tab ${t.id === w.focus.tavernId ? 'on' : ''} status-${t.status}`}
+          style={townStyle(t.city)}
           disabled={t.status === 'building'}
           onClick={() => ctrl.dispatch({ type: 'focus', tavernId: t.id })}
           title={`${t.name} (key ${i + 1})`}
@@ -200,8 +202,9 @@ function EventFeed({ ctrl }: { ctrl: GameController }) {
       <div class="feed-lines">
         {recent.length === 0 && <div class="tick-line muted">Quiet, for now.</div>}
         {recent.map((l, i) => (
-          <div key={`${l.tick}-${l.text}`} class={`tick-line kind-${l.kind} ${w.tick - l.tick < 200 ? 'fresh' : ''}`} style={{ opacity: Math.max(0.45, 1 - i * 0.08) }}>
+          <div key={`${l.tick}-${l.text}`} class={`tick-line kind-${l.kind} ${w.tick - l.tick < 200 ? 'fresh' : ''} ${l.city ? 'has-town' : ''}`} style={{ opacity: Math.max(0.45, 1 - i * 0.08), ...townStyle(l.city) }}>
             <span class={`feed-tag tag-${l.kind}`}>{KIND_TAG[l.kind] ?? l.kind}</span>
+            {l.city && <span class="town-chip">{ctrl.content.cities.find((c) => c.id === l.city)?.name}</span>}
             {l.text}
           </div>
         ))}

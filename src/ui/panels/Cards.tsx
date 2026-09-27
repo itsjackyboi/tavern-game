@@ -1,11 +1,12 @@
 import type { GameController } from '../../app/controller.ts';
-import { idx, player } from '../../sim/lookup.ts';
+import { cityOf, idx, player } from '../../sim/lookup.ts';
 import { effectLines } from '../../sim/effectText.ts';
 import { promptTitle } from '../../sim/prompts.ts';
 import type { ActivePrompt } from '../../sim/types.ts';
 import { sound } from '../bus.ts';
+import { townStyle } from '../townColors.ts';
 
-// Prompt cards, shared by the decisions area (left) and the manager inbox (right).
+// Prompt cards, shared by the decisions area (right) and the inbox pop-out (board).
 
 export function visibleCards(ctrl: GameController): ActivePrompt[] {
   const c = ctrl.content;
@@ -30,11 +31,11 @@ export function Card({ ctrl, p, hotkeys }: { ctrl: GameController; p: ActiveProm
   const tavern = p.tavernId ? w.taverns[p.tavernId] : null;
   const secsLeft = Math.ceil(left / 20);
   return (
-    <div class={`card tier-${def.tier} tension-${def.tension}`} data-testid="prompt-card">
+    <div class={`card tier-${def.tier} tension-${def.tension} ${tavern ? 'has-town' : ''}`} style={townStyle(tavern?.city ?? p.city)} data-testid="prompt-card">
       <div class="card-head">
         <span class="card-icon">{def.icon}</span>
         <span class="card-title">{promptTitle(c, p)}</span>
-        {tavern && tavern.id !== w.focus.tavernId && <span class="card-where">{tavern.name}</span>}
+        {tavern && <span class="card-where town-chip" title={tavern.name}>{cityOf(c, tavern.city).name}</span>}
       </div>
       {def.line && <div class="card-line">{def.line.replace(/\{(\w+)\}/g, (_, k: string) => p.vars[k] ?? k)}</div>}
       <div class="countdown-row">

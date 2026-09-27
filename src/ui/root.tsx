@@ -26,6 +26,7 @@ import { TitleScreen, type TitleChoice } from './title/TitleScreen.tsx';
 import { Toasts } from './Toasts.tsx';
 import { SeasonReport } from './SeasonReport.tsx';
 import { MenuGuide } from './MenuGuide.tsx';
+import { InboxPopout } from './panels/RightPanel.tsx';
 import { lastSeasonNet, seasonVerdict, townName } from './tavernHealth.ts';
 import { Tutorial } from './tutorial/Tutorial.tsx';
 import { bindViewModel, vm } from './vm.ts';
@@ -220,6 +221,7 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
           <Toasts />
           <SeasonReport ctrl={ctrl} />
           <MenuGuide ctrl={ctrl} />
+          <InboxPopout ctrl={ctrl} />
           <Drawers ctrl={ctrl} />
           {ctrl.tutorial && <Tutorial ctrl={ctrl} onExit={onExit} />}
           <PauseVeil ctrl={ctrl} onExit={onExit} />

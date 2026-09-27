@@ -717,7 +717,10 @@
         "effects": []
       }
     ],
-    "defaultOption": 1
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
   },
   {
     "id": "mgr-prices",
@@ -745,7 +748,10 @@
         "effects": []
       }
     ],
-    "defaultOption": 1
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
   },
   {
     "id": "mgr-bulk",
@@ -778,7 +784,10 @@
         "effects": []
       }
     ],
-    "defaultOption": 1
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
   },
   {
     "id": "election",
@@ -1641,5 +1650,2225 @@
       }
     ],
     "defaultOption": 2
+  },
+  {
+    "id": "bard-stage",
+    "title": "A bard wants the stage",
+    "line": "A travelling bard offers a night of songs for a small fee.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "♪",
+    "options": [
+      {
+        "label": "Let them play",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -20
+          },
+          {
+            "type": "rep",
+            "amount": 3
+          }
+        ],
+        "cost": 20
+      },
+      {
+        "label": "Send them off",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "dockhand-mugs",
+    "title": "Dockhands bring their own mugs",
+    "line": "A crew wants cheaper pours in mugs they brought.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "⚓",
+    "options": [
+      {
+        "label": "Allow it",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -15
+          },
+          {
+            "type": "rep",
+            "amount": 3
+          },
+          {
+            "type": "favor",
+            "amount": 1
+          }
+        ],
+        "cost": 15
+      },
+      {
+        "label": "House mugs only",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": -1
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "shanty",
+        "roto"
+      ]
+    }
+  },
+  {
+    "id": "brackish-well",
+    "title": "The well has gone brackish",
+    "line": "Your water tastes of salt; the brews will suffer.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "💧",
+    "options": [
+      {
+        "label": "Dig a new well",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -60
+          }
+        ],
+        "cost": 60,
+        "hint": "Your drinks keep their quality"
+      },
+      {
+        "label": "Make do",
+        "effects": [
+          {
+            "type": "modifier",
+            "id": "brackish-water",
+            "seasons": 1,
+            "scope": "tavern"
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "regular-tab",
+    "title": "A regular wants a tab",
+    "line": "{staff} vouches for them: they'll pay at month's end.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "✎",
+    "options": [
+      {
+        "label": "Open a tab",
+        "effects": [
+          {
+            "type": "chance",
+            "p": 0.7,
+            "then": [
+              {
+                "type": "duckets",
+                "amount": 30
+              },
+              {
+                "type": "rep",
+                "amount": 2
+              }
+            ],
+            "else": [
+              {
+                "type": "duckets",
+                "amount": -25
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Cash only",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": -1
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "burst-keg",
+    "title": "A keg bursts on the stairs",
+    "line": "Beer everywhere; the cellar stairs are a mess.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🛢",
+    "options": [
+      {
+        "label": "Mop up now",
+        "effects": [
+          {
+            "type": "stock",
+            "fraction": -0.05
+          }
+        ]
+      },
+      {
+        "label": "Leave it",
+        "effects": [
+          {
+            "type": "chance",
+            "p": 0.4,
+            "then": [
+              {
+                "type": "rep",
+                "amount": -3
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "wedding-party",
+    "title": "A wedding party wants the room",
+    "line": "They'll pay well, but your regulars will be turned away.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "💍",
+    "options": [
+      {
+        "label": "Book them",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": 80
+          },
+          {
+            "type": "rep",
+            "amount": -2
+          }
+        ]
+      },
+      {
+        "label": "Decline",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "tap-tax",
+    "title": "The tax man counts your taps",
+    "line": "A City Hall clerk asks about unpaid tap tax.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "📜",
+    "options": [
+      {
+        "label": "Pay up",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -40
+          },
+          {
+            "type": "standing",
+            "inst": "cityhall",
+            "amount": 5
+          }
+        ],
+        "cost": 40
+      },
+      {
+        "label": "Argue it",
+        "effects": [
+          {
+            "type": "chance",
+            "p": 0.5,
+            "then": [
+              {
+                "type": "standing",
+                "inst": "cityhall",
+                "amount": -8
+              },
+              {
+                "type": "duckets",
+                "amount": -60
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "aleforge"
+      ]
+    }
+  },
+  {
+    "id": "shanty-night",
+    "title": "Sailors want a shanty night",
+    "line": "A ship's crew will sing all night if the grog is cheap.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "⚓",
+    "options": [
+      {
+        "label": "Cheap grog night",
+        "effects": [
+          {
+            "type": "modifier",
+            "id": "promo-night",
+            "seasons": 1,
+            "scope": "tavern"
+          },
+          {
+            "type": "favor",
+            "amount": 2
+          }
+        ]
+      },
+      {
+        "label": "Not tonight",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "shanty"
+      ]
+    }
+  },
+  {
+    "id": "rival-secrets",
+    "title": "{rival}'s tapster is fed up",
+    "line": "They offer {rival}'s recipes for a price.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🗝",
+    "options": [
+      {
+        "label": "Buy the secrets",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -60
+          },
+          {
+            "type": "rep",
+            "amount": 2
+          },
+          {
+            "type": "rivalRep",
+            "amount": -3
+          }
+        ],
+        "cost": 60
+      },
+      {
+        "label": "Turn them away",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "wasp-nest",
+    "title": "Wasps in the cider",
+    "line": "A nest in the eaves; patrons are getting stung.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🐝",
+    "options": [
+      {
+        "label": "Smoke them out",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -15
+          }
+        ],
+        "cost": 15
+      },
+      {
+        "label": "Ignore it",
+        "effects": [
+          {
+            "type": "chance",
+            "p": 0.6,
+            "then": [
+              {
+                "type": "rep",
+                "amount": -3
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "seasons": [
+        "goldsun"
+      ]
+    }
+  },
+  {
+    "id": "drunk-aide",
+    "title": "A City Hall aide is drunk",
+    "line": "He's loud, drunk, and still ordering.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🍷",
+    "options": [
+      {
+        "label": "Keep pouring",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": 25
+          },
+          {
+            "type": "standing",
+            "inst": "cityhall",
+            "amount": 3
+          },
+          {
+            "type": "chance",
+            "p": 0.3,
+            "then": [
+              {
+                "type": "rep",
+                "amount": -2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Cut him off",
+        "effects": [
+          {
+            "type": "standing",
+            "inst": "cityhall",
+            "amount": -4
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "aleforge"
+      ]
+    }
+  },
+  {
+    "id": "vespers",
+    "title": "Bells ring for vespers",
+    "line": "The Friars ask you to close before the bells.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🔔",
+    "options": [
+      {
+        "label": "Close early",
+        "effects": [
+          {
+            "type": "closeTavern",
+            "seconds": 5
+          },
+          {
+            "type": "standing",
+            "inst": "church",
+            "amount": 6
+          },
+          {
+            "type": "rep",
+            "amount": 1
+          }
+        ]
+      },
+      {
+        "label": "Keep pouring",
+        "effects": [
+          {
+            "type": "standing",
+            "inst": "church",
+            "amount": -8
+          },
+          {
+            "type": "chance",
+            "p": 0.3,
+            "then": [
+              {
+                "type": "rep",
+                "amount": -2
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "providence"
+      ]
+    }
+  },
+  {
+    "id": "pump-snaps",
+    "title": "The pump handle snaps",
+    "line": "One tap is out until it's fixed.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🔧",
+    "options": [
+      {
+        "label": "Fix it now",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -30
+          }
+        ],
+        "cost": 30
+      },
+      {
+        "label": "Wait for the smith",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": -2
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "dice-game",
+    "title": "A dice game gets loud",
+    "line": "Table four is betting big and shouting louder.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🎲",
+    "options": [
+      {
+        "label": "Let it run",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": 20
+          },
+          {
+            "type": "chance",
+            "p": 0.4,
+            "then": [
+              {
+                "type": "rep",
+                "amount": -3
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Break it up",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": -1
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "cheap-hops",
+    "title": "A cart of cheap hops",
+    "line": "Half-price hops off a cart, no questions asked.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🌾",
+    "options": [
+      {
+        "label": "Buy a load",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -40
+          },
+          {
+            "type": "modifier",
+            "id": "bulk-buy",
+            "seasons": 1,
+            "scope": "company"
+          }
+        ],
+        "cost": 40,
+        "hint": "Kegs cost 15% less this season"
+      },
+      {
+        "label": "No thanks",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "cellar-rats",
+    "title": "Rats in the cellar",
+    "line": "Your cellar has rats, and they like barley.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🐀",
+    "options": [
+      {
+        "label": "Get a ratter",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -25
+          }
+        ],
+        "cost": 25
+      },
+      {
+        "label": "Set traps",
+        "effects": [
+          {
+            "type": "stock",
+            "fraction": -0.15
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "fogbound",
+    "title": "Fog keeps the ships in",
+    "line": "Crews stuck ashore want somewhere to drink.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🌫",
+    "options": [
+      {
+        "label": "Open the back room",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -20
+          },
+          {
+            "type": "modifier",
+            "id": "beer-day",
+            "seasons": 1,
+            "scope": "tavern"
+          }
+        ],
+        "cost": 20,
+        "hint": "More patrons this season"
+      },
+      {
+        "label": "Business as usual",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "shanty",
+        "roto"
+      ]
+    }
+  },
+  {
+    "id": "mural",
+    "title": "A painter offers a mural",
+    "line": "A wall painting for a few Duckets and free drinks.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🎨",
+    "options": [
+      {
+        "label": "Commission it",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -60
+          },
+          {
+            "type": "rep",
+            "amount": 4
+          }
+        ],
+        "cost": 60
+      },
+      {
+        "label": "Plain walls",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "card-sharps",
+    "title": "Card sharps at table four",
+    "line": "Someone's fleecing your patrons.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🃏",
+    "options": [
+      {
+        "label": "Throw them out",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": 2
+          }
+        ]
+      },
+      {
+        "label": "Take a cut",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": 35
+          },
+          {
+            "type": "chance",
+            "p": 0.5,
+            "then": [
+              {
+                "type": "rep",
+                "amount": -4
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "sick-patron",
+    "title": "A patron falls ill",
+    "line": "Too much of something. Everyone is watching.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🤢",
+    "options": [
+      {
+        "label": "Pay a healer",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -20
+          },
+          {
+            "type": "rep",
+            "amount": 3
+          }
+        ],
+        "cost": 20
+      },
+      {
+        "label": "Carry them out",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "famous-drinker",
+    "title": "A famous drinker visits",
+    "line": "Word spreads that a legend is at your bar.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "★",
+    "options": [
+      {
+        "label": "Stand them a round",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -30
+          },
+          {
+            "type": "rep",
+            "amount": 5
+          }
+        ],
+        "cost": 30
+      },
+      {
+        "label": "Full price",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": 15
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "pickpocket",
+    "title": "A pickpocket in the crowd",
+    "line": "Patrons are missing their purses.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "👝",
+    "options": [
+      {
+        "label": "Hire a watchman",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -35
+          },
+          {
+            "type": "modifier",
+            "id": "watchful",
+            "seasons": 1,
+            "scope": "tavern"
+          }
+        ],
+        "cost": 35,
+        "hint": "Fewer brawls and thefts this season"
+      },
+      {
+        "label": "Say nothing",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "guild-inspection",
+    "title": "The Hall of Ale inspects",
+    "line": "Brewers' Lane checks your casks.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🏛",
+    "options": [
+      {
+        "label": "Show them round",
+        "effects": [
+          {
+            "type": "chance",
+            "p": 0.6,
+            "then": [
+              {
+                "type": "rep",
+                "amount": 4
+              },
+              {
+                "type": "standing",
+                "inst": "cityhall",
+                "amount": 4
+              }
+            ],
+            "else": [
+              {
+                "type": "rep",
+                "amount": -2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Grease a palm",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -40
+          },
+          {
+            "type": "standing",
+            "inst": "cityhall",
+            "amount": 2
+          }
+        ],
+        "cost": 40
+      },
+      {
+        "label": "Not today",
+        "effects": [
+          {
+            "type": "standing",
+            "inst": "cityhall",
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "defaultOption": 2,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "aleforge"
+      ]
+    }
+  },
+  {
+    "id": "lagendale-coins",
+    "title": "Old Lagendale coins",
+    "line": "A patron pays in coins from the old empire.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🪙",
+    "options": [
+      {
+        "label": "Accept them",
+        "effects": [
+          {
+            "type": "chance",
+            "p": 0.5,
+            "then": [
+              {
+                "type": "duckets",
+                "amount": 60
+              }
+            ],
+            "else": [
+              {
+                "type": "duckets",
+                "amount": -10
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Coin of the Isles only",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": -1
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "regulars-feud",
+    "title": "Two regulars feud",
+    "line": "Old friends, new grudge, same bar.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "😠",
+    "options": [
+      {
+        "label": "Buy them a round",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -10
+          },
+          {
+            "type": "rep",
+            "amount": 2
+          }
+        ],
+        "cost": 10
+      },
+      {
+        "label": "Seat them apart",
+        "effects": [
+          {
+            "type": "chance",
+            "p": 0.4,
+            "then": [
+              {
+                "type": "rep",
+                "amount": -2
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "hops-blight",
+    "title": "Talk of a hops blight",
+    "line": "Farmers say this year's hops are sick.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🌾",
+    "options": [
+      {
+        "label": "Stock up now",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -60
+          },
+          {
+            "type": "modifier",
+            "id": "bulk-buy",
+            "seasons": 2,
+            "scope": "company"
+          }
+        ],
+        "cost": 60,
+        "hint": "Kegs cost 15% less for two seasons"
+      },
+      {
+        "label": "Wait and see",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "aleforge",
+        "providence"
+      ]
+    }
+  },
+  {
+    "id": "crew-credit",
+    "title": "A ship's crew wants credit",
+    "line": "They'll pay in favour when their ship comes in.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "⚓",
+    "options": [
+      {
+        "label": "Pour on credit",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -25
+          },
+          {
+            "type": "chance",
+            "p": 0.7,
+            "then": [
+              {
+                "type": "favor",
+                "amount": 4
+              }
+            ]
+          }
+        ],
+        "cost": 25
+      },
+      {
+        "label": "Coin first",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": -1
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "shanty",
+        "roto"
+      ]
+    }
+  },
+  {
+    "id": "dark-room",
+    "title": "The candles are burning low",
+    "line": "The room is getting dark and gloomy.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🕯",
+    "options": [
+      {
+        "label": "Buy candles",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -15
+          },
+          {
+            "type": "rep",
+            "amount": 1
+          }
+        ],
+        "cost": 15
+      },
+      {
+        "label": "Leave it dim",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": -2
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "cook-offer",
+    "title": "A cook wants your kitchen",
+    "line": "Stew and bread would keep patrons longer.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🍲",
+    "options": [
+      {
+        "label": "Hire the cook",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -80
+          },
+          {
+            "type": "rep",
+            "amount": 4
+          },
+          {
+            "type": "morale",
+            "amount": 0.05
+          }
+        ],
+        "cost": 80
+      },
+      {
+        "label": "Drinks only",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "rival-story",
+    "title": "{rival} tells a story",
+    "line": "They say your kegs are watered down.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🗣",
+    "options": [
+      {
+        "label": "Pay for a retraction",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -50
+          },
+          {
+            "type": "rivalRep",
+            "amount": -2
+          }
+        ],
+        "cost": 50,
+        "hint": "The story dies before it spreads"
+      },
+      {
+        "label": "Ignore it",
+        "effects": [
+          {
+            "type": "modifier",
+            "id": "bad-press",
+            "seasons": 1,
+            "scope": "tavern"
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "friar-blessing",
+    "title": "The Friars bless your taps",
+    "line": "A Friar offers a blessing, for a donation.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "✝",
+    "options": [
+      {
+        "label": "Accept the blessing",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -20
+          },
+          {
+            "type": "standing",
+            "inst": "church",
+            "amount": 8
+          },
+          {
+            "type": "modifier",
+            "id": "friar-favor",
+            "seasons": 1,
+            "scope": "tavern"
+          }
+        ],
+        "cost": 20
+      },
+      {
+        "label": "Decline politely",
+        "effects": [
+          {
+            "type": "standing",
+            "inst": "church",
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "providence"
+      ]
+    }
+  },
+  {
+    "id": "drinking-contest",
+    "title": "A drinking contest",
+    "line": "Two crews want to settle a bet at your bar.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🍺",
+    "options": [
+      {
+        "label": "Host it",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": 60
+          },
+          {
+            "type": "chance",
+            "p": 0.3,
+            "then": [
+              {
+                "type": "modifier",
+                "id": "thugs",
+                "seasons": 1,
+                "scope": "tavern"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Not here",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "night-watch",
+    "title": "The night watch drops in",
+    "line": "Free pours for the watch, and they'll keep an eye out.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🛡",
+    "options": [
+      {
+        "label": "Pour for them",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -15
+          },
+          {
+            "type": "modifier",
+            "id": "watchful",
+            "seasons": 1,
+            "scope": "tavern"
+          }
+        ],
+        "cost": 15,
+        "hint": "Fewer brawls and thefts this season"
+      },
+      {
+        "label": "No free drinks",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "cellar-flood",
+    "title": "The cellar floods",
+    "line": "Water's coming in; the kegs are at risk.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "🌊",
+    "options": [
+      {
+        "label": "Save the kegs",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -30
+          }
+        ],
+        "cost": 30
+      },
+      {
+        "label": "Let it drain",
+        "effects": [
+          {
+            "type": "stock",
+            "fraction": -0.15
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "seasons": [
+        "stormtide"
+      ]
+    }
+  },
+  {
+    "id": "stray-dog",
+    "title": "A stray wanders in",
+    "line": "The patrons have already named it.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🐕",
+    "options": [
+      {
+        "label": "Keep it",
+        "effects": [
+          {
+            "type": "rep",
+            "amount": 2
+          },
+          {
+            "type": "morale",
+            "amount": 0.05
+          }
+        ]
+      },
+      {
+        "label": "Put it out",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "tide-caller",
+    "title": "A Tide Caller wants to play",
+    "line": "Songs of the deep, for a small fee.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🐚",
+    "options": [
+      {
+        "label": "Pay the Tide Caller",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -25
+          },
+          {
+            "type": "rep",
+            "amount": 3
+          },
+          {
+            "type": "favor",
+            "amount": 1
+          }
+        ],
+        "cost": 25
+      },
+      {
+        "label": "No music tonight",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "shanty"
+      ]
+    }
+  },
+  {
+    "id": "magnate-fee",
+    "title": "The Magnate's collector",
+    "line": "A surprise fee for your sign on the market street.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "💰",
+    "options": [
+      {
+        "label": "Pay it",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -30
+          },
+          {
+            "type": "standing",
+            "inst": "rotoMarket",
+            "amount": 5
+          }
+        ],
+        "cost": 30
+      },
+      {
+        "label": "Refuse",
+        "effects": [
+          {
+            "type": "standing",
+            "inst": "rotoMarket",
+            "amount": -6
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "roto"
+      ]
+    }
+  },
+  {
+    "id": "lane-party",
+    "title": "Street party on Brewers' Lane",
+    "line": "The whole Lane is out; set up a stall?",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🎉",
+    "options": [
+      {
+        "label": "Set up a stall",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -40
+          },
+          {
+            "type": "modifier",
+            "id": "beer-day",
+            "seasons": 1,
+            "scope": "tavern"
+          }
+        ],
+        "cost": 40,
+        "hint": "More patrons this season"
+      },
+      {
+        "label": "Stay inside",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "aleforge"
+      ]
+    }
+  },
+  {
+    "id": "pilgrims-rest",
+    "title": "Pilgrims ask for rest",
+    "line": "Weary pilgrims want a quiet corner and water.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🙏",
+    "options": [
+      {
+        "label": "Take them in",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -10
+          },
+          {
+            "type": "standing",
+            "inst": "church",
+            "amount": 4
+          },
+          {
+            "type": "rep",
+            "amount": 2
+          }
+        ],
+        "cost": 10
+      },
+      {
+        "label": "Paying guests only",
+        "effects": [
+          {
+            "type": "standing",
+            "inst": "church",
+            "amount": -2
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "providence"
+      ]
+    }
+  },
+  {
+    "id": "smugglers-offer",
+    "title": "Smugglers offer cheap barrels",
+    "line": "Cheap kegs, if you don't ask where from.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 1,
+    "icon": "📦",
+    "options": [
+      {
+        "label": "Buy them",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -30
+          },
+          {
+            "type": "modifier",
+            "id": "bulk-buy",
+            "seasons": 1,
+            "scope": "company"
+          },
+          {
+            "type": "chance",
+            "p": 0.3,
+            "then": [
+              {
+                "type": "rep",
+                "amount": -3
+              }
+            ]
+          }
+        ],
+        "cost": 30,
+        "hint": "Kegs cost 15% less this season"
+      },
+      {
+        "label": "Honest kegs only",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor",
+      "cities": [
+        "roto",
+        "shanty"
+      ]
+    }
+  },
+  {
+    "id": "staff-birthday",
+    "title": "It's {staff}'s birthday",
+    "line": "The staff want to throw a little party.",
+    "tier": "tactical",
+    "scope": "tavern",
+    "seconds": 14,
+    "tension": 0,
+    "icon": "🎂",
+    "options": [
+      {
+        "label": "Pay for a party",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -20
+          },
+          {
+            "type": "morale",
+            "amount": 0.15
+          }
+        ],
+        "cost": 20
+      },
+      {
+        "label": "Back to work",
+        "effects": [
+          {
+            "type": "morale",
+            "amount": -0.05
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "floor"
+    }
+  },
+  {
+    "id": "mgr-repairs",
+    "title": "{tavern}: the roof leaks",
+    "line": "Your manager says rain is getting in.",
+    "tier": "strategic",
+    "scope": "tavern",
+    "seconds": 45,
+    "tension": 0,
+    "icon": "✎",
+    "options": [
+      {
+        "label": "Fix the roof",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -70
+          },
+          {
+            "type": "rep",
+            "amount": 2
+          }
+        ],
+        "cost": 70
+      },
+      {
+        "label": "Patch it",
+        "effects": [
+          {
+            "type": "chance",
+            "p": 0.5,
+            "then": [
+              {
+                "type": "rep",
+                "amount": -3
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
+  },
+  {
+    "id": "mgr-local-brewer",
+    "title": "{tavern}: a local brewer",
+    "line": "A local brewer offers cheaper kegs for a year.",
+    "tier": "strategic",
+    "scope": "tavern",
+    "seconds": 45,
+    "tension": 0,
+    "icon": "✎",
+    "options": [
+      {
+        "label": "Sign the deal",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -50
+          },
+          {
+            "type": "modifier",
+            "id": "bulk-buy",
+            "seasons": 2,
+            "scope": "tavern"
+          }
+        ],
+        "cost": 50,
+        "hint": "Kegs cost 15% less here for two seasons"
+      },
+      {
+        "label": "Decline",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
+  },
+  {
+    "id": "mgr-festival",
+    "title": "{tavern}: a town festival",
+    "line": "Your manager wants a stall at the festival.",
+    "tier": "strategic",
+    "scope": "tavern",
+    "seconds": 45,
+    "tension": 0,
+    "icon": "✎",
+    "options": [
+      {
+        "label": "Pay for a stall",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -60
+          },
+          {
+            "type": "modifier",
+            "id": "beer-day",
+            "seasons": 1,
+            "scope": "tavern"
+          }
+        ],
+        "cost": 60,
+        "hint": "More patrons here this season"
+      },
+      {
+        "label": "Skip it",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
+  },
+  {
+    "id": "mgr-staff-pay",
+    "title": "{tavern}: staff want more",
+    "line": "The staff are grumbling about their pay.",
+    "tier": "strategic",
+    "scope": "tavern",
+    "seconds": 45,
+    "tension": 0,
+    "icon": "✎",
+    "options": [
+      {
+        "label": "A bonus for all",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -50
+          },
+          {
+            "type": "morale",
+            "amount": 0.15
+          }
+        ],
+        "cost": 50
+      },
+      {
+        "label": "Not this season",
+        "effects": [
+          {
+            "type": "morale",
+            "amount": -0.1
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
+  },
+  {
+    "id": "mgr-door",
+    "title": "{tavern}: trouble at the door",
+    "line": "Your manager wants a watchman on the door.",
+    "tier": "strategic",
+    "scope": "tavern",
+    "seconds": 45,
+    "tension": 0,
+    "icon": "✎",
+    "options": [
+      {
+        "label": "Hire a watchman",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -40
+          },
+          {
+            "type": "modifier",
+            "id": "watchful",
+            "seasons": 2,
+            "scope": "tavern"
+          }
+        ],
+        "cost": 40,
+        "hint": "Fewer brawls and thefts for two seasons"
+      },
+      {
+        "label": "We'll manage",
+        "effects": [
+          {
+            "type": "chance",
+            "p": 0.4,
+            "then": [
+              {
+                "type": "modifier",
+                "id": "thugs",
+                "seasons": 1,
+                "scope": "tavern"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
+  },
+  {
+    "id": "mgr-cheap",
+    "title": "{tavern}: cheaper pours?",
+    "line": "Your manager wants to trim prices to fill the room.",
+    "tier": "strategic",
+    "scope": "tavern",
+    "seconds": 45,
+    "tension": 0,
+    "icon": "✎",
+    "options": [
+      {
+        "label": "Trim prices",
+        "effects": [
+          {
+            "type": "modifier",
+            "id": "cheap-season",
+            "seasons": 1,
+            "scope": "tavern"
+          }
+        ],
+        "hint": "10% cheaper pours, more patrons, this season"
+      },
+      {
+        "label": "Hold prices",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
+  },
+  {
+    "id": "mgr-sign",
+    "title": "{tavern}: a new sign",
+    "line": "A carved sign would catch passers-by.",
+    "tier": "strategic",
+    "scope": "tavern",
+    "seconds": 45,
+    "tension": 0,
+    "icon": "✎",
+    "options": [
+      {
+        "label": "Carve it",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -45
+          },
+          {
+            "type": "rep",
+            "amount": 3
+          }
+        ],
+        "cost": 45
+      },
+      {
+        "label": "Old sign's fine",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
+  },
+  {
+    "id": "mgr-cellar",
+    "title": "{tavern}: cellar clear-out",
+    "line": "Old kegs are going off in the cellar.",
+    "tier": "strategic",
+    "scope": "tavern",
+    "seconds": 45,
+    "tension": 0,
+    "icon": "✎",
+    "options": [
+      {
+        "label": "Sell them cheap",
+        "effects": [
+          {
+            "type": "stock",
+            "fraction": -0.1
+          },
+          {
+            "type": "duckets",
+            "amount": 20
+          }
+        ]
+      },
+      {
+        "label": "Keep them",
+        "effects": [
+          {
+            "type": "chance",
+            "p": 0.5,
+            "then": [
+              {
+                "type": "rep",
+                "amount": -2
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "manager"
+    }
+  },
+  {
+    "id": "co-escorts",
+    "title": "A shipping line's offer",
+    "line": "Armed escorts on every voyage, for a season fee.",
+    "tier": "strategic",
+    "scope": "isles",
+    "seconds": 60,
+    "tension": 0,
+    "icon": "⚓",
+    "options": [
+      {
+        "label": "Hire the escorts",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -80
+          },
+          {
+            "type": "modifier",
+            "id": "escorts",
+            "seasons": 3,
+            "scope": "company"
+          }
+        ],
+        "cost": 80,
+        "hint": "Much safer shipments for three seasons"
+      },
+      {
+        "label": "Take our chances",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "company"
+    }
+  },
+  {
+    "id": "co-scholars",
+    "title": "Scholars from Hoegaarden",
+    "line": "Library scholars want to write about your taverns.",
+    "tier": "strategic",
+    "scope": "isles",
+    "seconds": 60,
+    "tension": 0,
+    "icon": "📚",
+    "options": [
+      {
+        "label": "Host them",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -40
+          },
+          {
+            "type": "rep",
+            "amount": 2,
+            "scope": "network"
+          }
+        ],
+        "cost": 40
+      },
+      {
+        "label": "Decline",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "company"
+    }
+  },
+  {
+    "id": "co-veil-pilgrims",
+    "title": "Veilwalkers pass through",
+    "line": "They ask for shelter on their walk.",
+    "tier": "strategic",
+    "scope": "isles",
+    "seconds": 60,
+    "tension": 0,
+    "icon": "🌫",
+    "options": [
+      {
+        "label": "Give them shelter",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -30
+          },
+          {
+            "type": "undercurrent",
+            "key": "veilGoodwill",
+            "amount": 5
+          }
+        ],
+        "cost": 30
+      },
+      {
+        "label": "Turn them away",
+        "effects": [
+          {
+            "type": "undercurrent",
+            "key": "veilGoodwill",
+            "amount": -3
+          }
+        ]
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "company",
+      "seasons": [
+        "veilfrost"
+      ]
+    }
+  },
+  {
+    "id": "co-sponsor-fair",
+    "title": "Sponsor the harvest fair",
+    "line": "Your name on every banner at the fair.",
+    "tier": "strategic",
+    "scope": "isles",
+    "seconds": 60,
+    "tension": 0,
+    "icon": "🎪",
+    "options": [
+      {
+        "label": "Sponsor it",
+        "effects": [
+          {
+            "type": "duckets",
+            "amount": -90
+          },
+          {
+            "type": "rep",
+            "amount": 3,
+            "scope": "network"
+          }
+        ],
+        "cost": 90
+      },
+      {
+        "label": "Not this year",
+        "effects": []
+      }
+    ],
+    "defaultOption": 1,
+    "pool": {
+      "kind": "company",
+      "seasons": [
+        "goldsun"
+      ]
+    }
   }
 ]

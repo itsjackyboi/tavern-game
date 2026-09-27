@@ -28,6 +28,26 @@ The whole game is playable end to end:
 
 All end-screen text is final.
 
+### v1.20
+- **Town colours:** Aleforge amber, Shanty Town teal, Providence violet, Roto Kaiishi a light red (clearly different from "problem" red). They mark:
+  - the tavern tabs and Your taverns
+  - news lines in Word around the Isles
+  - decision and inbox cards
+  - money pop-ups and decision receipts
+  - the season report, the All taverns table and tavern reports
+  - the home-city buttons
+- **Right column:** Company Value, then Your taverns, then a much bigger Decisions area. The **inbox pops out of the bottom-right corner of the floor**:
+  - It opens by itself (with a chime) when a request arrives, folds to a tab, and disappears when empty.
+  - With a menu open it waits as a tab.
+- **Many more decisions:**
+  - 41 new everyday decisions (some tied to a town or season), 8 new manager requests and 4 company offers.
+  - They're drawn from a pool, with **nothing repeating for 3 seasons**.
+- **Rumours you can act on:**
+  - Every rival move is reported as what they did and what patrons prefer. With no informant you hear the gist in your own taverns; green, seasoned and master informants add prices, qualities, how long a rival can keep it up, and what to do.
+  - Patrons in your taverns now say what they want: a rival's better or cheaper drink, a drink type nobody pours, a drink that's too dear, or walkouts.
+  - Flavour-only lines are gone.
+  - Informant season reports say what a rival's mood means for you.
+
 ### v1.19
 - **Music keeps playing** while a tutorial lesson, a Beginner menu guide or How to play is open. Only a real pause (Esc / P) or leaving the tab stops it. Those reading pauses also aren't counted as pauses in the run record.
 - **"Selling at …" moved to Menu (M)**, under the price sliders: share of orders, who likes each drink and how its price feels, all on the page where you set prices.
