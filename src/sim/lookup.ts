@@ -258,6 +258,23 @@ export function staffAt(w: World, tavernId: string) {
   return Object.values(w.staff).filter((s) => s.tavernId === tavernId && s.role !== 'manage');
 }
 
+/** Roles that work out of sight: they never appear as workers on the floor. */
+export const BACKGROUND_ROLES = new Set(['intel', 'kitchen']);
+
+/** Chance a patron stays for one more round when there's a cook. */
+export const COOK_EXTRA_ROUND = 0.2;
+
+/**
+ * A cook in the kitchen keeps patrons longer: more patience while they wait
+ * (×1.2 to ×1.35 with competence) and a chance of one more round. Only the
+ * best cook counts. Returns 1 when there's none.
+ */
+export function cookPatience(w: World, t: Tavern): number {
+  let best = -1;
+  for (const s of Object.values(w.staff)) if (s.tavernId === t.id && s.role === 'kitchen' && s.competence > best) best = s.competence;
+  return best < 0 ? 1 : 1.2 + 0.15 * best;
+}
+
 export function fmt(template: string, vars: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_, k: string) => vars[k] ?? k);
 }

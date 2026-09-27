@@ -2,8 +2,8 @@ import { log } from '../log.ts';
 import type { Content } from '../../content/schema.ts';
 import { applyVisitRep, recordSale, servingSatisfaction, spend } from '../economy/ledger.ts';
 import {
-  availableDrinks, cityOf, prefOf, clamp, drinkOf, drinkQuality, idx, isOpenNow, modsFor, segOf, servingPrice, staffAt,
-  tavernUpgradeSum, type ModTotals,
+  availableDrinks, BACKGROUND_ROLES, cityOf, COOK_EXTRA_ROUND, cookPatience, prefOf, clamp, drinkOf, drinkQuality, idx, isOpenNow, modsFor, segOf,
+  servingPrice, staffAt, tavernUpgradeSum, type ModTotals,
 } from '../lookup.ts';
 import { chance, pick, rand, randInt } from '../rng.ts';
 import { calNow } from '../time.ts';
@@ -72,7 +72,7 @@ export function syncFloor(w: World, c: Content): void {
   const oldTaps = f.taps;
   f.taps = buildTaps(t);
   for (const tap of f.taps) tap.claimedBy = oldTaps.find((o) => o.drinkId === tap.drinkId)?.claimedBy ?? 0;
-  const onFloor = staffAt(w, t.id).filter((s) => s.role !== 'intel');
+  const onFloor = staffAt(w, t.id).filter((s) => !BACKGROUND_ROLES.has(s.role));
   const keep = f.workers.filter((wk) => wk.kind === 'owner' || onFloor.some((s) => s.id === wk.staffId));
   for (const wk of f.workers) if (!keep.includes(wk)) releaseTask(f, wk);
   f.workers = keep;
@@ -92,7 +92,7 @@ export function materializeFloor(w: World, c: Content, t: Tavern): FloorState {
     homeX: OWNER_HOME.x, homeY: OWNER_HOME.y, task: null, queue: [], timer: 0, carrying: null, cooldown: 0,
   });
   f.nextId = 10;
-  for (const s of staffAt(w, t.id)) if (s.role !== 'intel') f.workers.push(staffWorker(f, s));
+  for (const s of staffAt(w, t.id)) if (!BACKGROUND_ROLES.has(s.role)) f.workers.push(staffWorker(f, s));
 
   // Walk straight into the thick of it: the room is as full as the crowd it
   // draws, with drinks wanted, people waiting at the door and tables to clear.
@@ -122,7 +122,7 @@ export function materializeFloor(w: World, c: Content, t: Tavern): FloorState {
         // Waiting on a drink, some for a while already.
         p.state = 'ordered';
         p.drinkId = pick(w, 'floor', drinks);
-        p.patienceMax = Math.round(c.floor.orderPatienceTicks * segOf(c, segId).patience * w.meta.timerScale);
+        p.patienceMax = Math.round(c.floor.orderPatienceTicks * segOf(c, segId).patience * w.meta.timerScale * cookPatience(w, t));
         p.patience = Math.round(p.patienceMax * (0.45 + 0.55 * rand(w, 'floor')));
         wantDrink--;
       } else if (roll < 0.3 && open) {
@@ -195,13 +195,15 @@ function newPatron(w: World, c: Content, f: FloorState, t: Tavern, segId: string
   const nightDrinks = cal.isNight ? (seg.night?.drinks ?? 1) * city.nightThirst : 1;
   // Unbiased: the expected count matches the aggregate model's drinks-per-visit.
   const want = c.demand.drinksPerVisit * seg.drinks * nightDrinks * (0.6 + 0.8 * rand(w, 'floor'));
-  const drinks = Math.max(1, Math.floor(want) + (chance(w, 'floor', want - Math.floor(want)) ? 1 : 0));
+  const cook = cookPatience(w, t);
+  // A cook keeps some patrons for another round.
+  const drinks = Math.max(1, Math.floor(want) + (chance(w, 'floor', want - Math.floor(want)) ? 1 : 0)) + (cook > 1 && chance(w, 'floor', COOK_EXTRA_ROUND) ? 1 : 0);
   const vip = seg.vip || chance(w, 'floor', 0.015);
   const theftP = seg.theft * city.theftMult * mods.theft * (1 + tavernUpgradeSum(c, t, 'theft'));
   const thief = !vip && chance(w, 'floor', clamp(theftP * 2.2, 0, 0.4));
   const regular = t.regulars.length && chance(w, 'floor', 0.12) ? pick(w, 'floor', t.regulars) : null;
   const patienceMax = Math.round(
-    (vip ? c.floor.vipWindowTicks : c.floor.seatPatienceTicks) * seg.patience * w.meta.timerScale * (regular ? 1.3 : 1),
+    (vip ? c.floor.vipWindowTicks : c.floor.seatPatienceTicks) * seg.patience * w.meta.timerScale * (regular ? 1.3 : 1) * cook,
   );
   return {
     id: nextId(f), seg: segId, state: 'arriving', x: DOOR.x, y: DOOR.y + 1, tx: DOOR.x, ty: DOOR.y, tableId: -1, seat: -1,
@@ -331,7 +333,7 @@ function updatePatrons(w: World, c: Content, f: FloorState, t: Tavern, night: bo
           }
           p.drinkId = d;
           p.state = 'ordered';
-          p.patience = p.patienceMax = Math.round(c.floor.orderPatienceTicks * segOf(c, p.seg).patience * w.meta.timerScale);
+          p.patience = p.patienceMax = Math.round(c.floor.orderPatienceTicks * segOf(c, p.seg).patience * w.meta.timerScale * cookPatience(w, t));
         }
         break;
       case 'ordered':

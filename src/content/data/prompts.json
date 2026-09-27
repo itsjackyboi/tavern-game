@@ -2860,7 +2860,7 @@
   {
     "id": "cook-offer",
     "title": "A cook wants your kitchen",
-    "line": "Stew and bread would keep patrons longer.",
+    "line": "Stew in the back: patrons wait longer and stay for another round.",
     "tier": "tactical",
     "scope": "tavern",
     "seconds": 14,
@@ -2872,18 +2872,15 @@
         "effects": [
           {
             "type": "duckets",
-            "amount": -80
+            "amount": -60
           },
           {
-            "type": "rep",
-            "amount": 4
-          },
-          {
-            "type": "morale",
-            "amount": 0.05
+            "type": "hire",
+            "archetype": "cook",
+            "tier": "seasoned"
           }
         ],
-        "cost": 80
+        "cost": 60
       },
       {
         "label": "Drinks only",

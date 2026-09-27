@@ -28,6 +28,9 @@ The whole game is playable end to end:
 
 All end-screen text is final.
 
+### v1.22
+- **Cook (new job):** a Galley Cook works out of sight in the kitchen, with nothing for you to do. With a cook, patrons have 20–35% more patience (more with skill) and one in five stays for another round. Hire one in Staff (S) or say yes to "A cook wants your kitchen" (that decision now really adds the cook to your staff). The best cook in a tavern is the one that counts.
+
 ### v1.21
 Quality-of-life fixes picked from the QoL trials:
 - **Taps panel:**

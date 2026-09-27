@@ -68,6 +68,12 @@
       "name": "Drifter Informant",
       "role": "intel",
       "wageMult": 1.2
+    },
+    {
+      "id": "cook",
+      "name": "Galley Cook",
+      "role": "kitchen",
+      "wageMult": 1.0
     }
   ],
   "managers": {

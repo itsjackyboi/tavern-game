@@ -1,8 +1,8 @@
 import type { Content } from '../content/schema.ts';
 import { applyVisitRep, recordSale, servingSatisfaction, spend } from './economy/ledger.ts';
 import {
-  availableDrinks, cityOf, prefOf, clamp, drinkOf, drinkQuality, idx, isOpenNow, managerOf, modsFor, seats, servingPrice,
-  isFlagship, staffAt, tavernUpgradeSum,
+  availableDrinks, cityOf, COOK_EXTRA_ROUND, cookPatience, prefOf, clamp, drinkOf, drinkQuality, idx, isOpenNow, managerOf, modsFor, seats,
+  servingPrice, isFlagship, staffAt, tavernUpgradeSum,
 } from './lookup.ts';
 import { calNow } from './time.ts';
 import type { Staff, Tavern, World } from './types.ts';
@@ -92,6 +92,9 @@ export function stepAggregate(w: World, c: Content, t: Tavern): void {
     brawl += share * (cal.isNight ? (seg.night?.brawl ?? seg.brawl) : seg.brawl);
     theft += share * seg.theft;
   }
+  const cook = cookPatience(w, t);
+  // A cook keeps some patrons for another round (as on the floor).
+  if (cook > 1) dpv += COOK_EXTRA_ROUND;
   dpv = Math.max(dpv, 1);
   const dwell = dpv * c.demand.drinkSeconds + 10;
 
@@ -107,7 +110,8 @@ export function stepAggregate(w: World, c: Content, t: Tavern): void {
   t.agg.backlog += admitted * dpv;
   const served = Math.min(t.agg.backlog, mu);
   t.agg.backlog -= served;
-  const giveUp = t.agg.backlog * 0.08;
+  // More patience (a cook) means fewer give up waiting.
+  const giveUp = t.agg.backlog * (0.08 / cook);
   t.agg.backlog -= giveUp;
   // Patrons on the floor typically use a third of their patience waiting for a pour.
   const waitFrac = clamp(0.35 + t.agg.backlog / Math.max(1, mu * 10), 0, 1);

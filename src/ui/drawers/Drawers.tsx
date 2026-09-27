@@ -80,7 +80,7 @@ function StaffDrawer({ ctrl }: { ctrl: GameController }) {
           ))}
         </tbody>
       </table>
-      <p class="small muted">Staff take tasks by job: bartenders pour, servers seat and clear, bouncers stop brawls and thieves, cellarers restock, fiddlers lift the mood, informants read rivals. They're a little slower than you. Skill runs Green → Seasoned → Master.</p>
+      <p class="small muted">Staff take tasks by job: bartenders pour, servers seat and clear, bouncers stop brawls and thieves, cellarers restock, fiddlers lift the mood, informants read rivals, and a cook works out of sight in the kitchen: patrons wait longer and some stay for another round. They're a little slower than you. Skill runs Green → Seasoned → Master.</p>
       {!isFlagship && (
         <section class="panel-block">
           <h3>Manager</h3>

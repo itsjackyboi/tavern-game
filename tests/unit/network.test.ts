@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { loadContent } from '../../src/content/index.ts';
 import { hashValue } from '../../src/sim/hash.ts';
-import { player, playerTaverns, staffAt } from '../../src/sim/lookup.ts';
+import { cookPatience, player, playerTaverns, staffAt } from '../../src/sim/lookup.ts';
+import { answerPrompt, spawnPrompt } from '../../src/sim/prompts.ts';
 import { closeTavern } from '../../src/sim/network.ts';
 import { serviceCapacity } from '../../src/sim/aggregate.ts';
 import { PACE_PER_TAVERN, PACE_RAMP_START, sisterRamp, updateDemand } from '../../src/sim/economy/market.ts';
@@ -196,5 +197,41 @@ describe('decisions and rumours', () => {
     const lines = w.log.filter((l) => l.city === 'aleforge' && (l.kind === 'rumor' || l.kind === 'intel'));
     expect(lines.length).toBeGreaterThan(0);
     expect(lines.some((l) => /[{}]/.test(l.text))).toBe(false);
+  });
+});
+
+describe('the cook', () => {
+  it('the cook decision really hires a cook, who stays off the floor', () => {
+    const w = createWorld({ seed: 'cook', homeCity: 'aleforge' }, c);
+    run(w, 5);
+    const t = playerTaverns(w)[0]!;
+    expect(cookPatience(w, t)).toBe(1);
+    const p = spawnPrompt(w, c, 'cook-offer', { tavernId: t.id })!;
+    answerPrompt(w, c, p.uid, 0);
+    const cooks = staffAt(w, t.id).filter((s) => s.role === 'kitchen');
+    expect(cooks.length).toBe(1);
+    expect(cookPatience(w, t)).toBeGreaterThan(1.2);
+    run(w, 5);
+    expect(w.floor!.workers.some((wk) => wk.staffId === cooks[0]!.id)).toBe(false);
+  });
+
+  it('hiring one in the Staff drawer works like any other job', () => {
+    const w = createWorld({ seed: 'cook2', homeCity: 'aleforge' }, c);
+    const t = playerTaverns(w)[0]!;
+    run(w, 1, [{ type: 'hire', tavernId: t.id, archetype: 'cook', tier: 'green' }]);
+    expect(staffAt(w, t.id).some((s) => s.role === 'kitchen')).toBe(true);
+  });
+
+  it('patrons in a tavern with a cook have more patience and drink more', () => {
+    const measure = (withCook: boolean) => {
+      const w = createWorld({ seed: 'cook3', homeCity: 'aleforge' }, c);
+      const t = playerTaverns(w)[0]!;
+      if (withCook) run(w, 1, [{ type: 'hire', tavernId: t.id, archetype: 'cook', tier: 'master' }]);
+      else run(w, 1);
+      run(w, 600);
+      const ps = w.floor!.patrons;
+      return ps.reduce((s, p) => s + p.patienceMax, 0) / Math.max(1, ps.length);
+    };
+    expect(measure(true)).toBeGreaterThan(measure(false) * 1.15);
   });
 });

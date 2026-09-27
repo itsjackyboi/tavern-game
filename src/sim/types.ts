@@ -78,7 +78,7 @@ export interface Staff {
   id: Id;
   name: string;
   archetype: string;
-  role: 'bar' | 'floor' | 'door' | 'cellar' | 'stage' | 'intel' | 'manage';
+  role: 'bar' | 'floor' | 'door' | 'cellar' | 'stage' | 'intel' | 'kitchen' | 'manage';
   tier: 'green' | 'seasoned' | 'master';
   competence: number;
   wage: number;

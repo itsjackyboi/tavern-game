@@ -48,6 +48,7 @@ export function effectValue(effects: EffectT[], c: Content): number {
       case 'spiritweed': v += e.amount * 15; break;
       case 'closeTavern': v -= e.seconds * 8; break;
       case 'loseStaff': v -= 150; break;
+      case 'hire': v += 150; break;
       case 'rivalCash': v -= e.amount * 0.2; break;
       case 'rivalRep': v -= e.amount * 10; break;
       case 'chance': v += e.p * effectValue(e.then, c) + (1 - e.p) * effectValue(e.else ?? [], c); break;

@@ -17,7 +17,7 @@ export interface Issue {
   fix: string;
 }
 
-export const ROLE_ICON: Record<string, string> = { bar: '🍺', floor: '🏃', door: '✊', cellar: '🛢', stage: '♪', intel: '👁', manage: '✎' };
+export const ROLE_ICON: Record<string, string> = { bar: '🍺', floor: '🏃', door: '✊', cellar: '🛢', stage: '♪', intel: '👁', kitchen: '🍲', manage: '✎' };
 export const STATUS_LABEL: Record<string, string> = { building: 'building', establishing: 'establishing', established: 'established', struggling: 'struggling', closed: 'closed' };
 
 /** Service speed a tavern keeps while you're away (see serviceCapacity). */
@@ -26,8 +26,8 @@ export function servicePct(t: Tavern): number {
 }
 
 /** Plain job names, in the order staff are listed. */
-export const JOB_NAME: Record<string, string> = { bar: 'Bartender', floor: 'Server', door: 'Bouncer', cellar: 'Cellarer', stage: 'Fiddler', intel: 'Informant', manage: 'Manager' };
-const JOB_ORDER = ['manage', 'bar', 'floor', 'door', 'cellar', 'stage', 'intel'];
+export const JOB_NAME: Record<string, string> = { bar: 'Bartender', floor: 'Server', door: 'Bouncer', cellar: 'Cellarer', stage: 'Fiddler', intel: 'Informant', kitchen: 'Cook', manage: 'Manager' };
+const JOB_ORDER = ['manage', 'bar', 'floor', 'door', 'cellar', 'kitchen', 'stage', 'intel'];
 const TIER_ORDER = ['master', 'seasoned', 'green'];
 export const TIER_NAME: Record<string, string> = { green: 'Green', seasoned: 'Seasoned', master: 'Master' };
 

@@ -47,6 +47,10 @@ export function effectLine(c: Content, e: EffectT, preview = true): string | nul
     case 'spiritweed': return `${signed(e.amount)} Spiritweed`;
     case 'closeTavern': return `Tavern shut for ${Math.round(e.seconds)}s`;
     case 'loseStaff': return e.best ? 'Your best worker leaves' : 'A worker leaves';
+    case 'hire': {
+      const a = c.staff.archetypes.find((x) => x.id === e.archetype);
+      return `A ${e.tier} ${a?.name ?? e.archetype} joins your staff`;
+    }
     case 'rivalCash': return `Rivals’ Duckets ${signed(e.amount)}`;
     case 'rivalRep': return `Rivals’ reputation ${signed(e.amount)}`;
     case 'prompt': return preview ? 'Something may follow' : null;

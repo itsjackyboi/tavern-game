@@ -22,7 +22,7 @@ export type IngredientId = z.infer<typeof IngredientId>;
 export const InstitutionId = z.enum(['church', 'windsunk', 'rotoMarket', 'cumstead', 'cityhall']);
 export type InstitutionId = z.infer<typeof InstitutionId>;
 
-export const Role = z.enum(['bar', 'floor', 'door', 'cellar', 'stage', 'intel']);
+export const Role = z.enum(['bar', 'floor', 'door', 'cellar', 'stage', 'intel', 'kitchen']);
 export type Role = z.infer<typeof Role>;
 
 const ticks = z.number().int().positive();
@@ -359,6 +359,7 @@ export const Effect: z.ZodType<EffectT> = z.lazy(() =>
     z.strictObject({ type: z.literal('spiritweed'), amount: z.number().int() }),
     z.strictObject({ type: z.literal('closeTavern'), seconds: z.number().positive() }),
     z.strictObject({ type: z.literal('loseStaff'), best: z.boolean().optional() }),
+    z.strictObject({ type: z.literal('hire'), archetype: z.string(), tier: z.enum(['green', 'seasoned', 'master']) }),
     z.strictObject({ type: z.literal('rivalCash'), amount: z.number() }),
     z.strictObject({ type: z.literal('rivalRep'), amount: z.number() }),
     z.strictObject({ type: z.literal('prompt'), id: z.string(), delaySeconds: z.number().nonnegative().optional() }),
@@ -378,6 +379,7 @@ export type EffectT =
   | { type: 'spiritweed'; amount: number }
   | { type: 'closeTavern'; seconds: number }
   | { type: 'loseStaff'; best?: boolean }
+  | { type: 'hire'; archetype: string; tier: 'green' | 'seasoned' | 'master' }
   | { type: 'rivalCash'; amount: number }
   | { type: 'rivalRep'; amount: number }
   | { type: 'prompt'; id: string; delaySeconds?: number }

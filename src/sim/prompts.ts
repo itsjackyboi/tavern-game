@@ -5,6 +5,7 @@ import { syncFloor } from './floor/floor.ts';
 import { log } from './log.ts';
 import { addModifier, clamp, fmt, idx, managerOf, player, playerTaverns, staffAt } from './lookup.ts';
 import { chance } from './rng.ts';
+import { makeStaff } from './world.ts';
 import type { ActivePrompt, Tavern, World } from './types.ts';
 
 // Decision cards: tactical (seconds), strategic (the world-map inbox) and
@@ -142,6 +143,17 @@ export function applyEffects(w: World, c: Content, effects: EffectT[], p: Active
           delete w.staff[s.id];
           if (w.floor) syncFloor(w, c);
         }
+        break;
+      }
+      case 'hire': {
+        if (!t) break;
+        if (staffAt(w, t.id).length >= c.staff.maxStaffPerTavern) {
+          log(w, 'alert', `No room at ${t.name} for another hand: staff is full.`, t.city);
+          break;
+        }
+        const s = makeStaff(w, c, { archetype: e.archetype, tier: e.tier, tavernId: t.id, stream: 'staff' });
+        log(w, 'news', `${s.name} joins ${t.name}.`, t.city);
+        if (w.floor?.tavernId === t.id) syncFloor(w, c);
         break;
       }
       case 'rivalCash':
