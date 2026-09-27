@@ -101,7 +101,7 @@ function YourTaverns({ ctrl }: { ctrl: GameController }) {
               {!building && <span class="yt-rep" title="Reputation (trend over the last minute)">★{Math.round(t.rep)}<span class={trend >= 0.3 ? 'up' : trend <= -0.3 ? 'down' : 'flat'}>{trend >= 0.3 ? '▲' : trend <= -0.3 ? '▼' : ''}</span></span>}
               {!building && <span class={`yt-profit ${net >= 0 ? 'up' : 'down'}`} title="Profit this season so far (rent and wages are paid at season end)">{net >= 0 ? '+' : ''}{money(net)}◉</span>}
               {!here && !building && (
-                <button class="btn btn-tiny yt-go" title={`Go there (Ctrl+${i + 1})`} onClick={(e) => { e.stopPropagation(); ctrl.dispatch({ type: 'focus', tavernId: t.id }); }}>⇥</button>
+                <button class="btn btn-tiny yt-go" title={`Go there (key ${i + 1})`} onClick={(e) => { e.stopPropagation(); ctrl.dispatch({ type: 'focus', tavernId: t.id }); }}>⇥</button>
               )}
             </div>
             <div class="yt-line yt-sub">

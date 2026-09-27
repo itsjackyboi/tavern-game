@@ -28,6 +28,16 @@ The whole game is playable end to end:
 
 The letter and finale text are still clearly marked placeholders.
 
+### v1.12
+- **Switch taverns into the thick of it:** walking into a tavern now shows it as busy as its crowd.
+  - Patrons are already waiting on drinks, some about to order, and a line at the door, with a table or two to clear.
+  - The line you leave behind isn't counted as walkouts; it's still there if you come straight back.
+  - Patrons caught mid-visit no longer leave as if they'd been served badly (that quietly cost reputation on every switch).
+- **Keys:**
+  - **1–4** switch taverns.
+  - **Shift+1–4** answer the top decision; the card shows ⇧1, ⇧2…
+- **Staff lists** show **job, skill (Green / Seasoned / Master), then name**, sorted by job and then skill (master first): bartenders, servers, bouncers, cellarers, fiddlers, informants. This applies to the Staff drawer, the left panel and tavern reports.
+
 ### v1.11: the pace keeps building
 - **The flagship keeps its pace:** while you tend a sister, your household keeps the flagship's bar going and its service never slips. You come back to the same crowd.
 - **Sisters build up:** a new sister starts at about half your flagship's pace and builds up to it over its first two seasons (struggling taverns lose the lift).

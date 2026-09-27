@@ -9,6 +9,7 @@ import { stepWorld } from '../../src/sim/step.ts';
 import type { Command } from '../../src/sim/commands.ts';
 import type { Tavern, World } from '../../src/sim/types.ts';
 import { createWorld } from '../../src/sim/world.ts';
+import { calNow } from '../../src/sim/time.ts';
 
 const c = loadContent();
 const run = (w: World, ticks: number, cmds: Command[] = []) => {
@@ -135,5 +136,23 @@ describe('pace as you grow', () => {
     // Two seasons later the ramp is complete.
     run(w, 2 * 1300 + 200);
     expect(sisterRamp(w, c, sis)).toBe(1);
+  });
+});
+
+describe('switching taverns', () => {
+  it('drops you straight into a busy floor: drinks wanted, a line at the door, and the line kept when you leave', () => {
+    const { w, home, sis } = withSister('switch');
+    // Wait for a moment when the doors are open and not at Last Call.
+    for (let i = 0; i < 2000 && (calNow(w, c.time).phase === 'lastCall' || sis.demand.rate < 0.1); i++) run(w, 1);
+    run(w, 1, [{ type: 'focus', tavernId: sis.id }]);
+    const f = w.floor!;
+    expect(f.tavernId).toBe(sis.id);
+    expect(f.patrons.filter((p) => p.state === 'ordered').length).toBeGreaterThan(0);
+    expect(f.patrons.filter((p) => p.state === 'waiting').length).toBeGreaterThan(0);
+    // Leave: the line isn't counted as walkouts, it's kept for when you return.
+    const walkouts = sis.kpi.walkouts;
+    run(w, 1, [{ type: 'focus', tavernId: home.id }]);
+    expect(sis.kpi.walkouts).toBe(walkouts);
+    expect(sis.agg.queue ?? 0).toBeGreaterThan(0);
   });
 });

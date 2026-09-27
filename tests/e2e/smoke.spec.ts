@@ -198,6 +198,23 @@ test('Your taverns: list under Company Value, trouble flashes, reports, remote s
   expect((await page.evaluate((id) => window.__game!.tavern(id), home))!.staff).toBe(homeStaff + 1);
   await page.keyboard.press('Escape');
 
+  // Number keys jump between taverns.
+  await page.keyboard.press('2');
+  await page.waitForFunction((id) => window.__game!.focusId() === id, sis);
+  await page.keyboard.press('1');
+  await page.waitForFunction((id) => window.__game!.focusId() === id, home);
+
+  // The staff list reads job, skill, then name, grouped by job.
+  await page.keyboard.press('s');
+  const jobs = await page.getByTestId('staff-row').locator('.staff-job').allTextContents();
+  expect(jobs.length).toBeGreaterThan(0);
+  const order = ['Bartender', 'Server', 'Bouncer', 'Cellarer', 'Fiddler', 'Informant'];
+  const idx = jobs.map((j) => order.findIndex((o) => j.includes(o)));
+  expect(idx).toEqual([...idx].sort((a, b) => a - b));
+  await expect(page.getByTestId('staff-row').first().locator('.tier-badge')).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/staff-sorted.png`, animations: 'disabled' });
+  await page.keyboard.press('Escape');
+
   // N: every tavern side by side, sortable.
   await page.keyboard.press('n');
   await expect(page.getByTestId('network-table').getByTestId('nw-row')).toHaveCount(2);
@@ -347,9 +364,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.11');
+  await expect(page.getByTestId('version')).toHaveText('v1.12');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.11');
+  await expect(page.getByTestId('version')).toHaveText('v1.12');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {
@@ -362,7 +379,7 @@ test('decisions sit bottom-right, show their effects, and leave a receipt', asyn
   await expect(page.locator('.left-panel [data-testid="prompt-card"]')).toHaveCount(0);
   await expect(card.locator('.opt-effects').first()).not.toBeEmpty();
   await page.screenshot({ path: `${SHOTS}/decision.png`, animations: 'disabled' });
-  await page.keyboard.press('1');
+  await page.keyboard.press('Shift+Digit1');
   await expect(page.getByTestId('receipts')).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/receipt.png`, animations: 'disabled' });
   const rows = page.locator('[data-testid="league"] .league-row');

@@ -59,7 +59,8 @@ export interface Tavern {
   managerId: Id | null;
   attention: number;
   closedUntil: number;
-  agg: { occupancy: number; backlog: number };
+  /** Aggregate state while off screen; queue = people in line at the door (optional for older saves). */
+  agg: { occupancy: number; backlog: number; queue?: number };
   demand: { rate: number; segRates: Record<string, number> };
   kpi: TavernKpi;
   lastKpi: TavernKpi | null;

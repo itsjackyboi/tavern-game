@@ -25,10 +25,21 @@ export function servicePct(t: Tavern): number {
   return Math.round((0.6 + 0.4 * t.attention) * 100);
 }
 
-/** Staff icons, manager first. */
+/** Plain job names, in the order staff are listed. */
+export const JOB_NAME: Record<string, string> = { bar: 'Bartender', floor: 'Server', door: 'Bouncer', cellar: 'Cellarer', stage: 'Fiddler', intel: 'Informant', manage: 'Manager' };
+const JOB_ORDER = ['manage', 'bar', 'floor', 'door', 'cellar', 'stage', 'intel'];
+const TIER_ORDER = ['master', 'seasoned', 'green'];
+export const TIER_NAME: Record<string, string> = { green: 'Green', seasoned: 'Seasoned', master: 'Master' };
+
+/** Staff sorted by job (bartenders, servers, bouncers…), then skill (master first), then name. */
+export function sortStaff<T extends { role: string; tier: string; name: string }>(list: readonly T[]): T[] {
+  return [...list].sort((a, b) => JOB_ORDER.indexOf(a.role) - JOB_ORDER.indexOf(b.role) || TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier) || a.name.localeCompare(b.name));
+}
+
+/** Staff icons, manager first, then in the same order as the lists. */
 export function staffIcons(w: World, t: Tavern): string {
   const mgr = t.managerId ? ROLE_ICON.manage : '';
-  return mgr + staffAt(w, t.id).map((s) => ROLE_ICON[s.role] ?? '•').join('');
+  return mgr + sortStaff(staffAt(w, t.id)).map((s) => ROLE_ICON[s.role] ?? '•').join('');
 }
 
 /** Revenue minus costs so far this season (kegs as ordered; rent and wages land at season end). */

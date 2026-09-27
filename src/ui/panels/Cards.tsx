@@ -54,7 +54,7 @@ export function Card({ ctrl, p, hotkeys }: { ctrl: GameController; p: ActiveProm
               onClick={() => { ctrl.dispatch({ type: 'answer', uid: p.uid, option: i }); sound('confirm'); }}
             >
               <span class="opt-top">
-                {hotkeys && <kbd>{i + 1}</kbd>}
+                {hotkeys && <kbd title={`Shift+${i + 1}`}>⇧{i + 1}</kbd>}
                 <span class="opt-label">{o.label}</span>
                 {isDefault && <span class="opt-default">if you wait</span>}
                 {o.cost !== undefined && <span class="cost">{o.cost}◉{o.favorCost ? ` or ${o.favorCost}⚓` : ''}</span>}

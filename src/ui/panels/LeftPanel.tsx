@@ -7,7 +7,7 @@ import { RepSpark, trendOf } from '../RepTrend.tsx';
 import { intelLevel } from '../../sim/rivals.ts';
 import { hover, uiFrame } from '../bus.ts';
 import { money } from '../describe.ts';
-import { ROLE_ICON, tavernIssues } from '../tavernHealth.ts';
+import { JOB_NAME, ROLE_ICON, TIER_NAME, sortStaff, tavernIssues } from '../tavernHealth.ts';
 
 const STATUS: Record<string, string> = { building: 'building', establishing: 'establishing', established: '', struggling: 'struggling', closed: 'closed' };
 
@@ -21,7 +21,7 @@ function TavernTabs({ ctrl }: { ctrl: GameController }) {
           class={`tavern-tab ${t.id === w.focus.tavernId ? 'on' : ''} status-${t.status}`}
           disabled={t.status === 'building'}
           onClick={() => ctrl.dispatch({ type: 'focus', tavernId: t.id })}
-          title={`${t.name} (Ctrl+${i + 1})`}
+          title={`${t.name} (key ${i + 1})`}
         >
           <span class="tt-city">{ctrl.content.cities.find((c) => c.id === t.city)?.name}</span>
           {STATUS[t.status] && <span class="tt-status">{STATUS[t.status]}</span>}
@@ -78,9 +78,11 @@ function StaffChips({ ctrl, t }: { ctrl: GameController; t: Tavern }) {
         </div>
       )}
       {staff.length === 0 && <p class="muted small">Just you. Hire help (S).</p>}
-      {staff.map((s) => (
-        <div class="chip" key={s.id} title={`${s.name} · ${s.tier} · competence ${Math.round(s.competence * 100)} · morale ${Math.round(s.morale * 100)} · fatigue ${Math.round(s.fatigue * 100)}`}>
+      {sortStaff(staff).map((s) => (
+        <div class="chip" key={s.id} title={`${JOB_NAME[s.role] ?? s.role} · ${TIER_NAME[s.tier]} · ${s.name} · competence ${Math.round(s.competence * 100)} · morale ${Math.round(s.morale * 100)} · fatigue ${Math.round(s.fatigue * 100)}`}>
           <span>{ROLE_ICON[s.role] ?? '•'}</span>
+          <span class="chip-job">{JOB_NAME[s.role] ?? s.role}</span>
+          <span class={`tier-badge tier-${s.tier}`} title={TIER_NAME[s.tier]}>{TIER_NAME[s.tier]![0]}</span>
           <span class="chip-name">{s.name.split(' ')[0]}</span>
           <span class="mini-bar morale"><span style={{ width: `${s.morale * 100}%` }} /></span>
           <span class="mini-bar fatigue"><span style={{ width: `${s.fatigue * 100}%` }} /></span>

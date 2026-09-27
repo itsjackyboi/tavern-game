@@ -9,7 +9,7 @@ import { drawer, sound, staffTavern, uiFrame } from '../bus.ts';
 import { money } from '../describe.ts';
 import { Card } from '../panels/Cards.tsx';
 import { RepSpark, trendOf } from '../RepTrend.tsx';
-import { ROLE_ICON, STATUS_LABEL, lastSeasonNet, seasonNet, servicePct, tavernIssues, walkoutShare } from '../tavernHealth.ts';
+import { JOB_NAME, ROLE_ICON, STATUS_LABEL, TIER_NAME, sortStaff, lastSeasonNet, seasonNet, servicePct, tavernIssues, walkoutShare } from '../tavernHealth.ts';
 
 // A tavern's report: everything you need to keep it running without going there.
 
@@ -178,11 +178,12 @@ export function TavernReport({ ctrl, t }: { ctrl: GameController; t: Tavern }) {
             {mgr ? (
               <div class="chip"><span>{ROLE_ICON.manage}</span> <span class="chip-name">{mgr.name}</span> <span class="small muted">manager · {mgr.tier}</span> <span class="stars">{'★'.repeat(Math.round(mgr.competence * 5))}</span></div>
             ) : <p class="small">No manager: requests go unanswered and service slips faster while you're away.</p>}
-            {staff.map((s) => (
+            {sortStaff(staff).map((s) => (
               <div class="chip" key={s.id} title={`morale ${Math.round(s.morale * 100)} · fatigue ${Math.round(s.fatigue * 100)}`}>
                 <span>{ROLE_ICON[s.role] ?? '•'}</span>
+                <span class="chip-job">{JOB_NAME[s.role] ?? s.role}</span>
+                <span class={`tier-badge tier-${s.tier}`}>{TIER_NAME[s.tier]}</span>
                 <span class="chip-name">{s.name}</span>
-                <span class="small muted">{s.tier}</span>
                 <span class="mini-bar morale"><span style={{ width: `${s.morale * 100}%` }} /></span>
                 <span class="mini-bar fatigue"><span style={{ width: `${s.fatigue * 100}%` }} /></span>
               </div>

@@ -94,35 +94,69 @@ export function materializeFloor(w: World, c: Content, t: Tavern): FloorState {
   f.nextId = 10;
   for (const s of staffAt(w, t.id)) if (s.role !== 'intel') f.workers.push(staffWorker(f, s));
 
-  // Seat the aggregate occupancy as patrons already mid-visit.
+  // Walk straight into the thick of it: the room is as full as the crowd it
+  // draws, with drinks wanted, people waiting at the door and tables to clear.
+  const cal = calNow(w, c.time);
+  const open = isOpenNow(w, t);
+  const doorsOpen = open && cal.phase !== 'lastCall';
   const segs = Object.entries(t.demand.segRates);
-  let occ = Math.min(Math.round(t.agg.occupancy), f.tables.length * 2);
-  let backlog = Math.round(t.agg.backlog);
+  const dwell = c.demand.drinksPerVisit * c.demand.drinkSeconds + 10;
+  const steady = open ? t.demand.rate * dwell * 0.85 : 0;
+  let occ = Math.min(Math.round(Math.max(t.agg.occupancy, steady)), f.tables.length * 2);
   const mods = modsFor(w, c, t);
   const drinks = availableDrinks(w, c, t, mods);
+  let wantDrink = Math.max(Math.round(t.agg.backlog), Math.round(occ * 0.4));
+  const pickSeg = () => (segs.length ? weighted(w, segs) : idx(c).segsByCity[t.city][0]!.id);
   for (const table of f.tables) {
     for (let s = 0; s < 2 && occ > 0; s++) {
-      const segId = segs.length ? weighted(w, segs) : idx(c).segsByCity[t.city][0]!.id;
+      const segId = pickSeg();
       const p = newPatron(w, c, f, t, segId, mods);
       const pos = seatPos(table, s);
       p.x = pos.x; p.y = pos.y; p.tx = pos.x; p.ty = pos.y;
       p.tableId = table.id; p.seat = s;
       table.seats[s] = p.id;
-      if (backlog > 0 && drinks.length) {
+      p.satN = 1;
+      p.sat = 0.7;
+      const roll = rand(w, 'floor');
+      if (wantDrink > 0 && drinks.length && open) {
+        // Waiting on a drink, some for a while already.
         p.state = 'ordered';
         p.drinkId = pick(w, 'floor', drinks);
-        p.patience = p.patienceMax = Math.round(c.floor.orderPatienceTicks * segOf(c, segId).patience * w.meta.timerScale);
-        backlog--;
+        p.patienceMax = Math.round(c.floor.orderPatienceTicks * segOf(c, segId).patience * w.meta.timerScale);
+        p.patience = Math.round(p.patienceMax * (0.45 + 0.55 * rand(w, 'floor')));
+        wantDrink--;
+      } else if (roll < 0.3 && open) {
+        // About to order.
+        p.state = 'seated';
+        p.timer = randInt(w, 'floor', 1, c.floor.orderDelayTicks * 4);
       } else {
+        // Mid-drink, most of them nearly done.
         p.state = 'drinking';
         p.drinkId = drinks.length ? pick(w, 'floor', drinks) : null;
-        p.timer = randInt(w, 'floor', 20, c.demand.drinkSeconds * 20);
+        p.timer = randInt(w, 'floor', 10, Math.round(c.demand.drinkSeconds * 20 * 0.7));
         p.drinksLeft = randInt(w, 'floor', 1, 2);
       }
       f.patrons.push(p);
       occ--;
     }
   }
+  if (doorsOpen && drinks.length) {
+    // A few left dirty by the last lot, and a line at the door.
+    const empty = f.tables.filter((tb) => !tb.seats[0] && !tb.seats[1]);
+    const dirty = Math.min(empty.length, Math.round(steady / 5));
+    for (let i = 0; i < dirty; i++) empty[i]!.dirty = true;
+    const queue = Math.min(QUEUE_SLOTS.length - 2, Math.max(Math.round(t.agg.queue ?? 0), Math.round(t.demand.rate * 6)));
+    for (let i = 0; i < queue; i++) {
+      const p = newPatron(w, c, f, t, pickSeg(), mods);
+      const q = QUEUE_SLOTS[i]!;
+      p.queueSlot = i;
+      p.x = q.x; p.y = q.y; p.tx = q.x; p.ty = q.y;
+      p.state = 'waiting';
+      p.patience = Math.round(p.patienceMax * (0.5 + 0.5 * rand(w, 'floor')));
+      f.patrons.push(p);
+    }
+  }
+  t.agg.queue = 0;
   return f;
 }
 
@@ -133,10 +167,9 @@ export function collapseFloor(w: World, c: Content): void {
   const t = w.taverns[f.tavernId];
   if (t) {
     for (const inc of [...f.incidents]) failBrawl(w, c, f, t, inc);
-    for (const p of f.patrons) {
-      if (p.state === 'sneaking') steal(w, c, f, t, p);
-      if (p.state === 'waiting' || p.state === 'arriving') t.kpi.walkouts += 1;
-    }
+    for (const p of f.patrons) if (p.state === 'sneaking') steal(w, c, f, t, p);
+    // The line at the door stays in line (it's there when you come back).
+    t.agg.queue = f.patrons.filter((p) => p.state === 'waiting' || p.state === 'arriving').length;
     t.agg.occupancy = f.patrons.filter((p) => ACTIVE.includes(p.state) || p.state === 'toSeat').length;
     t.agg.backlog = f.patrons.filter((p) => p.state === 'ordered').length;
   }

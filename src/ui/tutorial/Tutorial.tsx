@@ -78,7 +78,7 @@ const STEPS: Step[] = [
   {
     title: 'Decisions',
     text: () =>
-      'Decisions appear at the bottom-right with a chime. Each choice lists what it will do. Answer with the mouse or keys 1–3; the bar shows how long you have, and if time runs out the “if you wait” option happens. Afterwards a receipt at the bottom of the board shows what it did.',
+      'Decisions appear at the bottom-right with a chime. Each choice lists what it will do. Answer with the mouse or Shift+1–3; the bar shows how long you have, and if time runs out the “if you wait” option happens. Afterwards a receipt at the bottom of the board shows what it did.',
     spot: 'decisions',
     done: (_c, p) => p.cmds.has('answer'),
   },

@@ -64,17 +64,24 @@ export function installHotkeys(ctrl: GameController, onViewChange?: () => void):
       onViewChange?.();
       return;
     }
-    if ((e.ctrlKey || e.metaKey) && /^[1-4]$/.test(e.key)) {
+    // Number row by key position (Shift+1 types "!" on most layouts).
+    const digit = /^Digit([1-4])$/.exec(e.code)?.[1] ?? (/^[1-4]$/.test(e.key) ? e.key : null);
+    if (digit && e.shiftKey) {
+      // Shift+1–4: answer the top decision card.
       e.preventDefault();
-      const t = playerTaverns(ctrl.world)[Number(e.key) - 1];
-      if (t) ctrl.dispatch({ type: 'focus', tavernId: t.id });
-      return;
-    }
-    if (/^[1-4]$/.test(e.key)) {
       const card = visibleCards(ctrl)[0];
       if (card) {
-        ctrl.dispatch({ type: 'answer', uid: card.uid, option: Number(e.key) - 1 });
+        ctrl.dispatch({ type: 'answer', uid: card.uid, option: Number(digit) - 1 });
         sound('confirm');
+      }
+      return;
+    }
+    if (digit && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // 1–4: jump straight to one of your taverns.
+      const t = playerTaverns(ctrl.world).filter((x) => x.status !== 'building')[Number(digit) - 1];
+      if (t && t.id !== ctrl.world.focus.tavernId) {
+        ctrl.dispatch({ type: 'focus', tavernId: t.id });
+        sound('ui');
       }
       return;
     }

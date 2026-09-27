@@ -19,6 +19,7 @@ import { ProfitChart } from '../ledger/ProfitChart.tsx';
 import { TavernReport } from './TavernReport.tsx';
 import { NetworkDrawer } from './NetworkDrawer.tsx';
 import { Shell } from './Shell.tsx';
+import { JOB_NAME, ROLE_ICON, TIER_NAME, sortStaff } from '../tavernHealth.ts';
 import { drawer, selectedCity, sound, staffTavern, uiFrame } from '../bus.ts';
 import { RESULT_TEXT, describeDrink, describeUpgrade, money, recipeText } from '../describe.ts';
 
@@ -64,7 +65,7 @@ function StaffDrawer({ ctrl }: { ctrl: GameController }) {
         <tbody>
           {c.staff.archetypes.map((a) => (
             <tr key={a.id}>
-              <td title={`Role: ${a.role}`}>{a.name}</td>
+              <td title={a.name}>{ROLE_ICON[a.role] ?? '•'} {JOB_NAME[a.role] ?? a.name}</td>
               {TIERS.map((tier) => {
                 const td = c.staff.tiers.find((x) => x.id === tier)!;
                 return (
@@ -79,7 +80,7 @@ function StaffDrawer({ ctrl }: { ctrl: GameController }) {
           ))}
         </tbody>
       </table>
-      <p class="small muted">Staff take tasks by role: tapsters pour, runners seat and clear, bruisers stop brawls and thieves, cellarers restock, fiddlers lift the mood, informants read rivals. They're a little slower than you.</p>
+      <p class="small muted">Staff take tasks by job: bartenders pour, servers seat and clear, bouncers stop brawls and thieves, cellarers restock, fiddlers lift the mood, informants read rivals. They're a little slower than you. Skill runs Green → Seasoned → Master.</p>
       {!isFlagship && (
         <section class="panel-block">
           <h3>Manager</h3>
@@ -94,13 +95,16 @@ function StaffDrawer({ ctrl }: { ctrl: GameController }) {
       <section class="panel-block">
         <h3>On the payroll</h3>
         {staff.length === 0 && <p class="muted">Nobody yet.</p>}
-        {staff.map((s) => (
-          <div class="staff-row" key={s.id}>
-            <span class="staff-name" title={s.archetype}>{s.name}</span>
-            <span class="small">{s.role} · {s.tier} · C{Math.round(s.competence * 100)}</span>
+        {sortStaff(staff).map((s) => (
+          <div class="staff-row" key={s.id} data-testid="staff-row">
+            <span class="staff-job" title={c.staff.archetypes.find((a) => a.id === s.archetype)?.name ?? s.archetype}>{ROLE_ICON[s.role] ?? '•'} {JOB_NAME[s.role] ?? s.role}</span>
+            <span class={`tier-badge tier-${s.tier}`}>{TIER_NAME[s.tier]}</span>
+            <span class="staff-name">{s.name}</span>
+            <span class="small muted" title="Competence">C{Math.round(s.competence * 100)}</span>
             <span class="mini-bar morale" title={`Morale ${Math.round(s.morale * 100)}`}><span style={{ width: `${s.morale * 100}%` }} /></span>
             <span class="mini-bar fatigue" title={`Fatigue ${Math.round(s.fatigue * 100)}`}><span style={{ width: `${s.fatigue * 100}%` }} /></span>
             <span class="small">{s.wage}◉</span>
+            <span class="staff-actions">
             <button class="btn btn-tiny" onClick={() => ctrl.dispatch({ type: 'train', staffId: s.id })} title="Train: +6 competence">Train {trainCost(s)}</button>
             <button class="btn btn-tiny" onClick={() => ctrl.dispatch({ type: 'raise', staffId: s.id })} title="Raise: +15% wage, +morale">Raise</button>
             {others.length > 0 && (
@@ -122,6 +126,7 @@ function StaffDrawer({ ctrl }: { ctrl: GameController }) {
             >
               {firing === s.id ? 'Sure?' : 'Fire'}
             </button>
+            </span>
           </div>
         ))}
       </section>
@@ -573,7 +578,7 @@ function HelpDrawer() {
           <li><b>How:</b> press Tab for the Isles map, click a town, then <b>Found</b>. It is built over one season and opens with a manager, a tapster and a runner.</li>
           <li><b>Established:</b> after a season open with reputation 45 or more. Established taverns fill the ◆ pips at the top; the sponsorship needs one established in all four towns.</li>
           <li><b>Struggling</b> below 22 reputation (recovers at 30). A struggling tavern that falls under 6 while you're elsewhere closes.</li>
-          <li>Sister taverns you're not watching slow down over time; a better manager slows that. Visit with the tavern tabs or Ctrl+1–4. Your <b>flagship</b> (your first tavern) never slips: your household keeps its bar going while you're away.</li>
+          <li>Sister taverns you're not watching slow down over time; a better manager slows that. Visit with the tavern tabs or keys 1–4. Your <b>flagship</b> (your first tavern) never slips: your household keeps its bar going while you're away.</li>
           <li><b>Busier as you grow:</b> every tavern you have open brings more patrons to all of them (word of mouth), and a new sister builds up to your flagship's pace over its first two seasons. Struggling taverns lose that lift.</li>
           <li><b>Keeping watch:</b> <b>Your taverns</b> (right, under Company Value) lists each tavern's status, reputation, profit this season and staff. A row <b>flashes red with a chime</b> when something's wrong there (a dry tap, nobody to serve, struggling, reputation falling fast). Click a row for its <b>report</b>: order kegs, answer its requests, manage its staff and set up supply lines without going there. <b>N</b> shows every tavern side by side.</li>
           <li><b>Staff anywhere:</b> the Staff drawer (S) has a button for each of your taverns: hire, train or fire there, or <b>move</b> someone to another of your taverns (a small travel fee).</li>
@@ -614,7 +619,7 @@ function HelpDrawer() {
       </section>
       <section class="panel-block">
         <h3>Keys</h3>
-        <p class="small"><kbd>Tab</kbd> floor/map · <kbd>P</kbd> pause · <kbd>1</kbd>–<kbd>3</kbd> answer the top card · <kbd>Q</kbd> serve the most urgent order · <kbd>W</kbd> seat the longest wait · <kbd>E</kbd> restock the emptiest tap · <kbd>C</kbd> clear a table · <kbd>B</kbd> bell · <kbd>S</kbd> staff · <kbd>M</kbd> menu · <kbd>U</kbd> build · <kbd>K</kbd> brew · <kbd>F</kbd> ledger · <kbd>N</kbd> all your taverns · <kbd>Ctrl</kbd>+<kbd>1</kbd>–<kbd>4</kbd> switch tavern</p>
+        <p class="small"><kbd>Tab</kbd> floor/map · <kbd>P</kbd> pause · <kbd>1</kbd>–<kbd>4</kbd> switch tavern · <kbd>Shift</kbd>+<kbd>1</kbd>–<kbd>4</kbd> answer the top card · <kbd>Q</kbd> serve the most urgent order · <kbd>W</kbd> seat the longest wait · <kbd>E</kbd> restock the emptiest tap · <kbd>C</kbd> clear a table · <kbd>B</kbd> bell · <kbd>S</kbd> staff · <kbd>M</kbd> menu · <kbd>U</kbd> build · <kbd>K</kbd> brew · <kbd>F</kbd> ledger · <kbd>N</kbd> all your taverns</p>
       </section>
       <SoundSettings />
     </Shell>

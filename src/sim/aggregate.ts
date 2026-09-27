@@ -64,6 +64,8 @@ function drinkShares(w: World, c: Content, t: Tavern, drinks: string[], night: b
 }
 
 export function stepAggregate(w: World, c: Content, t: Tavern): void {
+  // The line at the door you left behind gets seated or gives up over a few seconds.
+  if (t.agg.queue) t.agg.queue = t.agg.queue > 0.3 ? t.agg.queue * 0.85 : 0;
   if (!isOpenNow(w, t)) {
     t.agg.occupancy *= 0.9;
     t.agg.backlog = 0;

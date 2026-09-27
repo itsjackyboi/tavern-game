@@ -600,13 +600,16 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--gold); }
 .grid-table td.down { color: #9be39b; }
 .grid-table td .btn-tiny { margin: 1px 2px; }
 .staff-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto auto auto auto auto auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  padding: 3px 0;
+  gap: 4px 8px;
+  padding: 4px 0;
   border-bottom: 1px solid #2c1f15;
 }
+.staff-row .staff-name { flex: 1; min-width: 80px; }
+.staff-job { min-width: 110px; color: var(--parchment); white-space: nowrap; }
+.staff-actions { display: flex; gap: 4px; flex-wrap: wrap; width: 100%; justify-content: flex-end; }
 .staff-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .menu-row { padding: 5px 0; border-bottom: 1px solid #2c1f15; }
 .menu-row.compact { display: flex; align-items: center; gap: 8px; }
@@ -1043,3 +1046,10 @@ body[data-tut='drawers'] .bottom-bar .btn:not(.view-toggle):not(.bell) { animati
 .right-spacer { flex: 1 1 0; min-height: 0; }
 .right-scroll { padding-top: 0; }
 .league h3 { position: sticky; top: 0; z-index: 1; background: #1b130d; padding-top: 6px; margin-top: 0; }
+
+/* v1.12: job + skill on staff lists */
+.tier-badge { font-family: var(--font-mini); font-size: 10px; text-transform: uppercase; padding: 1px 4px; border-radius: 2px; white-space: nowrap; }
+.tier-badge.tier-green { background: #2e4a2a; color: #b9e6a8; }
+.tier-badge.tier-seasoned { background: #24405e; color: #cfe3ff; }
+.tier-badge.tier-master { background: #6a4d12; color: #ffe08a; }
+.chip-job { color: var(--parchment); white-space: nowrap; }
