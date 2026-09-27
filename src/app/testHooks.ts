@@ -1,3 +1,4 @@
+import { newBrew } from '../ui/bus.ts';
 import { spawnPrompt } from '../sim/prompts.ts';
 import type { CityId } from '../content/schema.ts';
 import type { GameController } from './controller.ts';
@@ -28,10 +29,18 @@ export interface TestHooks {
   /** Debug only: empties a tavern's taps, cellar and orders, and turns off auto-restock. */
   dry(tavernId: string): void;
   /** Summary of a tavern for assertions. */
-  tavern(id: string): { staff: number; cellar: Record<string, number>; orders: number; shipmentsTo: number; supplyLines: number } | null;
+  tavern(id: string): { staff: number; cellar: Record<string, number>; orders: number; shipmentsTo: number; supplyLines: number; restock: number; menu: string[] } | null;
   focusId(): string;
   /** Debug only: ends the run as a loss or bankruptcy (to see the end screens). */
   end(kind: 'lost' | 'bankrupt'): void;
+  /** Debug only: messes up `n` floor tables. */
+  mess(n: number): void;
+  /** Debug only: sets morale and fatigue for every staff member at the focused tavern. */
+  mood(morale: number, fatigue: number): void;
+  /** Debug only: sets cash (can be negative). */
+  cash(n: number): void;
+  /** Debug only: unlocks a recipe as if just brewed and returns its id. */
+  discover(): string | null;
   floor(): {
     patrons: Array<{ id: number; state: string; x: number; y: number }>;
     tables: Array<{ id: number; x: number; y: number; dirty: boolean; free: boolean }>;
@@ -97,6 +106,8 @@ export function installTestHooks(ctrl: GameController): void {
         orders: t.orders.reduce((n, o) => n + o.kegs, 0),
         shipmentsTo: w.shipments.filter((s) => s.toId === id).length,
         supplyLines: (w.supplyLines ?? []).filter((l) => l.toId === id).length,
+        restock: t.restockTarget,
+        menu: t.menu.map((m) => m.drinkId),
       };
     },
     focusId: () => ctrl.world.focus.tavernId,
@@ -107,6 +118,32 @@ export function installTestHooks(ctrl: GameController): void {
       r.finalCV = ctrl.world.companies[ctrl.world.playerId]!.cv;
       r.verdictDone = true;
       ctrl.step(1);
+    },
+    mess: (n) => {
+      const f = ctrl.world.floor;
+      if (!f) return;
+      for (const t of f.tables.slice(0, n)) t.dirty = true;
+      ctrl.step(1);
+    },
+    mood: (morale, fatigue) => {
+      for (const s of Object.values(ctrl.world.staff)) {
+        if (s.tavernId !== ctrl.world.focus.tavernId) continue;
+        s.morale = morale;
+        s.fatigue = fatigue;
+      }
+      ctrl.step(1);
+    },
+    cash: (n) => {
+      ctrl.world.companies[ctrl.world.playerId]!.cash = n;
+      ctrl.step(1);
+    },
+    discover: () => {
+      const me = ctrl.world.companies[ctrl.world.playerId]!;
+      const d = ctrl.content.drinks.find((x) => !me.unlocked.includes(x.id) && !x.recipe.spiritweed);
+      if (!d) return null;
+      me.unlocked.push(d.id);
+      newBrew.value = { drinkId: d.id, tavernId: ctrl.world.focus.tavernId, at: 0 };
+      return d.id;
     },
     floor: () => {
       const f = ctrl.world.floor;

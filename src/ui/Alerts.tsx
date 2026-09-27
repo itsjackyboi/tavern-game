@@ -1,4 +1,8 @@
+import type { GameController } from '../app/controller.ts';
+import { loanCap } from '../sim/company.ts';
+import { player } from '../sim/lookup.ts';
 import { money } from './describe.ts';
+import { sound } from './bus.ts';
 import { moneyNotes, receipts, visibleNotes } from './moneyFeed.ts';
 import { vm } from './vm.ts';
 import { townStyle } from './townColors.ts';
@@ -17,9 +21,23 @@ function partTone(p: string): string {
 }
 
 /** Along the bottom of the board: decision receipts, money in and out, and standing warnings. */
-export function Alerts() {
+export function Alerts({ ctrl }: { ctrl: GameController }) {
   const v = vm.value;
   if (!v) return null;
+  const c = ctrl.content;
+  const cap = loanCap(c, player(ctrl.world));
+  const rate = Math.round(c.economy.loanRatePerSeason * 100);
+  const borrow = (v.money === 'debt' || v.money === 'out' || v.bankruptIn !== null) && cap >= 100 && (
+    <span class="alert-borrow">
+      {[200, 100].filter((n) => cap >= n).map((n) => (
+        <button key={n} class={`btn btn-tiny ${n === 200 ? 'btn-primary' : ''}`} data-testid={`borrow-${n}`}
+          onClick={() => { ctrl.dispatch({ type: 'loan', amount: n }); sound('buy'); }}>
+          Borrow {n}◉
+        </button>
+      ))}
+      <span class="small">interest {rate}% a season</span>
+    </span>
+  );
   const notes = visibleNotes(moneyNotes.value);
   const recs = receipts.value;
   return (
@@ -55,11 +73,13 @@ export function Alerts() {
         {v.money && (
           <div class={`alert alert-${v.money}`} data-testid="money-alert">
             <span class="alert-icon">◉</span> {MONEY[v.money]}
+            {v.bankruptIn === null && borrow}
           </div>
         )}
         {v.bankruptIn !== null && (
           <div class="alert alert-debt" data-testid="bankrupt-alert">
             <span class="alert-icon">⛓</span> Creditors are circling: bankrupt in {v.bankruptIn}s unless you raise cash.
+            {borrow}
           </div>
         )}
         {v.view === 'floor' && v.dryTaps.length > 0 && (

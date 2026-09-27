@@ -420,9 +420,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.20');
+  await expect(page.getByTestId('version')).toHaveText('v1.21');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.20');
+  await expect(page.getByTestId('version')).toHaveText('v1.21');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {
@@ -580,6 +580,12 @@ test('a new brew chimes and says so; a dud batch is just crossed off', async ({ 
   await expect(drawer.getByTestId('recipe-new')).toContainText('Hall of Ale Amber');
   await expect(drawer.getByTestId('brew-result')).toContainText('A new recipe');
   await page.screenshot({ path: `${SHOTS}/brew-discovery.png`, animations: 'disabled' });
+  // Straight onto a tap from the notice: all taps are full, so pick one to swap out.
+  await page.keyboard.press('Escape');
+  await page.getByTestId('brew-swap').first().click();
+  await expect(page.getByTestId('brew-toast')).toContainText('On tap');
+  await expect(page.getByTestId('taps').locator('select').first()).toHaveValue('hall-amber');
+  await page.keyboard.press('k');
   await drawer.getByRole('button', { name: 'Hops' }).click();
   await drawer.getByRole('button', { name: 'Roto Spice' }).click();
   await drawer.getByRole('button', { name: /Brew a test batch/ }).click();
@@ -595,4 +601,75 @@ test('the hired-thugs decision says what each choice does', async ({ page }) => 
   await expect(card).toContainText('The gang is kept out');
   await expect(card).toContainText('Let them come');
   await expect(card).toContainText('brawls +90%');
+});
+
+test('QoL: tap drop-downs, restock stepper, send kegs from the Taps panel', async ({ page }) => {
+  await startRun(page, 'debug&seed=qol-taps');
+  const taps = page.getByTestId('taps');
+  const first = taps.getByTestId('tap-select').first();
+  const second = taps.getByTestId('tap-select').nth(1);
+  const secondWas = await second.inputValue();
+  // Choosing another tap's drink swaps the two.
+  await first.selectOption(secondWas);
+  await page.evaluate(() => window.__game!.step(2));
+  await expect(first).toHaveValue(secondWas);
+  const id = await page.evaluate(() => window.__game!.focusId());
+  expect((await page.evaluate((i) => window.__game!.tavern(i), id))!.menu[0]).toBe(secondWas);
+  const target = Number(await taps.getByTestId('restock-target').textContent());
+  await taps.getByTestId('restock-plus').click();
+  await page.evaluate(() => window.__game!.step(2));
+  await expect(taps.getByTestId('restock-target')).toHaveText(String(target + 1));
+  // Send kegs to a sister straight from this cellar.
+  await page.evaluate(() => window.__game!.grant(3000));
+  const sister = await page.evaluate(() => window.__game!.sister('shanty'));
+  await page.evaluate(() => window.__game!.step(2));
+  await taps.getByTestId('send-open').first().click();
+  await taps.getByTestId('send-ship').click();
+  await page.evaluate(() => window.__game!.step(2));
+  expect((await page.evaluate((id) => window.__game!.tavern(id), sister))!.shipmentsTo).toBe(1);
+});
+
+test('QoL: labelled top bar with a season bar counting down to Last Call', async ({ page }) => {
+  await startRun(page, 'debug&seed=qol-hud');
+  const hud = page.getByTestId('hud');
+  for (const label of ['Duckets', 'Company Value', 'Monopoly', 'Sisters']) await expect(hud).toContainText(label);
+  await expect(page.getByTestId('hud-season')).toContainText(/Last Call in \d+s/);
+  await page.evaluate(() => window.__game!.cash(-50));
+  await expect(hud).toContainText('◉ −50');
+});
+
+test('QoL: out of Duckets offers a loan right on the warning', async ({ page }) => {
+  await startRun(page, 'debug&seed=qol-loan');
+  await page.evaluate(() => window.__game!.cash(0));
+  await expect(page.getByTestId('money-alert')).toBeVisible();
+  await page.getByTestId('borrow-200').click();
+  await page.evaluate(() => window.__game!.step(2));
+  await expect(page.getByTestId('hud')).toContainText('Debt');
+});
+
+test('QoL: staff warnings, table nudge, notice log, rivals say what they do', async ({ page }) => {
+  await page.addInitScript(() => localStorage.removeItem('last-call:nudge-tables'));
+  await startRun(page, 'debug&seed=qol-warn');
+  // Unhappy staff get a Raise button right on their chip.
+  await page.keyboard.press('s');
+  await page.getByTestId('drawer').getByRole('button', { name: '25◉' }).first().click();
+  await page.keyboard.press('Escape');
+  await page.evaluate(() => window.__game!.mood(0.2, 0));
+  await expect(page.getByTestId('staff-warn').first()).toContainText('unhappy');
+  await page.getByTestId('staff-raise').first().click();
+  await page.evaluate(() => window.__game!.step(2));
+  await expect(page.getByTestId('staff-warn')).toHaveCount(0);
+  // Messy tables and nobody on the floor: a one-time nudge to hire a Server.
+  await page.evaluate(() => window.__game!.mess(4));
+  await expect(page.getByTestId('tables-nudge')).toBeVisible();
+  await page.getByTestId('nudge-hire').click();
+  await expect(page.getByTestId('tables-nudge')).toHaveCount(0);
+  // Notices are kept in the log after they fade.
+  await page.evaluate(() => window.__game!.step(40));
+  await page.getByTestId('log-open').click();
+  await expect(page.getByTestId('notice-log')).toBeVisible();
+  await page.getByTestId('log-open').click();
+  // Every rival row says what it has over you (or that it has nothing).
+  const edges = page.getByTestId('rival-edge');
+  if (await edges.count()) await expect(edges.first()).not.toBeEmpty();
 });

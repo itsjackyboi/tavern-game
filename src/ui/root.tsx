@@ -8,9 +8,8 @@ import type { Content } from '../content/schema.ts';
 import { installHotkeys } from '../input/hotkeys.ts';
 import { startOutbox } from '../leaderboard/outbox.ts';
 import type { GameViews } from '../views/PhaserGame.ts';
-import { drinkCss } from '../art/themes.ts';
-import { drinkOf, player, playerTaverns, seasonTicks } from '../sim/lookup.ts';
-import { drawer, emitCommand, seasonReport, sound, staffTavern, toast, uiFrame } from './bus.ts';
+import { player, playerTaverns, seasonTicks, staffAt } from '../sim/lookup.ts';
+import { drawer, emitCommand, newBrew, setNoticeClock, seasonReport, sound, staffTavern, toast, uiFrame } from './bus.ts';
 import { RESULT_TEXT } from './describe.ts';
 import { Drawers } from './drawers/Drawers.tsx';
 import { EndScreen } from './EndScreen.tsx';
@@ -47,6 +46,26 @@ export function urlFlags() {
 function newSeed(): string {
   // Seeds are chosen outside the sim; the sim itself never touches Math.random.
   return Math.floor(Math.random() * 2 ** 32).toString(36);
+}
+
+/** The season's largest outgoing, from the change in money flows since the season began. */
+function biggestCost(ctrl: GameController, now: Record<string, number>, mark: Record<string, number>): string | null {
+  let worst: [string, number] | null = null;
+  for (const [k, v] of Object.entries(now)) {
+    if (k === 'Loans') continue;
+    const d = v - (mark[k] ?? 0);
+    if (d < 0 && (!worst || d < worst[1])) worst = [k, d];
+  }
+  if (!worst) return null;
+  const amt = Math.round(-worst[1]).toLocaleString();
+  const w = ctrl.world;
+  const mine = playerTaverns(w).filter((t) => t.status !== 'closed' && t.status !== 'building');
+  if (worst[0] === 'Wages') {
+    const n = mine.reduce((s, t) => s + staffAt(w, t.id).length, 0);
+    return `wages ${amt} (${n} staff)`;
+  }
+  if (worst[0] === 'Rent') return `rent ${amt} (${mine.length} tavern${mine.length === 1 ? '' : 's'})`;
+  return `${worst[0].toLowerCase()} ${amt}`;
 }
 
 export function App({ content }: { content: Content }) {
@@ -107,6 +126,7 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
     const unbindKeys = installHotkeys(ctrl);
     const unbindAudio = bindAudio(ctrl);
     const unbindMoney = bindMoneyFeed(ctrl);
+    setNoticeClock(() => ctrl.world.tick);
     // Reading How to play pauses the game; closing it picks up where you left off.
     const unbindHelp = drawer.subscribe((d) => {
       if (d !== 'staff') staffTavern.value = null;
@@ -121,6 +141,8 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
     let bellWas = ctrl.world.floor?.lastCallRung ?? false;
     let seasonsWas = ctrl.world.events.seasonsClosed ?? 0;
     let yearsWas = ctrl.world.companies[ctrl.world.playerId]?.yearHistory.length ?? 0;
+    // Money flows at the start of the season, so the season-end notice can name the biggest cost.
+    let flowsMark: Record<string, number> = { ...(ctrl.world.companies[ctrl.world.playerId]?.flows ?? {}) };
     const unsub = ctrl.subscribe(() => {
       views.current?.setView(ctrl.world.focus.view);
       const bell = ctrl.world.floor?.lastCallRung ?? false;
@@ -146,7 +168,9 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
         }
         if (me) {
           const p = Math.round(me.seasonProfit);
-          toast(`Season closed: ${p >= 0 ? 'profit +' : 'loss −'}${Math.abs(p).toLocaleString()} Duckets`, p >= 0 ? 'good' : 'info');
+          const why = biggestCost(ctrl, me.flows, flowsMark);
+          flowsMark = { ...me.flows };
+          toast(`Season closed: ${p >= 0 ? 'profit +' : 'loss −'}${Math.abs(p).toLocaleString()} Duckets${why ? ` · biggest cost: ${why}` : ''}`, p >= 0 ? 'good' : 'info', undefined, 7000);
         }
       }
       if (me && me.yearHistory.length !== yearsWas) {
@@ -170,7 +194,7 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
           const me = player(ctrl.world);
           const id = me.unlocked[me.unlocked.length - 1];
           if (id) {
-            toast(`New brew discovered: ${drinkOf(ctrl.content, id).name}! Put it on a tap in Menu (M).`, 'good', drinkCss(ctrl.content, id));
+            newBrew.value = { drinkId: id, tavernId: ctrl.world.focus.tavernId, at: performance.now() };
             sound('discover');
           }
           continue;
@@ -217,8 +241,8 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
         <LeftPanel ctrl={ctrl} />
         <div class="board">
           <div class="board-canvas" ref={host} data-testid="board" />
-          <Alerts />
-          <Toasts />
+          <Alerts ctrl={ctrl} />
+          <Toasts ctrl={ctrl} />
           <SeasonReport ctrl={ctrl} />
           <MenuGuide ctrl={ctrl} />
           <InboxPopout ctrl={ctrl} />

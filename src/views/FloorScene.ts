@@ -10,6 +10,7 @@ import { drinkOf } from '../sim/lookup.ts';
 import { calNow } from '../sim/time.ts';
 import type { FloorState, Patron, Worker } from '../sim/types.ts';
 import { hover, sound, tutorialTarget } from '../ui/bus.ts';
+import { tasteNote } from '../ui/describe.ts';
 
 // The zoomed-in tavern floor. Reads the sim every frame; all input becomes
 // Commands dispatched to the controller.
@@ -514,8 +515,11 @@ export class FloorScene extends Phaser.Scene {
     if (h.kind === 'ordered' || h.kind === 'waiting') {
       const p = f.patrons.find((x) => x.id === h.id);
       if (!p) return;
-      const seg = c.segments.find((s) => s.id === p.seg)?.name ?? p.seg;
-      hover.value = `${p.regular ? `${p.regular} · ` : ''}${seg}${p.vip ? ' ★' : ''}${p.drinkId && p.state === 'ordered' ? ` · wants ${drinkOf(c, p.drinkId).name}` : ''}`;
+      const segDef = c.segments.find((s) => s.id === p.seg);
+      const seg = segDef?.name ?? p.seg;
+      const t = this.ctrl.world.taverns[f.tavernId];
+      const taste = segDef && t ? tasteNote(c, segDef, t, p.id, calNow(this.ctrl.world, c.time).isNight) : '';
+      hover.value = `${p.regular ? `${p.regular} · ` : ''}${seg}${p.vip ? ' ★' : ''}${taste ? ` · ${taste}` : ''}${p.drinkId && p.state === 'ordered' ? ` · wants ${drinkOf(c, p.drinkId).name}` : ''}`;
     } else if (h.kind === 'tap') {
       const t = this.ctrl.world.taverns[f.tavernId]!;
       hover.value = `${drinkOf(c, h.drinkId).name} · tap ${t.tapLevels[h.drinkId] ?? 0}/${c.economy.kegServings} · cellar ${t.cellar[h.drinkId] ?? 0} kegs`;

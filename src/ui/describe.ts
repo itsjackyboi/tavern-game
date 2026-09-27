@@ -1,4 +1,6 @@
-import type { Content, Drink, Upgrade } from '../content/schema.ts';
+import type { Category, Content, Drink, Segment, Upgrade } from '../content/schema.ts';
+import { drinkOf, prefOf } from '../sim/lookup.ts';
+import type { Tavern } from '../sim/types.ts';
 
 // Card and tooltip text is generated from stats, never written as prose
 // (docs/PLAN.md §3): names carry the lore, descriptions carry the numbers.
@@ -64,3 +66,18 @@ export const RESULT_TEXT: Record<string, string> = {
   ended: 'The run is over',
   bad: 'Can’t do that',
 };
+
+/**
+ * One taste for a patron's hover line: either the kind of drink their crowd
+ * likes best, or one on your taps they don't care for. Never both, and never
+ * what they'd pay. Which one is fixed per patron.
+ */
+export function tasteNote(c: Content, seg: Segment, t: Tavern, patronId: number, night: boolean): string {
+  const cats = [...new Set(c.drinks.map((d) => d.category))] as Category[];
+  const liked = cats.map((k) => [k, prefOf(seg, k, night)] as const).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1])[0];
+  const onTap = [...new Set(t.menu.slice(0, t.taps).map((m) => drinkOf(c, m.drinkId).category))];
+  const disliked = onTap.map((k) => [k, prefOf(seg, k, night)] as const).filter(([, v]) => v <= 0).sort((a, b) => a[1] - b[1])[0];
+  const showDislike = disliked && (patronId % 2 === 1 || !liked);
+  if (showDislike) return disliked[1] < 0 ? `dislikes ${disliked[0]}` : `doesn't care for ${disliked[0]}`;
+  return liked ? `prefers ${liked[0]}` : '';
+}

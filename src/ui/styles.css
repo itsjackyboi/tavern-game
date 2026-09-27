@@ -1165,3 +1165,57 @@ body[data-tut='drawers'] .bottom-bar .btn:not(.view-toggle):not(.bell) { animati
 .sr-row .sr-town { color: var(--town, var(--parchment)); }
 .nw-table tr.has-town td:first-child { box-shadow: inset 5px 0 0 var(--town); padding-left: 9px; color: var(--town); }
 .tavern-report .tr-head { border-left: 6px solid var(--town, transparent); padding-left: 8px; }
+
+/* v1.21 QoL: taps panel */
+.tap-select { width: 110px; flex: 0 0 auto; font-size: 15px; padding: 0 2px; background: #1a120c; border: 1px solid #4a3826; border-radius: 3px; font-family: inherit; }
+.stock-row.empty-tap .tap-select { width: 100%; color: var(--muted, #a99); font-style: italic; }
+.send-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin: 0 0 4px 8px; font-size: 14px; }
+.send-row select { font-size: 14px; padding: 0 2px; }
+.send-row label.check { margin: 0; font-size: 14px; }
+.restock-row { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 4px; font-size: 15px; }
+.restock-row label.check { margin: 0; font-size: 15px; }
+.btn.btn-tiny.on { border-color: var(--gold, #e9a23b); color: var(--gold, #e9a23b); }
+
+/* v1.21 QoL: labelled top bar and season bar */
+.hud { align-items: flex-end; }
+.hud-item { display: inline-flex; flex-direction: column; align-items: flex-start; line-height: 1.05; }
+.hud-item.btn { flex-direction: row; align-self: center; }
+.hud-label { font-family: var(--font-mini); font-size: 11px; color: var(--muted); letter-spacing: 0.02em; white-space: nowrap; }
+.hud-sisters { display: inline-flex; flex-direction: column; }
+.hud-sisters .pips { display: inline-flex; gap: 4px; padding: 3px 0 2px 2px; }
+.hud-season { min-width: 150px; }
+.hud-season .hud-phase { width: auto; display: inline; }
+.hud-season .lc-now { color: var(--gold); }
+.season-bar { position: relative; display: block; width: 150px; height: 10px; margin: 4px 0 3px; background: #140d08; border: 2px solid #4a3020; }
+.season-bar > span { position: absolute; top: 0; bottom: 0; }
+.sb-day { left: 0; background: #6b5a2a; }
+.sb-night { background: #2a3150; }
+.sb-lc { right: 0; background: #8a4e12; }
+.sb-now { width: 2px; margin-left: -1px; background: #fff; box-shadow: 0 0 3px #fff; }
+
+/* v1.21 QoL: action toasts, borrow, notice log */
+.brew-toast, .nudge-toast { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; cursor: default; font-size: 22px; }
+.brew-toast .btn, .nudge-toast .btn { font-size: 15px; }
+.brew-swap { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 16px; }
+.brew-on { color: #8fd98f; font-size: 17px; }
+.alert-borrow { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; pointer-events: auto; vertical-align: middle; }
+.alert-borrow .btn { font-size: 15px; }
+.alert-borrow .small { font-size: 13px; opacity: 0.85; }
+.feed h3 { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.feed-head-right { display: inline-flex; align-items: center; gap: 4px; }
+.feed-head-right .btn { font-size: 12px; padding: 0 5px; }
+.feed .tick-line.pinned { cursor: pointer; outline: 2px solid #e0524a; outline-offset: -2px; opacity: 1 !important; }
+.feed .tick-line.pinned::after { content: ' ✕'; color: #e0524a; }
+.log-lines { overflow-y: auto; }
+.log-row { display: flex; align-items: flex-start; gap: 4px; }
+.log-row .tick-line { flex: 1; margin: 1px 0; }
+.log-when { font-family: var(--font-mini); font-size: 10px; color: var(--muted); padding-top: 5px; min-width: 28px; }
+.feed .tag-notice { background: #3b4a5a; }
+.chip { flex-wrap: wrap; }
+.chip.chip-warn { outline: 2px solid #e0524a; background: #3a1c14; }
+.chip-fix { display: flex; align-items: center; gap: 6px; flex-basis: 100%; font-size: 14px; padding: 1px 0 2px 22px; }
+.chip-fix b { color: #ff8a7a; font-weight: normal; }
+.chip-fix .btn { font-size: 13px; padding: 0 5px; }
+.rival-edge { font-size: 13px; color: var(--muted); margin: -2px 0 4px 8px; line-height: 1.15; }
+.rival-edge.hot { color: #ff8a7a; }
+.rival-note { margin: 2px 0 0; font-size: 12px; }

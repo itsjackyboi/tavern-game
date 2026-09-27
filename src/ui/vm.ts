@@ -37,6 +37,8 @@ export interface ViewModel {
   floorAlerts: number;
   /** Seconds until bankruptcy while creditors are circling, else null. */
   bankruptIn: number | null;
+  /** Progress through the current season: 0..1, where day ends and Last Call starts, seconds to Last Call. */
+  season: { frac: number; dayEnd: number; lcStart: number; lcIn: number | null; holiday: boolean };
 }
 
 export const vm = signal<ViewModel | null>(null);
@@ -86,6 +88,13 @@ export function computeVm(ctrl: GameController): ViewModel {
     money,
     dryTaps,
     floorAlerts,
+    season: {
+      frac: cal.progress,
+      dayEnd: cal.segment === 'holidayKeg' || cal.segment === 'veilfrost' ? 0 : c.time.dayFraction,
+      lcStart: cal.segment === 'holidayKeg' ? 1 : 1 - c.time.lastCallTicks / cal.segmentTicks,
+      lcIn: cal.phase === 'lastCall' || cal.segment === 'holidayKeg' ? null : Math.max(0, Math.ceil((cal.segmentTicks - c.time.lastCallTicks - cal.segmentTick) / 20)),
+      holiday: cal.segment === 'holidayKeg',
+    },
     bankruptIn: w.run.lowCashSince === null ? null : Math.max(0, Math.ceil((w.run.lowCashSince + seasonTicks(c) - w.tick) / 20)),
   };
 }

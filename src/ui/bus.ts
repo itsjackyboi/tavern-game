@@ -15,9 +15,21 @@ export const seasonReport = signal<{ id: number; rows: SeasonReportRow[] } | nul
 export interface Toast { id: number; text: string; kind: 'info' | 'error' | 'good'; count: number; color?: string }
 export const toasts = signal<Toast[]>([]);
 export const uiFrame = signal(0);
+/** A recipe just discovered, offered straight onto a tap (null = none). */
+export const newBrew = signal<{ drinkId: string; tavernId: string; at: number } | null>(null);
 export const hover = signal<string | null>(null);
 /** Floor tile the tutorial is pointing at, if any. */
 export const tutorialTarget = signal<{ x: number; y: number } | null>(null);
+
+/** Pop-up notices, kept after they fade so the log can show them again. */
+export interface Notice { id: number; tick: number; text: string; kind: Toast['kind'] }
+export const noticeHistory = signal<Notice[]>([]);
+let noticeClock = (): number => 0;
+/** Tells the notice history what time it is in the game (the world's tick). */
+export function setNoticeClock(fn: () => number): void {
+  noticeClock = fn;
+  noticeHistory.value = [];
+}
 
 let toastId = 0;
 const toastTimers = new Map<number, ReturnType<typeof setTimeout>>();
@@ -31,8 +43,8 @@ export function dismissToast(id: number): void {
   toasts.value = toasts.value.filter((t) => t.id !== id);
 }
 /** Shows a message over the board. Repeats of the same message merge into one with a ×N count. */
-export function toast(text: string, kind: 'info' | 'error' | 'good' = 'info', color?: string): void {
-  const ms = kind === 'error' ? 4000 : 2800;
+export function toast(text: string, kind: 'info' | 'error' | 'good' = 'info', color?: string, holdMs?: number): void {
+  const ms = holdMs ?? (kind === 'error' ? 4000 : 2800);
   if (kind === 'error') sound('error');
   const same = toasts.value.find((t) => t.text === text && t.kind === kind);
   if (same) {
@@ -41,6 +53,7 @@ export function toast(text: string, kind: 'info' | 'error' | 'good' = 'info', co
     return;
   }
   const id = ++toastId;
+  noticeHistory.value = [...noticeHistory.value.slice(-49), { id, tick: noticeClock(), text, kind }];
   toasts.value = [...toasts.value.slice(-2), { id, text, kind, count: 1, color }];
   expire(id, ms);
 }

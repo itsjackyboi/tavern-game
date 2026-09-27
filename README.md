@@ -28,6 +28,22 @@ The whole game is playable end to end:
 
 All end-screen text is final.
 
+### v1.21
+Quality-of-life fixes picked from the QoL trials:
+- **Taps panel:**
+  - Each tap has a drop-down: pick any drink you know to swap it (picking one on another tap swaps the two).
+  - The auto-restock target has its own − / + right there.
+  - ⇢ on a tap opens **Send…**: ship kegs from this cellar to another of your taverns without the map.
+- **New brews:** the discovery notice has **Put on tap** (or, when taps are full, which drink to swap out).
+- **Out of Duckets:** the warning carries **Borrow 200◉ / 100◉** buttons.
+- **Notice log:** **Log** in Word around the Isles shows the last 50 lines and pop-up notices, colour-coded by town. Alerts (closures, staff leaving, creditors) stay pinned until clicked.
+- **Top bar:** every number is labelled. A **season bar** shows day, night and Last Call, with a "Last Call in Ns" countdown.
+- **Staff warnings:** unhappy staff get a red chip with a **Raise** button; worn-out staff get **Hire help**.
+- **Rivals here** says what each rival has over you (cheaper, better, or a drink you don't pour); a seasoned informant adds the prices and qualities.
+- **Tables nudge:** the first time 3+ tables are messy with nobody on the floor, a one-time tip offers to hire a Server.
+- **Season-end notice** names the biggest cost (for example "wages 60 (3 staff)").
+- **Patron hover** shows one taste: the kind of drink their crowd prefers, or one on your taps they don't care for.
+
 ### v1.20
 - **Town colours:** Aleforge amber, Shanty Town teal, Providence violet, Roto Kaiishi a light red (clearly different from "problem" red). They mark:
   - the tavern tabs and Your taverns

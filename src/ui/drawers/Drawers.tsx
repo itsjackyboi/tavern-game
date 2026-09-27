@@ -599,8 +599,8 @@ function HelpDrawer() {
       <section class="panel-block">
         <h3>The screen</h3>
         <ul class="small">
-          <li><b>Top:</b> year and season, day/night, run clock, Duckets, Company Value and rank, the monopoly bar, and your sister taverns.</li>
-          <li><b>Left:</b> your tavern's taps, staff and local rivals, then <b>Word around the Isles</b>: news and intel on your competition. Without an informant you only hear gossip; hire a Drifter Informant (seasoned or master for more) to learn what rivals are doing, and get a report on them each season.</li>
+          <li><b>Top:</b> labelled: year and season, a season bar (day, night, Last Call, with a countdown), run clock, Duckets, Company Value and rank, the monopoly bar, and your sister taverns.</li>
+          <li><b>Left:</b> your tavern's taps (pick a drink from a tap's drop-down; ⇢ sends kegs to another of your taverns; set how many kegs auto-restock keeps), staff (a red chip means unhappy or worn out, with the fix) and local rivals (with what each has over you), then <b>Word around the Isles</b> (Log shows the last 50 lines and notices): news and intel on your competition. Without an informant you only hear gossip; hire a Drifter Informant (seasoned or master for more) to learn what rivals are doing, and get a report on them each season.</li>
           <li><b>Right:</b> every company's Company Value (yours highlighted), then <b>Your taverns</b>, then decisions waiting for you. Requests (the inbox) pop out of the bottom-right corner of the floor. Each town has its own colour, and anything about a tavern is marked in its town's colour.</li>
           <li><b>Decisions:</b> each choice lists its effects; the bar and seconds show the time left; the “if you wait” option happens if you don't choose. A receipt then shows what happened.</li>
           <li><b>Bottom of the board:</b> money in (blue) and out (orange) with the reason, and red banners that stay until a problem is fixed (money, dry taps). The Ledger (F) has the full account.</li>
