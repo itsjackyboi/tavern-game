@@ -20,7 +20,9 @@ export function EndScreen({ ctrl, onNewRun }: { ctrl: GameController; onNewRun: 
   if (!v || (r.status !== 'won' && r.status !== 'lost' && r.status !== 'bankrupt')) return null;
   const kind = r.status === 'won' ? (r.winType ?? 'sponsor') : r.status;
   const f = ctrl.content.finale;
-  const fill = (l: string) => l.replace(/\{company\}/g, companyName(ctrl));
+  // The company Thomas Thatcher Sr. picked instead: the biggest one that isn't yours.
+  const winner = league(w).find((co) => !co.isPlayer)?.name ?? 'another company';
+  const fill = (l: string) => l.replace(/\{company\}/g, companyName(ctrl)).replace(/\{winner\}/g, winner);
   const lines = (kind === 'monopoly' ? f.monopoly : kind === 'sponsor' ? f.sponsor : kind === 'lost' ? f.lost : f.bankrupt).map(fill);
   const placeholder = lines.some((l) => l.includes('[PLACEHOLDER'));
   const won = r.status === 'won';

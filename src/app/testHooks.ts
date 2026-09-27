@@ -30,6 +30,8 @@ export interface TestHooks {
   /** Summary of a tavern for assertions. */
   tavern(id: string): { staff: number; cellar: Record<string, number>; orders: number; shipmentsTo: number; supplyLines: number } | null;
   focusId(): string;
+  /** Debug only: ends the run as a loss or bankruptcy (to see the end screens). */
+  end(kind: 'lost' | 'bankrupt'): void;
   floor(): {
     patrons: Array<{ id: number; state: string; x: number; y: number }>;
     tables: Array<{ id: number; x: number; y: number; dirty: boolean; free: boolean }>;
@@ -98,6 +100,14 @@ export function installTestHooks(ctrl: GameController): void {
       };
     },
     focusId: () => ctrl.world.focus.tavernId,
+    end: (kind) => {
+      const r = ctrl.world.run;
+      r.status = kind;
+      r.endTick = ctrl.world.tick;
+      r.finalCV = ctrl.world.companies[ctrl.world.playerId]!.cv;
+      r.verdictDone = true;
+      ctrl.step(1);
+    },
     floor: () => {
       const f = ctrl.world.floor;
       if (!f) return null;

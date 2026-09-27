@@ -3,7 +3,7 @@
   "titles": {
     "monopoly": "State sanctioned monopoly!",
     "sponsor": "The Drunken Trials are back!",
-    "lost": "Another company was chosen",
+    "lost": "Thomas Thatcher Sr. has a favorite brew...and its not yours.",
     "bankrupt": "Bankrupt"
   },
   "monopoly": [
@@ -15,7 +15,7 @@
     "“The only drink I'd trust to choose a king comes from {company}, that's for sure!”"
   ],
   "lost": [
-    "[PLACEHOLDER — Year 463. The Trials return, but another company is named sponsor.]"
+    "The year is 463 and the Drunken Trials have been revived for the first time in 51 years! Thomas Thatcher Sr. has chosen {winner} as the exclusive sponsor of the event."
   ],
   "bankrupt": [
     "[PLACEHOLDER — The creditors take the kegs. Your company is finished.]"

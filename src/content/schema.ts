@@ -472,7 +472,7 @@ export const Rumors = z.record(z.string(), z.array(z.string().min(1).max(90)).mi
 export const Winds = z.record(z.string(), z.array(z.string().min(1).max(80)).min(1));
 export const Finale = z.strictObject({
   placeholder: z.boolean(),
-  /** End-screen headings. `{company}` in any line becomes the player's company name. */
+  /** End-screen headings. `{company}` in any line becomes the player's company name; `{winner}` the company chosen instead (losses). */
   titles: z.strictObject({ monopoly: z.string(), sponsor: z.string(), lost: z.string(), bankrupt: z.string() }),
   monopoly: z.array(z.string()).min(1),
   sponsor: z.array(z.string()).min(1),

@@ -231,6 +231,22 @@ test('Your taverns: list under Company Value, trouble flashes, reports, remote s
   expect(errors).toEqual([]);
 });
 
+test('end screens: the lost screen names the winner; bankruptcy still shows its placeholder', async ({ page }) => {
+  await startRun(page, 'debug&seed=ends');
+  await page.evaluate(() => window.__game!.end('lost'));
+  const end = page.getByTestId('end-screen');
+  await expect(end).toContainText('Thomas Thatcher Sr. has a favorite brew');
+  await expect(end).toContainText('has chosen');
+  await expect(end).not.toContainText('{winner}');
+  await expect(end.locator('.placeholder-banner')).toHaveCount(0);
+  await page.screenshot({ path: `${SHOTS}/end-lost.png`, animations: 'disabled' });
+
+  await startRun(page, 'debug&seed=ends2');
+  await page.evaluate(() => window.__game!.end('bankrupt'));
+  await expect(page.getByTestId('end-screen')).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/end-bankrupt.png`, animations: 'disabled' });
+});
+
 test('map view, drawers and the sim keep running across views', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -364,9 +380,9 @@ test('drag a waiting patron onto a table with the mouse', async ({ page }) => {
 
 test('version tag shows on the title and in game', async ({ page }) => {
   await page.goto('/?debug&seed=ver');
-  await expect(page.getByTestId('version')).toHaveText('v1.12');
+  await expect(page.getByTestId('version')).toHaveText('v1.13');
   await page.getByTestId('play').click();
-  await expect(page.getByTestId('version')).toHaveText('v1.12');
+  await expect(page.getByTestId('version')).toHaveText('v1.13');
 });
 
 test('decisions sit bottom-right, show their effects, and leave a receipt', async ({ page }) => {
