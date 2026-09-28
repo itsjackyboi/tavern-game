@@ -105,8 +105,8 @@ const STEPS: Step[] = [
       const cal = ctrl.calendar();
       const left = Math.max(0, Math.ceil((cal.segmentTicks - ctrl.content.time.lastCallTicks - cal.segmentTick) / 20));
       return (
-        'Each season ends with Last Call: the bell button lights up. Ring it (B) to close the doors; patrons inside get their last orders. ' +
-        'If you don’t, stragglers are turned out and you pay a fine. ' +
+        'Each season ends with Last Call: the bell button lights up. Ring it (B) to close the doors at all your taverns; patrons inside get one last drink. ' +
+        'If you don’t, the doors close on their own at the end of the season. ' +
         (cal.phase === 'lastCall' ? 'It’s Last Call now!' : `Next Last Call in about ${left}s.`)
       );
     },

@@ -13,6 +13,5 @@
   "ownerQueueMax": 6,
   "ownersTouch": 0.15,
   "delegationEff": 0.92,
-  "tapLowFraction": 0.25,
-  "lastCallStragglerFine": 4
+  "tapLowFraction": 0.25
 }

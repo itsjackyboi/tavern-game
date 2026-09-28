@@ -425,6 +425,8 @@ export interface World {
   tick: number;
   /** Ticks the calendar has waited at closing time for the last patrons to leave. Optional for older saves. */
   clockHold?: number;
+  /** Shift (see floor shiftKey) in which you rang Last Call: it closes the doors at all your taverns. */
+  bellShift?: number;
   rng: Record<string, RngState>;
   focus: { tavernId: Id; view: 'floor' | 'world' };
   playerId: Id;

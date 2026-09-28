@@ -143,6 +143,12 @@
         "src/content/data/strings/records.json"
       ],
       "url": "./src/content/schemas/strings.records.schema.json"
+    },
+    {
+      "fileMatch": [
+        "src/content/data/strings/intel.json"
+      ],
+      "url": "./src/content/schemas/strings.intel.schema.json"
     }
   ]
 }

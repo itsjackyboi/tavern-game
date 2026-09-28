@@ -107,14 +107,60 @@ describe('last call and closing time', () => {
     expect(w.floor!.patrons.some((p) => staying.includes(p.id))).toBe(false);
   });
 
-  it('without the bell, closing time still waits, and stragglers are fined', () => {
+  it('without the bell, closing time still waits, and nobody is fined for the last drinks', () => {
     const w = fresh('nobell');
     const bot = new Bot(PROFILES.skilled!);
     toLastCall(w, bot);
-    const before = inside(w).length;
     while (calNow(w, c.time).phase === 'lastCall' && (w.clockHold ?? 0) === 0) stepWorld(w, c, []);
-    if (before > 3) expect(player(w).flows['Fines'] ?? 0).toBeLessThan(0);
+    expect(player(w).flows['Fines'] ?? 0).toBe(0);
     expect(w.floor!.lastCallRung || inside(w).length === 0).toBe(true);
+  });
+
+  /** An open sister in Shanty Town, and the floor at Last Call with people inside. */
+  const withSisterAtLastCall = (seed: string) => {
+    const w = fresh(seed);
+    player(w).cash = 6000;
+    playerTaverns(w)[0]!.rep = 60;
+    stepWorld(w, c, [{ type: 'found', city: 'shanty' }]);
+    const bot = new Bot(PROFILES.skilled!);
+    const sis = () => playerTaverns(w).find((t) => t.city === 'shanty')!;
+    while (sis().status === 'building') stepWorld(w, c, bot.think(w, c).filter((cmd) => cmd.type !== 'ringBell' && cmd.type !== 'focus'));
+    toLastCall(w, bot);
+    return { w, home: playerTaverns(w)[0]!, sis: sis() };
+  };
+
+  it('switching taverns while closing up never fines you or restarts the wait', () => {
+    const { w, home, sis } = withSisterAtLastCall('switch-close');
+    // Reach closing time (the calendar holds while people finish).
+    let guard = 0;
+    while (w.floor!.closingSince === undefined && guard++ < 3000) stepWorld(w, c, []);
+    expect(w.floor!.closingSince).toBeDefined();
+    const since = w.floor!.closingSince;
+    for (let i = 0; i < 6; i++) {
+      stepWorld(w, c, [{ type: 'focus', tavernId: i % 2 === 0 ? sis.id : home.id }]);
+      if (w.floor!.patrons.length) {
+        expect(w.floor!.closingSince).toBe(since);
+        expect(w.floor!.patrons.every((p) => p.drinksLeft <= 1)).toBe(true);
+      }
+    }
+    expect(player(w).flows['Fines'] ?? 0).toBe(0);
+  });
+
+  it('the bell closes the doors at all your taverns', () => {
+    const { w, home, sis } = withSisterAtLastCall('bell-all');
+    expect(w.floor!.tavernId).toBe(home.id);
+    stepWorld(w, c, [{ type: 'ringBell' }]);
+    // The sister takes no one new while its doors are shut.
+    const queueBefore = sis.agg.queue ?? 0;
+    run(w, 40);
+    expect(sis.agg.queue ?? 0).toBeLessThanOrEqual(queueBefore);
+    // Walk into the sister: doors already shut, last orders only, no line outside.
+    stepWorld(w, c, [{ type: 'focus', tavernId: sis.id }]);
+    if (calNow(w, c.time).phase === 'lastCall') {
+      expect(w.floor!.lastCallRung).toBe(true);
+      expect(w.floor!.patrons.some((p) => p.state === 'waiting')).toBe(false);
+      expect(w.floor!.patrons.every((p) => p.drinksLeft <= 1)).toBe(true);
+    }
   });
 
   it('the wait is capped, so the game can never stall', () => {

@@ -104,9 +104,17 @@ export function setFocus(w: World, c: Content, tavernId: string): boolean {
   const t = w.taverns[tavernId];
   if (!t || t.companyId !== w.playerId || t.status === 'closed' || t.status === 'building') return false;
   if (w.focus.tavernId === tavernId && w.floor) return true;
+  // Switching during closing time: the new room is closing up too, on the same
+  // clock (the wait isn't restarted), with last orders only.
+  const closingSince = w.floor?.closingSince;
   collapseFloor(w, c);
   w.focus.tavernId = tavernId;
   t.attention = 1;
   w.floor = materializeFloor(w, c, t);
+  if (closingSince !== undefined) {
+    w.floor.closingSince = closingSince;
+    w.floor.lastCallRung = true;
+    for (const p of w.floor.patrons) p.drinksLeft = Math.min(p.drinksLeft, 1);
+  }
   return true;
 }

@@ -121,7 +121,6 @@ export const FloorTuning = z.strictObject({
   /** Staff and managers run at this fraction of skilled play (docs/PLAN.md §2.5). */
   delegationEff: fraction,
   tapLowFraction: fraction,
-  lastCallStragglerFine: z.number().nonnegative(),
 });
 export type FloorTuning = z.infer<typeof FloorTuning>;
 

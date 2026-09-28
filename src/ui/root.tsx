@@ -146,7 +146,10 @@ function GameScreen({ ctrl, onNewRun, onExit }: { ctrl: GameController; onNewRun
     const unsub = ctrl.subscribe(() => {
       views.current?.setView(ctrl.world.focus.view);
       const bell = ctrl.world.floor?.lastCallRung ?? false;
-      if (bell && !bellWas) toast('Doors closed: no more patrons tonight. Serve the last orders; the next season starts once they leave.', 'good');
+      if (bell && !bellWas) {
+        const many = playerTaverns(ctrl.world).filter((t) => t.status !== 'closed' && t.status !== 'building').length > 1;
+        toast(`Doors closed${many ? ' at all your taverns' : ''}: no more patrons tonight. Everyone inside gets one last drink; the next season starts once they leave.`, 'good');
+      }
       bellWas = bell;
       // A season (and at the Holiday Keg's end, a year) closed: say how it went, once.
       const me = ctrl.world.companies[ctrl.world.playerId];

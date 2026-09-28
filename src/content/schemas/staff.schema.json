@@ -81,7 +81,8 @@
               "door",
               "cellar",
               "stage",
-              "intel"
+              "intel",
+              "kitchen"
             ]
           },
           "wageMult": {

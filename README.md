@@ -28,6 +28,12 @@ The whole game is playable end to end:
 
 All end-screen text is final.
 
+### v1.23
+- **Closing time, fairer:** whoever is inside when the doors close may have one last drink, and that's never a fine (the straggler fine is gone).
+- **Switching taverns while closing up** no longer fines you, and doesn't restart the closing wait: the room you switch into is closing up too, on the same clock.
+- **The Last Call bell rings at all your taverns:** the doors close everywhere you own, and walking into another of your taverns afterwards finds it shut, serving last orders.
+- **Staff in the feed** are shown job icon first, then skill level, then name (e.g. "🍺 Seasoned Orrin Vale has left The Last Call").
+
 ### v1.22
 - **Cook (new job):** a Galley Cook works out of sight in the kitchen, with nothing for you to do. With a cook, patrons have 20–35% more patience (more with skill) and one in five stays for another round. Hire one in Staff (S) or say yes to "A cook wants your kitchen" (that decision now really adds the cook to your staff). The best cook in a tavern is the one that counts.
 
@@ -169,7 +175,6 @@ Quality-of-life fixes picked from the QoL trials:
 - **Home page:** big "Who's pouring?" fields for your innkeeper name and tavern name. Both are remembered and shown on the boards. Runs are recorded automatically when they end.
 - **Closing time:** the season no longer moves on while patrons are still inside.
   - The doors close and the calendar waits (up to 45 s) for the last of them.
-  - Without the bell, stragglers are still fined.
 - **Clearer decisions:** options whose only effect is a cost say what they do, e.g. "Post extra doormen: the gang is kept out". The hired-thugs decision is reworded.
 
 ### v1.4

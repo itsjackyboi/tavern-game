@@ -5,6 +5,7 @@ import {
   servingPrice, isFlagship, staffAt, tavernUpgradeSum,
 } from './lookup.ts';
 import { calNow } from './time.ts';
+import { bellRung } from './floor/floor.ts';
 import type { Staff, Tavern, World } from './types.ts';
 
 // Equation-level simulation for every tavern that isn't on screen (1 Hz).
@@ -100,8 +101,11 @@ export function stepAggregate(w: World, c: Content, t: Tavern): void {
 
   // Seating.
   const room = clamp((nSeats - t.agg.occupancy) / Math.max(1, nSeats * 0.25), 0, 1);
-  const admitted = drinks.length ? rate * room : 0;
-  const blocked = rate - admitted;
+  // Last Call rung (the bell rings at all your taverns): no one new comes in.
+  const doorsShut = t.companyId === w.playerId && cal.phase === 'lastCall' && bellRung(w, c);
+  if (doorsShut) t.agg.queue = 0;
+  const admitted = drinks.length && !doorsShut ? rate * room : 0;
+  const blocked = doorsShut ? 0 : rate - admitted;
   t.agg.occupancy = Math.max(0, t.agg.occupancy + admitted - t.agg.occupancy / dwell);
   t.kpi.walkouts += blocked;
 

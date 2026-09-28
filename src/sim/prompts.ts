@@ -3,7 +3,7 @@ import { spend, track } from './economy/ledger.ts';
 import { effectLine } from './effectText.ts';
 import { syncFloor } from './floor/floor.ts';
 import { log } from './log.ts';
-import { addModifier, clamp, fmt, idx, managerOf, player, playerTaverns, staffAt } from './lookup.ts';
+import { addModifier, clamp, fmt, idx, managerOf, player, playerTaverns, staffAt, staffLabel } from './lookup.ts';
 import { chance } from './rng.ts';
 import { makeStaff } from './world.ts';
 import type { ActivePrompt, Tavern, World } from './types.ts';
@@ -137,8 +137,8 @@ export function applyEffects(w: World, c: Content, effects: EffectT[], p: Active
           s = e.best ? pool.sort((a, b) => b.competence - a.competence)[0] : pool[0];
         }
         if (s) {
-          log(w, 'alert', `${s.name} has left.`, t?.city ?? null);
           const tv = w.taverns[s.tavernId];
+          log(w, 'alert', `${staffLabel(s)} has left${tv ? ` ${tv.name}` : ''}.`, tv?.city ?? t?.city ?? null);
           if (tv?.managerId === s.id) tv.managerId = null;
           delete w.staff[s.id];
           if (w.floor) syncFloor(w, c);
@@ -152,7 +152,7 @@ export function applyEffects(w: World, c: Content, effects: EffectT[], p: Active
           break;
         }
         const s = makeStaff(w, c, { archetype: e.archetype, tier: e.tier, tavernId: t.id, stream: 'staff' });
-        log(w, 'news', `${s.name} joins ${t.name}.`, t.city);
+        log(w, 'news', `${staffLabel(s)} joins ${t.name}.`, t.city);
         if (w.floor?.tavernId === t.id) syncFloor(w, c);
         break;
       }

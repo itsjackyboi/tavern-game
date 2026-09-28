@@ -322,6 +322,32 @@
           "properties": {
             "type": {
               "type": "string",
+              "const": "hire"
+            },
+            "archetype": {
+              "type": "string"
+            },
+            "tier": {
+              "type": "string",
+              "enum": [
+                "green",
+                "seasoned",
+                "master"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "archetype",
+            "tier"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
               "const": "rivalCash"
             },
             "amount": {

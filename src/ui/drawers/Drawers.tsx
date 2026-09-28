@@ -613,7 +613,7 @@ function HelpDrawer() {
           <li><b>Click</b> an order bubble to pour and carry it yourself. Owner-served pours tip more.</li>
           <li><b>Click</b> a red <b>!</b> to break up a brawl, a <b>$</b> to catch a thief, a <b>★</b> to greet a VIP.</li>
           <li><b>Click</b> a tap to change its keg; <b>click</b> a messy table to clear it.</li>
-          <li>Right-click cancels your queue. At Last Call, ring the bell (B).</li>
+          <li>Right-click cancels your queue. At Last Call, ring the bell (B): it closes the doors at all your taverns, and everyone already inside gets one last drink.</li>
         </ul>
       </section>
       <section class="panel-block">

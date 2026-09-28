@@ -140,6 +140,13 @@ export function materializeFloor(w: World, c: Content, t: Tavern): FloorState {
       occ--;
     }
   }
+  // Last Call already rung (here or at another of your taverns): doors are shut, last orders only.
+  if (bellRung(w, c)) {
+    f.lastCallRung = true;
+    for (const p of f.patrons) p.drinksLeft = Math.min(p.drinksLeft, 1);
+    t.agg.queue = 0;
+    return f;
+  }
   if (doorsOpen && drinks.length) {
     // A few left dirty by the last lot, and a line at the door.
     const empty = f.tables.filter((tb) => !tb.seats[0] && !tb.seats[1]);
@@ -885,12 +892,14 @@ export function applyFloorCommand(w: World, c: Content, cmd: FloorCommand): void
       // Doors close: nobody new comes in, the queue goes home without hard feelings,
       // and everyone inside gets one last round, which carries on past the end of the shift.
       f.lastCallRung = true;
-      for (const p of f.patrons) {
-        if (p.state === 'waiting' || p.state === 'arriving') leave(w, c, f, t, p, false, true);
-        else p.drinksLeft = Math.min(p.drinksLeft, 1);
-      }
+      // The bell rings at all your taverns: the others close their doors too.
+      w.bellShift = shiftKey(cal);
+      lastOrders(w, c, f, t);
       fx(w, 'bell', 8, 3);
-      log(w, 'event', `Last Call at ${t.name}: doors closed, serving the last orders.`, t.city);
+      const others = Object.values(w.taverns).filter((x) => x.companyId === t.companyId && x.id !== t.id && x.status !== 'closed' && x.status !== 'building');
+      log(w, 'event', others.length
+        ? `Last Call at all your taverns: doors closed, serving the last orders.`
+        : `Last Call at ${t.name}: doors closed, serving the last orders.`, others.length ? null : t.city);
       return;
     }
   }
@@ -917,25 +926,28 @@ export function stepFloor(w: World, c: Content): void {
   f.patrons = f.patrons.filter((p) => p.state !== 'gone');
 }
 
+/** Doors closed: the line at the door goes home without hard feelings; everyone inside gets one last round. */
+function lastOrders(w: World, c: Content, f: FloorState, t: Tavern): void {
+  for (const p of f.patrons) {
+    if (p.state === 'waiting' || p.state === 'arriving') leave(w, c, f, t, p, false, true);
+    else p.drinksLeft = Math.min(p.drinksLeft, 1);
+  }
+}
+
+/** True when you've rung Last Call this shift (it closes the doors everywhere you own). */
+export function bellRung(w: World, c: Content): boolean {
+  return w.bellShift !== undefined && w.bellShift === shiftKey(calNow(w, c.time));
+}
+
 /** Patrons still inside and not on their way out. */
 export function patronsInside(f: FloorState): Patron[] {
   return f.patrons.filter((p) => p.state !== 'gone' && p.state !== 'leaving');
 }
 
-/** Not ringing Last Call leaves stragglers: a fine (double in Providence) past the first few. */
-function strayFine(w: World, c: Content, t: Tavern, inside: number): void {
-  if (inside <= 3) return;
-  const co = w.companies[t.companyId]!;
-  const mult = t.city === 'providence' ? 2 : 1;
-  const fine = Math.round(c.floor.lastCallStragglerFine * mult * (inside - 3));
-  spend(co, fine, 'other', 'Fines', `Stragglers after closing at ${t.name} (bell not rung)`);
-  if (t.city === 'providence' && co.isPlayer) w.institutions.church = clamp(w.institutions.church - 1, -100, 100);
-  fx(w, 'thud', DOOR.x, DOOR.y - 1, fine);
-}
-
 /**
- * Closing time with people still inside: the doors close as the bell would
- * (fining stragglers if it wasn't rung) and the calendar waits while they finish.
+ * Closing time with people still inside: the doors close as the bell would,
+ * and the calendar waits while they finish. Whoever was inside at closing may
+ * have one last drink; letting them is never a fine.
  */
 export function closeUp(w: World, c: Content): void {
   const f = w.floor;
@@ -943,14 +955,10 @@ export function closeUp(w: World, c: Content): void {
   const t = w.taverns[f.tavernId]!;
   f.closingSince = w.tick;
   if (!f.lastCallRung) {
-    strayFine(w, c, t, patronsInside(f).length);
     f.lastCallRung = true;
     fx(w, 'bell', 8, 3);
   }
-  for (const p of f.patrons) {
-    if (p.state === 'waiting' || p.state === 'arriving') leave(w, c, f, t, p, false, true);
-    else p.drinksLeft = Math.min(p.drinksLeft, 1);
-  }
+  lastOrders(w, c, f, t);
   log(w, 'event', `Closing up at ${t.name}: the last patrons are finishing.`, t.city);
 }
 
@@ -961,7 +969,6 @@ export function closeUp(w: World, c: Content): void {
 function settleShift(w: World, c: Content, f: FloorState, t: Tavern): void {
   const inside = patronsInside(f);
   const rung = f.lastCallRung;
-  if (!rung) strayFine(w, c, t, inside.length);
   for (const inc of [...f.incidents]) failBrawl(w, c, f, t, inc);
   if (rung) {
     for (const p of inside) {

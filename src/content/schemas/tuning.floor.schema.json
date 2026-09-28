@@ -74,10 +74,6 @@
       "type": "number",
       "minimum": 0,
       "maximum": 1
-    },
-    "lastCallStragglerFine": {
-      "type": "number",
-      "minimum": 0
     }
   },
   "required": [
@@ -95,8 +91,7 @@
     "ownerQueueMax",
     "ownersTouch",
     "delegationEff",
-    "tapLowFraction",
-    "lastCallStragglerFine"
+    "tapLowFraction"
   ],
   "additionalProperties": false
 }

@@ -258,6 +258,14 @@ export function staffAt(w: World, tavernId: string) {
   return Object.values(w.staff).filter((s) => s.tavernId === tavernId && s.role !== 'manage');
 }
 
+const STAFF_ICON: Record<string, string> = { bar: '🍺', floor: '🏃', door: '✊', cellar: '🛢', stage: '♪', intel: '👁', kitchen: '🍲', manage: '✎' };
+const STAFF_TIER: Record<string, string> = { green: 'Green', seasoned: 'Seasoned', master: 'Master' };
+
+/** How staff are named in the feed: job icon, skill level, then name (e.g. "🍺 Seasoned Orrin Vale"). */
+export function staffLabel(s: { role: string; tier: string; name: string }): string {
+  return `${STAFF_ICON[s.role] ?? '•'} ${STAFF_TIER[s.tier] ?? s.tier} ${s.name}`;
+}
+
 /** Roles that work out of sight: they never appear as workers on the floor. */
 export const BACKGROUND_ROLES = new Set(['intel', 'kitchen']);
 
